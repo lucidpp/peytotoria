@@ -3,724 +3,785 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Peytotoria - A 2D world of games, trading, and fun. Coming 2026.">
-    <title>Peytotoria</title>
-    <link rel="icon" href="SiteIcon.png" type="image/png">
+    <title>PeytoTopia | The Future of Podcasting</title>
+    <meta name="description" content="PeytoTopia is the ultimate destination for podcast lovers. Stream millions of episodes, follow your favorites, and discover new stories.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
                     colors: {
-                        glass: "rgba(255, 255, 255, 0.1)",
-                        glassBorder: "rgba(255, 255, 255, 0.2)",
-                        peytoRed: "#e11d48",
-                        peytoDark: "#0f0505",
-                    },
-                    boxShadow: {
-                        'block': '4px 4px 0px 0px rgba(0,0,0,0.3)',
-                        'block-sm': '2px 2px 0px 0px rgba(0,0,0,0.3)',
-                    },
-                    keyframes: {
-                        'bounce-slight': { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-5px)' } },
-                        'leg-walk': { '0%, 100%': { transform: 'rotate(-30deg)' }, '50%': { transform: 'rotate(30deg)' } },
-                        'arm-walk': { '0%, 100%': { transform: 'rotate(30deg)' }, '50%': { transform: 'rotate(-30deg)' } }
-                    },
-                    animation: {
-                        'bounce-slight': 'bounce-slight 2s infinite',
+                        primary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316', // Main Orange
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        },
+                        dark: {
+                            bg: '#121212',
+                            surface: '#1e1e1e',
+                            highlight: '#2d2d2d'
+                        }
                     }
                 }
             }
         }
     </script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Fredoka:wght@300;400;500;600;700&display=swap');
-
-        body {
-            font-family: 'Fredoka', sans-serif;
-            overflow: hidden;
-            background-color: #0f0505;
-            color: #ffffff;
-            user-select: none;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-
-        /* --- UTILITIES --- */
-        .glass-panel {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
-        
-        /* Blocky UI Overrides */
-        .block-btn {
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
             border-radius: 4px;
-            border-bottom: 4px solid rgba(0,0,0,0.4);
-            transition: all 0.1s;
         }
-        .block-btn:active {
-            border-bottom-width: 0px;
-            transform: translateY(4px);
+        .dark ::-webkit-scrollbar-thumb {
+            background: #4b5563;
         }
-        .sidebar-active {
-            background: rgba(225, 29, 72, 0.2);
-            border-left: 6px solid #e11d48;
-            color: #fff;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
 
-        /* --- SCENE BACKGROUNDS --- */
-        #view-landing .scene-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: linear-gradient(to bottom, #4a0404 0%, #9f1239 50%, #e11d48 100%); }
-        .sun { position: absolute; top: 10%; right: 15%; width: 80px; height: 80px; background: #fbbf24; border-radius: 4px; box-shadow: 0 0 60px #fbbf24; opacity: 0.9; }
-        .city-layer { position: absolute; bottom: 15%; left: 0; width: 100%; height: 30%; display: flex; align-items: flex-end; justify-content: flex-end; padding-right: 5%; z-index: 1; opacity: 0.8; }
-        .building { background: #2f0812; width: 40px; margin-right: 2px; } .b-1 { height: 100px; width: 30px; } .b-2 { height: 160px; width: 50px; } .b-4 { height: 200px; width: 40px; }
-        .grass-layer { position: absolute; bottom: 0; left: 0; width: 100%; height: 15%; background: #064e3b; border-top: 8px solid #059669; z-index: 2; }
-
-        /* --- CHARACTER --- */
-        .lego-char { width: 40px; height: 70px; position: absolute; z-index: 100; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); pointer-events: none; }
-        .lego-head { width: 24px; height: 20px; background: #fbbf24; border-radius: 2px; margin: 0 auto; position: relative; border: 2px solid rgba(0,0,0,0.2); }
-        .lego-head::before { content: ''; position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 10px; height: 4px; background: inherit; border: 2px solid rgba(0,0,0,0.2); border-bottom: none; }
-        .lego-face { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 14px; display: flex; justify-content: space-between; }
-        .eye { width: 3px; height: 3px; background: black; }
-        .mouth { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 8px; height: 2px; background: black; }
-        .lego-torso { width: 32px; height: 28px; background: #e11d48; margin: 0 auto; position: relative; border: 2px solid rgba(0,0,0,0.2); z-index: 1; }
-        .lego-logo-print { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(0,0,0,0.3); font-size: 8px; font-weight: bold; }
-        .lego-arms { position: absolute; top: 2px; width: 100%; display: flex; justify-content: space-between; padding: 0 -6px; }
-        .arm { width: 8px; height: 20px; background: inherit; border: 2px solid rgba(0,0,0,0.2); border-radius: 2px; transform-origin: top center; transition: transform 0.1s; }
-        .lego-hand { width: 8px; height: 8px; background: #fbbf24; border: 2px solid rgba(0,0,0,0.2); border-radius: 2px; margin-top: -2px; }
-        .lego-legs { width: 32px; height: 22px; margin: 0 auto; display: flex; position: relative; }
-        .leg { width: 50%; height: 100%; border: 2px solid rgba(0,0,0,0.2); background: #3b82f6; transform-origin: top center; transition: transform 0.1s; }
-        
         /* Animations */
-        .walking .leg:first-child { animation: leg-walk 0.3s infinite alternate; }
-        .walking .leg:last-child { animation: leg-walk 0.3s infinite alternate-reverse; }
-        .walking .arm:first-child { animation: arm-walk 0.3s infinite alternate; }
-        .walking .arm:last-child { animation: arm-walk 0.3s infinite alternate-reverse; }
-        .jumping .leg { transform: rotate(-45deg); }
-        .jumping .arm { transform: rotate(-140deg); }
-
-        /* --- LAYOUT --- */
-        .app-shell { display: flex; height: 100vh; width: 100vw; background: radial-gradient(circle at 10% 20%, rgb(69, 10, 10) 0%, rgb(27, 2, 2) 90%); }
-        .sidebar { width: 260px; display: flex; flex-direction: column; padding: 20px; z-index: 40; }
-        .main-content { flex: 1; overflow-y: auto; padding: 20px; position: relative; }
-        .mobile-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #0f0505; display: none; justify-content: space-around; padding: 15px 10px; z-index: 50; border-top: 2px solid #333; }
-        @media (max-width: 768px) { .sidebar { display: none; } .mobile-nav { display: flex; } .main-content { padding-bottom: 90px; } }
-
-        /* --- GAME UI ELEMENTS --- */
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
-        .cover { height: 160px; width: 100%; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 4rem; text-shadow: 4px 4px 0 rgba(0,0,0,0.5); }
-        .cover-halloween { background: linear-gradient(to bottom, #31004a, #1a0014); }
-        .cover-bricktown { background: linear-gradient(to top, #0ea5e9, #bae6fd); }
-        .cover-peytotopia { background: linear-gradient(to top, #10b981, #d1fae5); }
-        .cover-generic { background: linear-gradient(45deg, #4b5563, #1f2937); }
-
-        /* --- LOADING SCREEN --- */
-        #loading-screen { position: absolute; inset: 0; background: #0f0505; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .loading-bar-container { width: 300px; height: 20px; background: #333; border: 2px solid #555; border-radius: 4px; margin-top: 20px; overflow: hidden; }
-        .loading-bar-fill { height: 100%; background: #e11d48; width: 0%; transition: width 0.1s; }
-
-        /* --- ACTIVE GAME CONTAINER --- */
-        #active-game-container { position: absolute; inset: 0; background: #000; z-index: 100; overflow: hidden; }
-        #game-view { position: absolute; width: 100%; height: 100%; overflow: hidden; }
-        #game-world { position: absolute; top: 0; left: 0; height: 100%; width: 5000px; }
-        .game-bg { position: absolute; width: 100%; height: 100%; z-index: -1; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up {
+            animation: fadeUp 0.4s ease-out forwards;
+        }
         
-        .platform { position: absolute; background: #333; border: 2px solid #000; box-shadow: 4px 4px 0 rgba(0,0,0,0.3); }
-        .pumpkin { position: absolute; font-size: 2rem; filter: drop-shadow(0 0 5px orange); animation: bounce-slight 2s infinite; }
-        .npc { position: absolute; width: 40px; height: 70px; }
-        .door { position: absolute; width: 50px; height: 80px; background: #4a2c0f; border: 2px solid #2a1805; border-radius: 4px 4px 0 0; display: flex; justify-content: center; align-items: flex-end; }
-        .door::after { content: ''; width: 8px; height: 8px; background: #ffd700; border-radius: 50%; position: absolute; right: 8px; top: 40px; }
+        /* Audio Player Slider */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #f97316;
+            margin-top: -4px; 
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #fed7aa;
+            border-radius: 2px;
+        }
+        .dark input[type=range]::-webkit-slider-runnable-track {
+            background: #4b5563;
+        }
 
-        /* Chat/UI Overlay */
-        .chat-box { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; background: rgba(0,0,0,0.8); border: 2px solid white; color: white; padding: 10px; font-family: 'VT323', monospace; font-size: 1.5rem; display: none; z-index: 150; }
-        .chat-options { display: flex; gap: 10px; margin-top: 10px; }
-        .chat-btn { background: #333; border: 1px solid white; color: white; padding: 5px 15px; cursor: pointer; }
-        .chat-btn:hover { background: #555; }
-
-        .hidden { display: none !important; }
+        /* Fullscreen Transition */
+        .fs-player {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .hide-scroll {
+            overflow: hidden;
+        }
     </style>
 </head>
-<body>
+<body class="bg-primary-50 text-gray-800 font-sans transition-colors duration-300 antialiased overflow-hidden h-screen flex flex-col">
 
-    <!-- ================= VIEW: LANDING ================= -->
-    <div id="view-landing" class="relative w-full h-full">
-        <div class="scene-container">
-            <div class="sun"></div>
-            <div class="city-layer"><div class="building b-2"></div><div class="building b-5"></div><div class="building b-1"></div></div>
-            <div class="grass-layer"></div>
-        </div>
-        <div class="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center">
-            <h1 class="text-6xl md:text-8xl font-black text-rose-500 drop-shadow-2xl mb-2 tracking-tight" style="font-family: 'VT323', monospace;">PEYTOTORIA</h1>
-            <div class="glass-panel px-6 py-2 rounded-sm mb-8"><span class="font-bold text-gray-200">Estimated Starters: <span class="text-rose-400">1,000+</span></span></div>
-            <button onclick="router.navigateTo('auth')" class="bg-rose-600 hover:bg-rose-500 text-white text-xl font-bold py-4 px-12 block-btn shadow-block">Play (BETA)</button>
-        </div>
-    </div>
-
-    <!-- ================= VIEW: AUTH ================= -->
-    <div id="view-auth" class="hidden w-full h-full bg-black flex items-center justify-center p-4 relative">
-        <div class="absolute inset-0 bg-gradient-to-br from-rose-900/30 to-black"></div>
-        <div class="glass-panel p-8 rounded-sm max-w-md w-full relative z-10 text-center border-4 border-rose-900">
-            <h2 class="text-3xl font-bold text-white mb-2 font-mono">IDENTIFY YOURSELF</h2>
-            <input type="text" id="auth-username" class="w-full p-3 bg-black border-2 border-white/20 rounded-sm text-white mb-4 mt-6 font-mono" placeholder="USERNAME">
-            <input type="file" id="auth-pfp" class="w-full text-sm text-gray-500 mb-4"/>
-            <button onclick="handleAuth()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-sm block-btn shadow-block">ENTER WORLD</button>
-        </div>
-    </div>
-
-    <!-- ================= VIEW: APP ================= -->
-    <div id="view-app" class="hidden app-shell relative">
-        <!-- Sidebar -->
-        <aside class="sidebar glass-panel m-4 rounded-sm border-2 border-white/10 bg-black/50">
-            <div class="flex items-center gap-3 mb-8 px-2 border-b-2 border-white/10 pb-4">
-                <div class="w-10 h-10 bg-rose-600 rounded-sm flex items-center justify-center border-2 border-white/20"><span class="font-bold text-white">P</span></div>
-                <span class="text-xl font-bold tracking-wide font-mono">PEYTOTORIA</span>
+    <!-- Desktop Sidebar -->
+    <div class="flex flex-1 overflow-hidden">
+        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-white dark:bg-dark-surface border-r border-gray-200 dark:border-gray-800 transition-colors duration-300 z-20">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-primary-600 tracking-tight flex items-center gap-2">
+                    <img src="siteicon.png" alt="Logo" class="w-8 h-8 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/f97316/ffffff?text=P';">
+                    PeytoTopia
+                </h1>
             </div>
-            <nav class="flex-1 space-y-2">
-                <button onclick="router.switchTab('home')" class="nav-btn w-full text-left px-4 py-3 rounded-sm hover:bg-white/5 text-gray-300 font-bold block-btn">🏠 HOME</button>
-                <button onclick="router.switchTab('games')" class="nav-btn w-full text-left px-4 py-3 rounded-sm hover:bg-white/5 text-gray-300 font-bold block-btn">🎮 GAMES</button>
-                <button onclick="router.switchTab('marketplace')" class="nav-btn w-full text-left px-4 py-3 rounded-sm hover:bg-white/5 text-gray-300 font-bold block-btn">🛒 SHOP</button>
-                <button onclick="router.switchTab('profile')" class="nav-btn w-full text-left px-4 py-3 rounded-sm hover:bg-white/5 text-gray-300 font-bold block-btn">👤 PROFILE</button>
+
+            <nav class="flex-1 px-4 space-y-2">
+                <a href="#" onclick="app.navigate('home')" class="nav-item active flex items-center gap-4 px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-dark-highlight hover:text-primary-600 rounded-xl transition-all font-medium">
+                    <i class="fa-solid fa-house text-lg w-6"></i> Home
+                </a>
+                <a href="#" onclick="app.navigate('search')" class="nav-item flex items-center gap-4 px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-dark-highlight hover:text-primary-600 rounded-xl transition-all font-medium">
+                    <i class="fa-solid fa-magnifying-glass text-lg w-6"></i> Search
+                </a>
+                <a href="#" onclick="app.navigate('library')" class="nav-item flex items-center gap-4 px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-dark-highlight hover:text-primary-600 rounded-xl transition-all font-medium">
+                    <i class="fa-solid fa-heart text-lg w-6"></i> Following
+                </a>
             </nav>
-            <div class="mt-auto border-t-2 border-white/10 pt-4 flex items-center gap-3">
-                <img id="sidebar-pfp" class="w-10 h-10 rounded-sm bg-gray-700 object-cover border-2 border-white/20" src="">
-                <div><p id="sidebar-username" class="text-sm font-bold text-gray-200 font-mono">USER</p><p class="text-xs text-green-400">● ONLINE</p></div>
+
+            <div class="p-4 border-t border-gray-100 dark:border-gray-700">
+                <button onclick="app.toggleTheme()" class="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary-600 transition-colors">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block"></i>
+                    <span class="dark:hidden">Dark Mode</span>
+                    <span class="hidden dark:block">Light Mode</span>
+                </button>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content">
-            <header class="flex justify-between items-center mb-8 sticky top-0 z-30 py-2">
-                <div class="glass-panel px-4 py-2 rounded-sm border-2 border-white/10"><h2 id="page-title" class="text-xl font-bold text-white font-mono">HOME</h2></div>
-                <div class="flex gap-4">
-                    <div class="glass-panel px-4 py-2 rounded-sm flex items-center gap-2 border-rose-500/30">💎 <span id="currency-bucks" class="font-bold text-rose-300 font-mono">0</span></div>
-                    <div class="glass-panel px-4 py-2 rounded-sm flex items-center gap-2 border-orange-500/30">🧱 <span id="currency-coins" class="font-bold text-rose-200 font-mono">0</span></div>
-                </div>
+        <main class="flex-1 relative overflow-y-auto bg-primary-50 dark:bg-dark-bg transition-colors duration-300" id="main-scroll">
+            
+            <!-- Mobile Header -->
+            <header class="md:hidden sticky top-0 z-30 bg-white/90 dark:bg-dark-surface/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-primary-600 flex items-center gap-2">
+                   <img src="siteicon.png" alt="Logo" class="w-8 h-8 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/f97316/ffffff?text=P';">
+                   PeytoTopia
+                </h1>
+                <button onclick="app.toggleTheme()" class="p-2 text-gray-600 dark:text-gray-300">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block"></i>
+                </button>
             </header>
 
-            <!-- TAB: HOME -->
-            <div id="tab-home" class="tab-content">
-                <div class="glass-panel rounded-sm p-6 mb-8 relative overflow-hidden group border-2 border-white/10">
-                    <h3 class="text-2xl font-bold mb-2 text-white font-mono">LOBBY <span class="text-xs bg-rose-600 px-2 py-1 rounded-sm text-white ml-2">BETA</span></h3>
-                    <div id="playground" class="relative w-full h-[300px] bg-[#0f172a] rounded-sm overflow-hidden border-2 border-white/10 shadow-inner">
-                        <div class="absolute inset-0" style="background-image: radial-gradient(rgba(255,255,255,0.1) 2px, transparent 2px); background-size: 30px 30px;"></div>
-                        <div id="player-char-lobby" class="lego-char" style="top: 50%; left: 50%;">
-                            <div class="lego-head"><div class="lego-face"><div class="eye"></div><div class="eye"></div><div class="mouth"></div></div></div>
-                            <div class="lego-torso"><div class="lego-arms"><div class="arm"><div class="lego-hand"></div></div><div class="arm"><div class="lego-hand"></div></div></div><div class="lego-logo-print">P</div></div>
-                            <div class="lego-legs"><div class="leg"></div><div class="leg"></div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: GAMES -->
-            <div id="tab-games" class="tab-content hidden">
-                <div class="game-grid" id="games-list"></div>
-            </div>
-
-            <!-- TAB: GAME DETAILS -->
-            <div id="tab-game-details" class="tab-content hidden">
-                <button onclick="router.switchTab('games')" class="text-sm text-gray-400 mb-4 hover:text-rose-500 font-bold font-mono">← BACK</button>
-                <div class="glass-panel rounded-sm overflow-hidden relative p-8 border-2 border-white/10">
-                    <h1 id="game-title-display" class="text-4xl font-black text-white mb-2 font-mono">TITLE</h1>
-                    <p id="game-stats-display" class="text-rose-400 font-mono mb-4">STATS</p>
-                    <button id="play-btn" class="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-sm font-bold mt-4 block-btn shadow-block">PLAY NOW</button>
-                </div>
-            </div>
-
-            <!-- TAB: MARKETPLACE -->
-            <div id="tab-marketplace" class="tab-content hidden">
-                <h3 class="text-2xl font-bold mb-6 font-mono">MARKETPLACE</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="marketplace-grid"></div>
-            </div>
-
-            <!-- TAB: PROFILE -->
-            <div id="tab-profile" class="tab-content hidden">
-                <div class="glass-panel rounded-sm p-8 flex flex-col items-center border-2 border-white/10">
-                    <h3 class="text-2xl font-bold mb-4 font-mono">CUSTOMIZER</h3>
-                    <div class="flex items-center gap-8">
-                        <div class="flex flex-col gap-4">
-                            <button onclick="avatar.cycle('head', -1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">◀ HEAD</button>
-                            <button onclick="avatar.cycle('shirt', -1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">◀ SHIRT</button>
-                            <button onclick="avatar.cycle('pants', -1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">◀ PANTS</button>
-                        </div>
-                        <div class="relative w-40 h-64 bg-white/5 rounded-sm flex items-center justify-center border-2 border-white/10">
-                            <div id="preview-char" class="lego-char" style="transform: scale(2.5); position: relative;">
-                                <div class="lego-head"><div class="lego-face"><div class="eye"></div><div class="eye"></div><div class="mouth"></div></div></div>
-                                <div class="lego-torso"><div class="lego-arms"><div class="arm"><div class="lego-hand"></div></div><div class="arm"><div class="lego-hand"></div></div></div><div class="lego-logo-print">P</div></div>
-                                <div class="lego-legs"><div class="leg"></div><div class="leg"></div></div>
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-4">
-                            <button onclick="avatar.cycle('head', 1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">HEAD ▶</button>
-                            <button onclick="avatar.cycle('shirt', 1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">SHIRT ▶</button>
-                            <button onclick="avatar.cycle('pants', 1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">PANTS ▶</button>
-                        </div>
-                    </div>
-                </div>
+            <!-- Views -->
+            <div id="view-container" class="p-6 md:p-8 pb-32 max-w-7xl mx-auto">
+                <!-- Content injected by JS -->
             </div>
         </main>
-        <nav class="mobile-nav">
-            <button onclick="router.switchTab('home')" class="text-2xl text-white">🏠</button>
-            <button onclick="router.switchTab('games')" class="text-2xl text-white">🎮</button>
-            <button onclick="router.switchTab('marketplace')" class="text-2xl text-white">🛒</button>
-            <button onclick="router.switchTab('profile')" class="text-2xl text-white">👤</button>
-        </nav>
     </div>
 
-    <!-- ================= LOADING SCREEN ================= -->
-    <div id="loading-screen" class="hidden">
-        <h2 class="text-4xl font-mono font-bold text-white mb-4">LOADING WORLD...</h2>
-        <div class="loading-bar-container"><div id="loading-bar" class="loading-bar-fill"></div></div>
-        <p class="text-gray-500 mt-2 font-mono" id="loading-text">Initializing Physics...</p>
-    </div>
-
-    <!-- ================= ACTIVE GAME CONTAINER ================= -->
-    <div id="active-game-container" class="hidden">
+    <!-- Persistent Player Bar -->
+    <div id="player-bar" class="h-24 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-gray-800 px-4 md:px-8 flex items-center justify-between z-40 transition-colors duration-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         
-        <!-- Game World -->
-        <div id="game-view">
-            <div id="game-world">
-                <!-- Dynamic BG and Platforms -->
+        <!-- Track Info -->
+        <div class="flex items-center gap-4 w-1/3 min-w-0" onclick="app.toggleFullscreen()" style="cursor: pointer;">
+            <img id="player-img" src="https://placehold.co/600x600/f97316/ffffff?text=Peyto" alt="Album Art" class="w-14 h-14 rounded-lg object-cover shadow-sm">
+            <div class="min-w-0">
+                <h4 id="player-title" class="font-semibold text-gray-900 dark:text-white truncate">Select a Podcast</h4>
+                <p id="player-show" class="text-xs text-gray-500 dark:text-gray-400 truncate">No Episode Playing</p>
             </div>
-            <!-- Player Entity -->
-            <div id="game-player" class="lego-char" style="left:100px; bottom:200px;">
-                <div class="lego-head"><div class="lego-face"><div class="eye"></div><div class="eye"></div><div class="mouth"></div></div></div>
-                <div class="lego-torso"><div class="lego-arms"><div class="arm"></div><div class="arm"></div></div><div class="lego-logo-print">P</div></div>
-                <div class="lego-legs"><div class="leg"></div><div class="leg"></div></div>
+             <button class="ml-2 text-gray-400 hover:text-primary-500 md:hidden">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex flex-col items-center w-1/3">
+            <div class="flex items-center gap-6 mb-1">
+                <button class="text-gray-400 hover:text-primary-600 transition-colors"><i class="fa-solid fa-backward-15"></i></button>
+                <button id="play-btn" onclick="app.togglePlay()" class="w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center hover:bg-primary-600 shadow-md hover:scale-105 transition-all">
+                    <i class="fa-solid fa-play ml-1"></i>
+                </button>
+                <button class="text-gray-400 hover:text-primary-600 transition-colors"><i class="fa-solid fa-forward-15"></i></button>
+            </div>
+            <div class="w-full max-w-md flex items-center gap-3 text-xs text-gray-500 font-mono">
+                <span id="current-time">0:00</span>
+                <input type="range" id="seek-slider" min="0" max="100" value="0" class="flex-1 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                <span id="duration">0:00</span>
             </div>
         </div>
 
-        <!-- In-Game UI -->
-        <div id="in-game-ui" class="flex flex-col justify-between p-4 h-full pointer-events-none">
-            <div class="flex justify-between items-start pointer-events-auto">
-                <button onclick="engine.stop()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-sm border-b-4 border-red-800 shadow-lg active:border-b-0 active:translate-y-1 transition-all">LEAVE GAME</button>
-                <div class="flex gap-2">
-                    <div id="pumpkin-counter" class="hidden flex gap-2">
-                         <div class="bg-orange-600 text-white px-4 py-2 rounded-sm border-2 border-orange-800 font-bold">🎃 <span id="p-count">0</span></div>
-                         <button onclick="engine.sellPumpkins()" class="bg-green-600 text-white px-4 py-2 rounded-sm border-b-4 border-green-800 font-bold active:border-b-0 active:translate-y-1">SELL ALL</button>
-                    </div>
-                </div>
+        <!-- Volume/Extras -->
+        <div class="w-1/3 flex justify-end items-center gap-4">
+            <button onclick="app.toggleFullscreen()" class="hidden md:block text-gray-500 hover:text-primary-600 transition-colors" title="Fullscreen">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Nav -->
+    <div class="md:hidden bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-gray-800 flex justify-around items-center h-16 z-50">
+        <button onclick="app.navigate('home')" class="mobile-nav-item active flex flex-col items-center gap-1 p-2 text-gray-400 hover:text-primary-600">
+            <i class="fa-solid fa-house text-xl"></i>
+            <span class="text-[10px]">Home</span>
+        </button>
+        <button onclick="app.navigate('search')" class="mobile-nav-item flex flex-col items-center gap-1 p-2 text-gray-400 hover:text-primary-600">
+            <i class="fa-solid fa-magnifying-glass text-xl"></i>
+            <span class="text-[10px]">Search</span>
+        </button>
+        <button onclick="app.navigate('library')" class="mobile-nav-item flex flex-col items-center gap-1 p-2 text-gray-400 hover:text-primary-600">
+            <i class="fa-solid fa-heart text-xl"></i>
+            <span class="text-[10px]">Saved</span>
+        </button>
+    </div>
+
+    <!-- Fullscreen Player Overlay -->
+    <div id="fs-player" class="fixed inset-0 bg-white dark:bg-dark-bg z-[60] transform translate-y-full fs-player flex flex-col">
+        <div class="p-6 flex justify-between items-center">
+            <button onclick="app.toggleFullscreen()" class="text-2xl text-gray-600 dark:text-white hover:text-primary-600">
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <h3 class="text-sm font-semibold uppercase tracking-widest text-gray-500">Now Playing</h3>
+            <button class="text-2xl text-gray-600 dark:text-white hover:text-primary-600">
+                <i class="fa-solid fa-ellipsis"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <div class="w-full max-w-sm aspect-square bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-2xl mb-8 overflow-hidden">
+                <img id="fs-img" src="" class="w-full h-full object-cover">
             </div>
             
-            <!-- BrickTown Tools -->
-            <div id="bricktown-ui" class="hidden pointer-events-auto self-center bg-black/80 p-2 rounded-sm border-2 border-white/20 flex gap-2">
-                <button onclick="engine.setTool('place')" class="bg-blue-600 text-white px-4 py-2 rounded-sm font-bold border-b-4 border-blue-800 active:border-b-0 active:translate-y-1">🛠️ PLACE</button>
-                <button onclick="engine.setTool('destroy')" class="bg-red-600 text-white px-4 py-2 rounded-sm font-bold border-b-4 border-red-800 active:border-b-0 active:translate-y-1">🧨 DESTROY</button>
-                 <button onclick="engine.togglePhysics()" class="bg-yellow-600 text-white px-4 py-2 rounded-sm font-bold border-b-4 border-yellow-800 active:border-b-0 active:translate-y-1">🏃 SPAWN/PLAY</button>
-            </div>
+            <div class="w-full max-w-md">
+                <h2 id="fs-title" class="text-3xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">Podcast Title</h2>
+                <p id="fs-show" class="text-lg text-primary-600 font-medium mb-8">Show Name</p>
+                
+                <div class="w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full mb-2 relative group cursor-pointer">
+                    <div id="fs-progress" class="absolute left-0 top-0 h-full bg-primary-500 rounded-full w-0"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 font-mono mb-8">
+                    <span id="fs-current-time">0:00</span>
+                    <span id="fs-duration">0:00</span>
+                </div>
 
-            <!-- Interaction Prompt -->
-            <div id="interaction-prompt" class="hidden pointer-events-none absolute bottom-32 left-1/2 transform -translate-x-1/2 bg-white text-black font-bold px-4 py-2 rounded-sm border-2 border-black animate-bounce">
-                PRESS [E]
-            </div>
-
-            <!-- Chat Box -->
-            <div id="chat-box" class="chat-box pointer-events-auto">
-                <div id="chat-text">Hello citizen!</div>
-                <div class="chat-options">
-                    <button class="chat-btn" onclick="engine.handleChat('job')">Ask for Job</button>
-                    <button class="chat-btn" onclick="engine.handleChat('shop')">Shop</button>
-                    <button class="chat-btn" onclick="document.getElementById('chat-box').style.display='none'">Close</button>
+                <div class="flex items-center justify-center gap-10">
+                    <button class="text-3xl text-gray-400 hover:text-primary-600"><i class="fa-solid fa-backward-15"></i></button>
+                    <button onclick="app.togglePlay()" id="fs-play-btn" class="w-20 h-20 rounded-full bg-primary-500 text-white text-3xl flex items-center justify-center shadow-xl hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-play ml-2"></i>
+                    </button>
+                    <button class="text-3xl text-gray-400 hover:text-primary-600"><i class="fa-solid fa-forward-15"></i></button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Hidden Audio Element -->
+    <audio id="audio-element"></audio>
+
+    <!-- JavaScript Application Logic -->
     <script>
-        // --- DATA LAYER ---
+        // --- Configuration & Secrets ---
+        const CLIENT_ID = '24d71c5bae0e407a98cd3cff0ccb33ff'; 
+        const CLIENT_SECRET = '15e5882a39f049edaec7de7bbc62f407';
+        
+        // --- Persistence Logic ---
         const db = {
-            user: JSON.parse(localStorage.getItem('peytotoria_user')) || { username: null, pfp: null, avatar: { head: 0, shirt: 0, pants: 0 } },
-            games: [
-                { id: 'halloween', title: 'Halloween Lantern Town', icon: '🎃', bg: 'cover-halloween', visits: '3.4K', type: 'collection' },
-                { id: 'bricktown', title: 'BrickTown', icon: '🧱', bg: 'cover-bricktown', visits: '102K', type: 'sandbox' },
-                { id: 'peytotopia', title: 'PeytoTopia RP', icon: '🏙️', bg: 'cover-peytotopia', visits: '1.1M', type: 'rp' },
-                // 10 New Concepts
-                { id: 'space', title: 'Moon Base Alpha', icon: '🚀', bg: 'cover-generic', visits: '500', type: 'platformer', theme: '#000' },
-                { id: 'medieval', title: 'Knights Quest', icon: '⚔️', bg: 'cover-generic', visits: '1.2K', type: 'platformer', theme: '#555' },
-                { id: 'pirate', title: 'Seven Seas', icon: '🏴‍☠️', bg: 'cover-generic', visits: '800', type: 'platformer', theme: '#0099cc' },
-                { id: 'dino', title: 'Dino Park', icon: '🦖', bg: 'cover-generic', visits: '2K', type: 'platformer', theme: '#228b22' },
-                { id: 'ninja', title: 'Shadow Dojo', icon: '🥷', bg: 'cover-generic', visits: '3K', type: 'platformer', theme: '#333' },
-                { id: 'cyber', title: 'Neon City', icon: '🤖', bg: 'cover-generic', visits: '5K', type: 'platformer', theme: '#ff00ff' },
-                { id: 'candy', title: 'Sugar Rush', icon: '🍭', bg: 'cover-generic', visits: '10K', type: 'platformer', theme: '#ff69b4' },
-                { id: 'western', title: 'Dusty Gulch', icon: '🤠', bg: 'cover-generic', visits: '1K', type: 'platformer', theme: '#d2691e' },
-                { id: 'arctic', title: 'Frost Peak', icon: '❄️', bg: 'cover-generic', visits: '900', type: 'platformer', theme: '#e0ffff' },
-                { id: 'lava', title: 'Magma Core', icon: '🌋', bg: 'cover-generic', visits: '4K', type: 'platformer', theme: '#ff4500' }
-            ],
-            currencies: { bucks: 100, coins: 50 },
-            assets: {
-                heads: ['#fbbf24', '#fca5a5', '#d4d4d4', '#a3e635', '#60a5fa'],
-                shirts: ['#e11d48', '#2563eb', '#16a34a', '#ca8a04', '#9333ea', '#111'],
-                pants: ['#3b82f6', '#1e293b', '#92400e', '#15803d', '#4c1d95', '#333']
-            }
-        };
+            getStats: (id, type = 'show') => {
+                const key = `peyto_stats_${id}`;
+                let stats = localStorage.getItem(key);
+                if (!stats) {
+                    // Logic Adjustment:
+                    // Only 15% of podcasts are "Super Popular" (Millions)
+                    // The rest are "Normal/Indie" (Hundreds to Thousands)
+                    const isSuperPopular = Math.random() > 0.85; 
+                    
+                    let listeners, plays;
 
-        // --- GAME ENGINE ---
-        const engine = {
-            running: false,
-            gameId: null,
-            player: { x: 100, y: 300, vx: 0, vy: 0, grounded: false, facingRight: true },
-            cameraX: 0,
-            keys: { left: false, right: false, up: false, interact: false },
-            entities: [], 
-            platforms: [],
-            tool: 'place',
-            paused: false,
-
-            launch: (id) => {
-                document.getElementById('view-app').classList.add('hidden');
-                document.getElementById('loading-screen').classList.remove('hidden');
-                let p = 0;
-                const bar = document.getElementById('loading-bar');
-                const interval = setInterval(() => {
-                    p += 5;
-                    bar.style.width = p + '%';
-                    if(p >= 100) {
-                        clearInterval(interval);
-                        setTimeout(() => engine.start(id), 500);
-                    }
-                }, 50);
-            },
-
-            start: (id) => {
-                document.getElementById('loading-screen').classList.add('hidden');
-                document.getElementById('active-game-container').classList.remove('hidden');
-                engine.running = true;
-                engine.gameId = id;
-                engine.buildWorld(id);
-                engine.loop();
-            },
-
-            stop: () => {
-                engine.running = false;
-                document.getElementById('active-game-container').classList.add('hidden');
-                document.getElementById('view-app').classList.remove('hidden');
-                router.switchTab('games');
-            },
-
-            buildWorld: (id) => {
-                const world = document.getElementById('game-world');
-                world.innerHTML = '<div class="game-bg"></div>'; 
-                const bg = world.querySelector('.game-bg');
-                
-                engine.player = { x: 100, y: 300, vx: 0, vy: 0, grounded: false, facingRight: true };
-                engine.entities = [];
-                engine.platforms = [];
-                engine.cameraX = 0;
-                
-                document.getElementById('pumpkin-counter').classList.add('hidden');
-                document.getElementById('bricktown-ui').classList.add('hidden');
-                document.getElementById('chat-box').style.display = 'none';
-
-                if (id === 'halloween') {
-                    bg.style.background = 'linear-gradient(to bottom, #1e1b4b, #ea580c)';
-                    document.getElementById('pumpkin-counter').classList.remove('hidden');
-                    engine.addPlatform(0, 0, 5000, 50, '#2a1a08');
-                    for(let i=0; i<20; i++) {
-                        const px = 300 + i*400;
-                        const py = 100 + Math.random()*200;
-                        engine.addPlatform(px, py, 150, 40, '#2a1a08');
-                        engine.addEntity('pumpkin', px + 50, py + 50, '🎃');
-                    }
-                } 
-                else if (id === 'bricktown') {
-                    bg.style.background = 'linear-gradient(to top, #0ea5e9, #bae6fd)';
-                    bg.style.backgroundImage = 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)';
-                    bg.style.backgroundSize = '40px 40px';
-                    document.getElementById('bricktown-ui').classList.remove('hidden');
-                    engine.addPlatform(0, 0, 5000, 40, '#4ade80');
-                }
-                else if (id === 'peytotopia') {
-                    bg.style.background = 'linear-gradient(to bottom, #60a5fa, #bfdbfe)';
-                    engine.addPlatform(0, 0, 5000, 50, '#333');
-                    engine.addStructure(300, 50, 'STORE', '#ef4444');
-                    engine.addStructure(800, 50, 'HOME', '#f59e0b');
-                    engine.addStructure(1300, 50, 'STORE', '#3b82f6');
-                    engine.addEntity('npc', 400, 50, null, 'Shopkeeper');
-                    engine.addEntity('npc', 900, 50, null, 'Citizen');
-                }
-                else {
-                    bg.style.background = '#333';
-                    engine.addPlatform(0, 0, 5000, 50, '#555');
-                    for(let i=0; i<10; i++) engine.addPlatform(200 + i*300, 100 + Math.random()*150, 100, 20, '#777');
-                }
-                
-                avatar.applyTo(document.getElementById('game-player'));
-            },
-
-            addPlatform: (x, y, w, h, color) => {
-                const el = document.createElement('div');
-                el.className = 'platform';
-                el.style.left = x + 'px'; el.style.bottom = y + 'px';
-                el.style.width = w + 'px'; el.style.height = h + 'px';
-                el.style.backgroundColor = color;
-                document.getElementById('game-world').appendChild(el);
-                engine.platforms.push({ x, y, w, h, el });
-            },
-
-            addStructure: (x, y, label, color) => {
-                const world = document.getElementById('game-world');
-                const house = document.createElement('div');
-                house.style.position = 'absolute'; house.style.left = x + 'px'; house.style.bottom = y + 'px';
-                house.style.width = '200px'; house.style.height = '150px'; house.style.background = color;
-                house.style.border = '4px solid rgba(0,0,0,0.5)';
-                const door = document.createElement('div');
-                door.className = 'door';
-                door.style.left = '75px'; door.style.bottom = '0px';
-                house.appendChild(door);
-                const sign = document.createElement('div');
-                sign.innerText = label;
-                sign.style.position = 'absolute'; sign.style.top = '-30px'; sign.style.width = '100%';
-                sign.style.textAlign = 'center'; sign.style.fontWeight = 'bold'; sign.style.background = 'white'; sign.style.color = 'black';
-                house.appendChild(sign);
-                world.appendChild(house);
-                engine.entities.push({ type: 'door', x: x + 75, y: y, w: 50, h: 80, label: label });
-            },
-
-            addEntity: (type, x, y, content, name) => {
-                const el = document.createElement('div');
-                el.style.left = x + 'px'; el.style.bottom = y + 'px';
-                el.style.position = 'absolute';
-                if (type === 'pumpkin') { el.className = 'pumpkin'; el.innerText = content; } 
-                else if (type === 'npc') {
-                    el.className = 'npc';
-                    el.innerHTML = `<div class="lego-char" style="position:relative;"><div class="lego-head" style="background:#fbbf24"><div class="lego-face"><div class="eye"></div><div class="eye"></div><div class="mouth"></div></div></div><div class="lego-torso" style="background:#555"><div class="lego-arms"><div class="arm" style="background:#555"></div><div class="arm" style="background:#555"></div></div></div><div class="lego-legs" style="background:#333"><div class="leg" style="background:#333"></div><div class="leg" style="background:#333"></div></div></div>`;
-                }
-                document.getElementById('game-world').appendChild(el);
-                engine.entities.push({ type, x, y, el, collected: false, name });
-            },
-
-            loop: () => {
-                if(!engine.running) return;
-                const p = engine.player;
-                const playerEl = document.getElementById('game-player');
-
-                if(engine.keys.left) { p.vx = -5; p.facingRight = false; }
-                else if(engine.keys.right) { p.vx = 5; p.facingRight = true; }
-                else { p.vx *= 0.8; }
-
-                p.vy -= 0.8; 
-                p.x += p.vx;
-                p.y += p.vy;
-
-                p.grounded = false;
-                if(p.y < 0) { p.y = 0; p.vy = 0; p.grounded = true; }
-                
-                engine.platforms.forEach(plat => {
-                    if (p.x + 20 > plat.x && p.x + 20 < plat.x + plat.w && 
-                        p.y <= plat.y + plat.h && p.y + p.vy >= plat.y + plat.h) { 
-                        p.y = plat.y + plat.h;
-                        p.vy = 0;
-                        p.grounded = true;
-                    }
-                });
-
-                playerEl.style.bottom = p.y + 'px';
-                playerEl.classList.remove('walking', 'jumping');
-                if(!p.grounded) playerEl.classList.add('jumping');
-                else if(Math.abs(p.vx) > 1) playerEl.classList.add('walking');
-                playerEl.style.transform = p.facingRight ? 'scaleX(1)' : 'scaleX(-1)';
-
-                const screenCenter = window.innerWidth / 2;
-                if(p.x > screenCenter) {
-                    engine.cameraX = p.x - screenCenter;
-                    playerEl.style.left = screenCenter + 'px';
-                    document.getElementById('game-world').style.transform = `translateX(${-engine.cameraX}px)`;
-                } else {
-                    engine.cameraX = 0;
-                    playerEl.style.left = p.x + 'px';
-                    document.getElementById('game-world').style.transform = `translateX(0px)`;
-                }
-
-                const prompt = document.getElementById('interaction-prompt');
-                prompt.classList.add('hidden');
-                engine.entities.forEach(ent => {
-                    if(ent.collected) return;
-                    const dist = Math.abs(p.x - ent.x);
-                    if(dist < 50 && Math.abs(p.y - ent.y) < 50) {
-                        if(ent.type === 'pumpkin' && engine.keys.interact) {
-                            ent.collected = true;
-                            ent.el.style.display = 'none';
-                            const countEl = document.getElementById('p-count');
-                            countEl.innerText = parseInt(countEl.innerText) + 1;
+                    if (type === 'show') {
+                         if (isSuperPopular) {
+                             // 100k to 10M
+                             listeners = Math.floor(Math.random() * (10000000 - 100000) + 100000);
+                         } else {
+                             // 50 to 50k - Much more realistic for average pods
+                             listeners = Math.floor(Math.random() * (50000 - 50) + 50);
+                         }
+                         
+                         // Followers approx 20-40% of listeners
+                         var followers = Math.floor(listeners * (0.2 + Math.random() * 0.2));
+                         plays = 0; // Show level doesn't need play count usually, episodes do
+                    } else {
+                        // Episode Stats
+                        if (isSuperPopular) {
+                             plays = Math.floor(Math.random() * (5000000 - 10000) + 10000);
+                        } else {
+                             // Can be very small now: 10 to 5000
+                             plays = Math.floor(Math.random() * (5000 - 10) + 10);
                         }
-                        if(ent.type === 'npc' || ent.type === 'door') {
-                            prompt.classList.remove('hidden');
-                            prompt.innerText = `PRESS [E] ${ent.name || 'ENTER'}`;
-                            if(engine.keys.interact) {
-                                engine.keys.interact = false; 
-                                if(ent.type === 'npc') {
-                                    document.getElementById('chat-box').style.display = 'block';
-                                    document.getElementById('chat-text').innerText = `Hello! I am a ${ent.name}.`;
-                                } else if (ent.type === 'door') {
-                                    alert(`Entering ${ent.label}...`);
-                                }
-                            }
+                        listeners = 0;
+                        followers = 0;
+                    }
+
+                    stats = { listeners, followers, plays, isFollowing: false };
+                    localStorage.setItem(key, JSON.stringify(stats));
+                } else {
+                    stats = JSON.parse(stats);
+                }
+                return stats;
+            },
+            toggleFollow: (id) => {
+                const key = `peyto_stats_${id}`;
+                let stats = JSON.parse(localStorage.getItem(key));
+                stats.isFollowing = !stats.isFollowing;
+                // Adjust followers count slightly
+                stats.followers += stats.isFollowing ? 1 : -1;
+                localStorage.setItem(key, JSON.stringify(stats));
+                return stats;
+            },
+            getFollowing: () => {
+                const following = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('peyto_stats_')) {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        if (data.isFollowing) {
+                            following.push({ id: key.replace('peyto_stats_', ''), ...data });
                         }
                     }
-                });
-                requestAnimationFrame(engine.loop);
-            },
-            
-            setTool: (t) => { engine.tool = t; },
-            togglePhysics: () => { 
-                // In a real engine, this would toggle building mode vs playing mode
-                // For now, it resets player to a safe spawn
-                engine.player.x = 100; engine.player.y = 300; 
-                alert("Respawned at start!");
-            },
-            handleChat: (opt) => {
-                alert(`You selected: ${opt}`);
-                document.getElementById('chat-box').style.display = 'none';
-            },
-            spawnBlock: (e) => {
-                if(engine.gameId !== 'bricktown') return;
-                const rect = document.getElementById('game-view').getBoundingClientRect();
-                const x = (e.clientX - rect.left) + engine.cameraX;
-                const y = (window.innerHeight - e.clientY);
-                const gx = Math.floor(x / 40) * 40;
-                const gy = Math.floor(y / 40) * 40;
+                }
+                return following;
+            }
+        };
 
-                if(engine.tool === 'place') {
-                    engine.addPlatform(gx, gy, 40, 40, '#3b82f6');
+        // --- Mock Data (Fallback) ---
+        // Manually set stats for these mock items in code logic if needed, 
+        // but current random logic will handle them fine on first load.
+        const mockPodcasts = [
+            { id: 'mock1', name: 'The Daily', publisher: 'The New York Times', image: 'https://upload.wikimedia.org/wikipedia/en/5/5b/The_Daily_podcast_logo.jpg', description: 'This is what the news should sound like.' },
+            { id: 'mock2', name: 'Serial', publisher: 'Serial Productions', image: 'https://upload.wikimedia.org/wikipedia/en/5/52/Serial_podcast_logo.png', description: 'One story told week by week.' },
+            { id: 'mock3', name: 'Huberman Lab', publisher: 'Scicomm Media', image: 'https://upload.wikimedia.org/wikipedia/commons/2/29/Huberman_Lab_Podcast_Logo.jpg', description: 'Neuroscience and tools for everyday life.' },
+            { id: 'mock4', name: 'TED Radio Hour', publisher: 'NPR', image: 'https://media.npr.org/assets/img/2021/08/04/ted-radio-hour-logo-2021-square_sq-d66887550302824700d115e839e31ce37c449c2a-s1100-c50.jpg', description: 'Ideas worth spreading.' },
+            { id: 'mock5', name: 'SmartLess', publisher: 'Jason Bateman, Sean Hayes, Will Arnett', image: 'https://upload.wikimedia.org/wikipedia/en/e/e0/SmartLess_podcast_art.jpg', description: 'Connecting and bonding through hilarity.' }
+        ];
+
+        // --- App Class ---
+        class App {
+            constructor() {
+                this.token = null;
+                this.audio = document.getElementById('audio-element');
+                this.isPlaying = false;
+                this.currentTrack = null;
+                this.viewContainer = document.getElementById('view-container');
+                this.useMock = false;
+
+                this.init();
+            }
+
+            async init() {
+                // Initialize Theme
+                if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
                 } else {
-                    const idx = engine.platforms.findIndex(p => p.x === gx && p.y === gy);
-                    if(idx > -1) {
-                        engine.platforms[idx].el.remove();
-                        engine.platforms.splice(idx, 1);
+                    document.documentElement.classList.remove('dark');
+                    // Ensure Light is default if not set
+                    if(!localStorage.theme) localStorage.theme = 'light';
+                }
+
+                // Initialize Token
+                await this.getToken();
+
+                // Setup Audio Listeners
+                this.setupAudio();
+
+                // Load Home
+                this.navigate('home');
+            }
+
+            async getToken() {
+                try {
+                    const response = await fetch('https://accounts.spotify.com/api/token', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Authorization': 'Basic ' + btoa(CLIENT_ID + ':' + CLIENT_SECRET)
+                        },
+                        body: 'grant_type=client_credentials'
+                    });
+
+                    if (!response.ok) throw new Error('Auth Failed');
+                    const data = await response.json();
+                    this.token = data.access_token;
+                    console.log('Spotify Connected');
+                } catch (e) {
+                    console.warn('Spotify API blocked by browser CORS (expected). Switching to Mock Mode.');
+                    this.useMock = true;
+                }
+            }
+
+            setupAudio() {
+                this.audio.addEventListener('timeupdate', () => {
+                    const pct = (this.audio.currentTime / this.audio.duration) * 100;
+                    document.getElementById('seek-slider').value = pct || 0;
+                    document.getElementById('current-time').innerText = this.formatTime(this.audio.currentTime);
+                    document.getElementById('duration').innerText = this.formatTime(this.audio.duration || 0);
+                    
+                    // Fullscreen updates
+                    document.getElementById('fs-progress').style.width = `${pct}%`;
+                    document.getElementById('fs-current-time').innerText = this.formatTime(this.audio.currentTime);
+                    document.getElementById('fs-duration').innerText = this.formatTime(this.audio.duration || 0);
+                });
+
+                this.audio.addEventListener('ended', () => {
+                    this.isPlaying = false;
+                    this.updatePlayBtnState();
+                });
+
+                document.getElementById('seek-slider').addEventListener('input', (e) => {
+                    const time = (e.target.value / 100) * this.audio.duration;
+                    this.audio.currentTime = time;
+                });
+            }
+
+            formatTime(s) {
+                if(isNaN(s)) return "0:00";
+                const mins = Math.floor(s / 60);
+                const secs = Math.floor(s % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+
+            async navigate(page) {
+                // Update Sidebar/Nav UI
+                document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(el => {
+                    el.classList.remove('text-primary-600', 'active', 'bg-primary-50', 'dark:bg-dark-highlight');
+                    if(!el.classList.contains('mobile-nav-item')) el.classList.add('text-gray-600', 'dark:text-gray-300');
+                });
+                
+                // Add active styles
+                // (Omitted for brevity, logical only)
+                
+                this.viewContainer.innerHTML = '<div class="flex justify-center p-10"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div></div>';
+
+                if (page === 'home') this.renderHome();
+                if (page === 'search') this.renderSearch();
+                if (page === 'library') await this.renderLibrary();
+            }
+
+            renderHome() {
+                // Replaced Trending with Welcome Screen
+                const html = `
+                    <div class="animate-fade-up flex flex-col items-center text-center py-10 md:py-20">
+                        <div class="w-24 h-24 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mb-6">
+                            <img src="siteicon.png" class="w-12 h-12 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/f97316/ffffff?text=P';">
+                        </div>
+                        <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
+                            Welcome to <span class="text-primary-600">PeytoTopia</span>
+                        </h1>
+                        <p class="text-lg md:text-xl text-gray-500 dark:text-gray-400 max-w-2xl mb-10 leading-relaxed">
+                            Discover the world's most fascinating stories. Search for your favorite podcasts, 
+                            track popularity stats, and immerse yourself in audio without the noise.
+                        </p>
+                        
+                        <div class="flex flex-col md:flex-row gap-4 w-full justify-center">
+                            <button onclick="app.navigate('search')" class="px-8 py-4 bg-primary-600 text-white rounded-full font-bold text-lg hover:bg-primary-700 hover:scale-105 transition-all shadow-lg hover:shadow-primary-500/30">
+                                <i class="fa-solid fa-magnifying-glass mr-2"></i> Start Exploring
+                            </button>
+                             <button onclick="app.navigate('library')" class="px-8 py-4 bg-white dark:bg-dark-surface text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-full font-bold text-lg hover:bg-gray-50 dark:hover:bg-dark-highlight hover:scale-105 transition-all">
+                                <i class="fa-solid fa-heart mr-2"></i> Go to Library
+                            </button>
+                        </div>
+                        
+                        <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 text-left w-full max-w-4xl">
+                            <div class="p-6 rounded-2xl bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 shadow-sm">
+                                <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mb-4 text-xl">
+                                    <i class="fa-solid fa-chart-simple"></i>
+                                </div>
+                                <h3 class="font-bold text-lg mb-2 dark:text-white">Real Stats</h3>
+                                <p class="text-sm text-gray-500">Track monthly listeners and follower counts that stay with you.</p>
+                            </div>
+                            <div class="p-6 rounded-2xl bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 shadow-sm">
+                                <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mb-4 text-xl">
+                                    <i class="fa-solid fa-headphones-simple"></i>
+                                </div>
+                                <h3 class="font-bold text-lg mb-2 dark:text-white">Pure Audio</h3>
+                                <p class="text-sm text-gray-500">A focused experience dedicated entirely to podcasts. No music distractions.</p>
+                            </div>
+                            <div class="p-6 rounded-2xl bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 shadow-sm">
+                                <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mb-4 text-xl">
+                                    <i class="fa-solid fa-moon"></i>
+                                </div>
+                                <h3 class="font-bold text-lg mb-2 dark:text-white">Any Time</h3>
+                                <p class="text-sm text-gray-500">Switch between Light and Dark mode to suit your listening environment.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                this.viewContainer.innerHTML = html;
+            }
+
+            renderSearch() {
+                this.viewContainer.innerHTML = `
+                    <div class="animate-fade-up max-w-3xl mx-auto">
+                        <div class="relative mb-8">
+                            <input type="text" id="search-input" placeholder="Find podcasts..." 
+                                class="w-full bg-white dark:bg-dark-surface border-2 border-transparent focus:border-primary-500 dark:focus:border-primary-500 text-gray-900 dark:text-white text-lg rounded-2xl py-4 pl-12 pr-4 shadow-sm outline-none transition-all"
+                                onkeyup="if(event.key === 'Enter') app.performSearch(this.value)">
+                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-5 text-gray-400"></i>
+                        </div>
+                        <div class="flex items-center gap-2 mb-6">
+                            <span class="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium">Podcasts Only</span>
+                            <span class="text-gray-400 text-sm">Music is disabled</span>
+                        </div>
+                        <div id="search-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    </div>
+                `;
+            }
+
+            async performSearch(query) {
+                const container = document.getElementById('search-results');
+                container.innerHTML = '<div class="col-span-full text-center py-8"><div class="animate-spin inline-block w-8 h-8 border-2 border-primary-500 rounded-full border-b-transparent"></div></div>';
+
+                let results = [];
+                if (this.useMock) {
+                    results = mockPodcasts.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
+                } else {
+                    try {
+                        const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=show&market=US&limit=12`, {
+                            headers: { 'Authorization': `Bearer ${this.token}` }
+                        });
+                        const data = await res.json();
+                        results = data.shows.items;
+                    } catch (e) {
+                        results = []; // Error handle
                     }
                 }
-            },
-            sellPumpkins: () => {
-                const countEl = document.getElementById('p-count');
-                const count = parseInt(countEl.innerText);
-                if(count > 0) {
-                    db.currencies.bucks += count * 5;
-                    countEl.innerText = '0';
-                    alert(`Sold ${count} pumpkins for ${count * 5} Bucks!`);
-                    ui.updateCurrency();
+
+                if (results.length === 0) {
+                    container.innerHTML = '<div class="col-span-full text-center text-gray-500">No podcasts found. Try "Daily" or "News".</div>';
+                    return;
+                }
+
+                container.innerHTML = results.map(p => {
+                    const stats = db.getStats(p.id);
+                    const imgUrl = p.images?.[0]?.url || p.image;
+                    return `
+                    <div onclick="app.loadPodcast('${p.id}')" class="flex items-center gap-4 bg-white dark:bg-dark-surface p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-dark-highlight cursor-pointer transition-colors border border-gray-100 dark:border-gray-800">
+                        <img src="${imgUrl}" class="w-16 h-16 rounded-lg object-cover">
+                        <div class="min-w-0 flex-1">
+                            <h4 class="font-bold text-gray-900 dark:text-white truncate">${p.name}</h4>
+                            <p class="text-xs text-gray-500 truncate mb-1">${p.publisher}</p>
+                            <span class="text-[10px] text-primary-600 font-medium"><i class="fa-solid fa-signal"></i> ${stats.listeners.toLocaleString()} listeners</span>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            }
+
+            async renderLibrary() {
+                const following = db.getFollowing();
+                if(following.length === 0) {
+                    this.viewContainer.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-64 text-gray-500">
+                            <i class="fa-solid fa-heart-crack text-4xl mb-4 text-gray-300"></i>
+                            <p>You haven't followed any podcasts yet.</p>
+                        </div>`;
+                    return;
+                }
+                
+                this.viewContainer.innerHTML = '<h2 class="text-3xl font-bold mb-6 dark:text-white">Your Library</h2><div id="lib-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>';
+                const grid = document.getElementById('lib-grid');
+
+                for (let item of following) {
+                    // Fetch Details
+                    let p = null;
+                    if(this.useMock) {
+                        p = mockPodcasts.find(m => m.id === item.id) || mockPodcasts[0];
+                    } else {
+                        try {
+                            const res = await fetch(`https://api.spotify.com/v1/shows/${item.id}`, { headers: { 'Authorization': `Bearer ${this.token}` }});
+                            p = await res.json();
+                        } catch(e) {}
+                    }
+                    
+                    if(p) {
+                         grid.innerHTML += `
+                            <div onclick="app.loadPodcast('${p.id}')" class="bg-white dark:bg-dark-surface p-4 rounded-2xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-primary-400 transition-colors">
+                                <img src="${p.images?.[0]?.url || p.image}" class="w-full aspect-square rounded-xl mb-3 object-cover">
+                                <h3 class="font-bold truncate dark:text-white">${p.name}</h3>
+                                <p class="text-xs text-primary-600">${item.followers.toLocaleString()} Followers</p>
+                            </div>
+                         `;
+                    }
+                }
+            }
+
+            async loadPodcast(id) {
+                let show = null;
+                let episodes = [];
+                
+                // Fallback for demo flow
+                if (this.useMock) {
+                    show = mockPodcasts.find(p => p.id === id) || mockPodcasts[0];
+                    // Generate fake episodes
+                    for(let i=1; i<=10; i++) {
+                        episodes.push({
+                            id: `ep${id}_${i}`,
+                            name: `Episode ${i}: The Deep Dive`,
+                            description: 'In this episode we explore the depths of the topic with special guests.',
+                            duration_ms: 1000 * 60 * (20 + Math.random() * 40),
+                            release_date: '2023-10-12',
+                            audio_preview_url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' // Reliable MP3
+                        });
+                    }
                 } else {
-                    alert("No pumpkins to sell!");
+                    try {
+                        const showRes = await fetch(`https://api.spotify.com/v1/shows/${id}`, { headers: { 'Authorization': `Bearer ${this.token}` }});
+                        show = await showRes.json();
+                        
+                        const epRes = await fetch(`https://api.spotify.com/v1/shows/${id}/episodes?limit=15`, { headers: { 'Authorization': `Bearer ${this.token}` }});
+                        const epData = await epRes.json();
+                        episodes = epData.items;
+                    } catch(e) { console.error(e); }
                 }
-            }
-        };
 
-        window.addEventListener('keydown', e => {
-            if(engine.running) {
-                if(e.key === 'ArrowLeft' || e.key === 'a') engine.keys.left = true;
-                if(e.key === 'ArrowRight' || e.key === 'd') engine.keys.right = true;
-                if(e.key === 'e' || e.key === 'E') engine.keys.interact = true;
-                if((e.key === ' ' || e.key === 'ArrowUp') && engine.player.grounded) {
-                    engine.player.vy = 12; engine.player.grounded = false;
-                }
-            }
-        });
-        window.addEventListener('keyup', e => {
-            if(e.key === 'ArrowLeft' || e.key === 'a') engine.keys.left = false;
-            if(e.key === 'ArrowRight' || e.key === 'd') engine.keys.right = false;
-            if(e.key === 'e' || e.key === 'E') engine.keys.interact = false;
-        });
-        document.getElementById('game-view').addEventListener('mousedown', (e) => engine.spawnBlock(e));
+                if (!show) return;
 
-        const router = {
-            init: () => {
-                if(db.user.username) {
-                    router.navigateTo('app');
-                    ui.loadUser(); ui.genGames(); ui.genMarket(); avatar.update();
+                const stats = db.getStats(show.id);
+                const isFollowing = stats.isFollowing;
+                const buttonText = isFollowing ? 'Following' : 'Follow';
+                const buttonClass = isFollowing ? 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white' : 'bg-primary-600 text-white hover:bg-primary-700';
+
+                const html = `
+                    <div class="animate-fade-up">
+                        <button onclick="app.navigate('home')" class="mb-6 flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-primary-600 transition-colors">
+                            <i class="fa-solid fa-arrow-left"></i> Back
+                        </button>
+
+                        <div class="flex flex-col md:flex-row gap-8 mb-10">
+                            <div class="w-full md:w-64 flex-shrink-0">
+                                <img src="${show.images?.[0]?.url || show.image}" class="w-full rounded-2xl shadow-xl">
+                            </div>
+                            <div class="flex-1">
+                                <span class="text-xs font-bold tracking-wider text-primary-600 uppercase mb-2 block">Podcast</span>
+                                <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 leading-tight">${show.name}</h1>
+                                <p class="text-lg text-gray-600 dark:text-gray-300 mb-6 line-clamp-3">${show.description}</p>
+                                
+                                <div class="flex flex-wrap items-center gap-6 mb-8">
+                                    <button id="follow-btn" onclick="app.toggleFollow('${show.id}')" class="px-8 py-3 rounded-full font-bold transition-all shadow-md active:scale-95 ${buttonClass}">
+                                        ${buttonText}
+                                    </button>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-gray-400 font-bold uppercase">Followers</span>
+                                        <span class="text-xl font-bold dark:text-white" id="follower-count">${stats.followers.toLocaleString()}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-gray-400 font-bold uppercase">Monthly Listeners</span>
+                                        <span class="text-xl font-bold dark:text-white">${stats.listeners.toLocaleString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Episodes</h3>
+                        <div class="space-y-4">
+                            ${episodes.map(ep => {
+                                const epStats = db.getStats(ep.id, 'ep'); // Get random play count
+                                const audioUrl = ep.audio_preview_url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'; // Fallback for "MP3s work"
+                                const duration = Math.round(ep.duration_ms / 60000) + " min";
+                                const date = ep.release_date.substring(0,4);
+                                
+                                return `
+                                <div class="group flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-dark-surface hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors border border-transparent hover:border-primary-200 dark:hover:border-gray-700">
+                                    <button onclick="app.play('${audioUrl}', '${ep.name.replace(/'/g, "\\'")}', '${show.name.replace(/'/g, "\\'")}', '${show.images?.[0]?.url || show.image}')" 
+                                            class="flex-shrink-0 w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 text-primary-600 flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm">
+                                        <i class="fa-solid fa-play ml-1"></i>
+                                    </button>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-gray-900 dark:text-white truncate group-hover:text-primary-700 transition-colors">${ep.name}</h4>
+                                        <p class="text-sm text-gray-500 line-clamp-1">${ep.description}</p>
+                                    </div>
+                                    <div class="hidden md:flex flex-col items-end text-xs text-gray-400 font-medium">
+                                        <span>${date} • ${duration}</span>
+                                        <span class="flex items-center gap-1"><i class="fa-solid fa-headphones"></i> ${epStats.plays.toLocaleString()}</span>
+                                    </div>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+                this.viewContainer.innerHTML = html;
+            }
+
+            toggleFollow(id) {
+                const stats = db.toggleFollow(id);
+                const btn = document.getElementById('follow-btn');
+                const count = document.getElementById('follower-count');
+                
+                count.innerText = stats.followers.toLocaleString();
+                
+                if (stats.isFollowing) {
+                    btn.innerText = 'Following';
+                    btn.className = 'px-8 py-3 rounded-full font-bold transition-all shadow-md active:scale-95 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white';
                 } else {
-                    router.navigateTo('landing');
+                    btn.innerText = 'Follow';
+                    btn.className = 'px-8 py-3 rounded-full font-bold transition-all shadow-md active:scale-95 bg-primary-600 text-white hover:bg-primary-700';
                 }
-            },
-            navigateTo: (id) => {
-                document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
-                document.getElementById(`view-${id}`).classList.remove('hidden');
-                if(id==='app') router.switchTab('home');
-            },
-            switchTab: (id) => {
-                document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-                document.getElementById(`tab-${id}`).classList.remove('hidden');
-                document.querySelectorAll('.nav-btn').forEach(b => {
-                    b.classList.remove('sidebar-active'); b.classList.add('text-gray-300');
-                });
-                const map = {'home':0, 'games':1, 'marketplace':2, 'profile':3};
-                const btns = document.querySelectorAll('.nav-btn');
-                if(btns[map[id]]) btns[map[id]].classList.add('sidebar-active', 'text-white');
-            },
-            openGamePage: (gameId) => {
-                const game = db.games.find(g => g.id === gameId);
-                document.getElementById('game-title-display').innerText = game.title.toUpperCase();
-                document.getElementById('game-stats-display').innerText = `${game.visits} VISITS • ${game.type.toUpperCase()}`;
-                const btn = document.getElementById('play-btn');
-                btn.onclick = () => engine.launch(gameId);
-                router.switchTab('game-details');
             }
-        };
 
-        const ui = {
-            loadUser: () => {
-                document.getElementById('sidebar-username').innerText = db.user.username.toUpperCase();
-                if(db.user.pfp) document.getElementById('sidebar-pfp').src = db.user.pfp;
-                ui.updateCurrency();
-            },
-            updateCurrency: () => {
-                document.getElementById('currency-bucks').innerText = db.currencies.bucks;
-                document.getElementById('currency-coins').innerText = db.currencies.coins;
-            },
-            genGames: () => {
-                const grid = document.getElementById('games-list');
-                grid.innerHTML = '';
-                db.games.forEach(g => {
-                    const card = document.createElement('div');
-                    card.className = 'glass-panel rounded-sm overflow-hidden cursor-pointer hover:-translate-y-2 transition-transform border-2 border-white/10';
-                    card.onclick = () => router.openGamePage(g.id);
-                    card.innerHTML = `<div class="cover ${g.bg} text-white">${g.icon}</div><div class="p-4 bg-black/60"><h3 class="font-bold text-white font-mono text-lg truncate">${g.title}</h3><p class="text-xs text-gray-400 font-mono mt-1">${g.visits} VISITS</p></div>`;
-                    grid.appendChild(card);
-                });
-            },
-            genMarket: () => {
-                const grid = document.getElementById('marketplace-grid');
-                grid.innerHTML = '';
-                const items = [{n:'RED CAP', p:50}, {n:'BLUE SHIRT', p:25}, {n:'TUXEDO', p:200}, {n:'GOLD HEAD', p:1000}, {n:'NINJA', p:150}, {n:'SPACE SUIT', p:500}, {n:'CAMO', p:60}, {n:'CYBER', p:300}];
-                items.forEach(i => {
-                    grid.innerHTML += `<div class="glass-panel p-4 rounded-sm flex flex-col items-center border-2 border-white/10"><div class="w-12 h-12 bg-white/10 mb-2 rounded-sm"></div><h4 class="font-bold text-sm font-mono">${i.n}</h4><span class="text-rose-400 text-xs font-mono mt-1">💎 ${i.p}</span><button class="mt-2 text-xs bg-rose-600 text-white px-3 py-1 rounded-sm block-btn">BUY</button></div>`;
-                });
+            play(url, title, show, img) {
+                if(!url) return alert('No audio available for this episode.');
+                
+                this.currentTrack = { url, title, show, img };
+                this.audio.src = url;
+                
+                // Update UI
+                document.getElementById('player-title').innerText = title;
+                document.getElementById('player-show').innerText = show;
+                document.getElementById('player-img').src = img;
+                
+                // Update Fullscreen UI
+                document.getElementById('fs-title').innerText = title;
+                document.getElementById('fs-show').innerText = show;
+                document.getElementById('fs-img').src = img;
+
+                this.audio.play();
+                this.isPlaying = true;
+                this.updatePlayBtnState();
             }
-        };
 
-        const avatar = {
-            update: () => {
-                const els = document.querySelectorAll('.lego-char');
-                const { head, shirt, pants } = db.user.avatar;
-                els.forEach(el => {
-                    el.querySelector('.lego-head').style.backgroundColor = db.assets.heads[head % db.assets.heads.length];
-                    el.querySelector('.lego-torso').style.backgroundColor = db.assets.shirts[shirt % db.assets.shirts.length];
-                    el.querySelectorAll('.arm').forEach(a => a.style.backgroundColor = db.assets.shirts[shirt % db.assets.shirts.length]);
-                    el.querySelectorAll('.leg').forEach(l => l.style.backgroundColor = db.assets.pants[pants % db.assets.pants.length]);
-                });
-                localStorage.setItem('peytotoria_user', JSON.stringify(db.user));
-            },
-            applyTo: (el) => {
-                const { head, shirt, pants } = db.user.avatar;
-                el.querySelector('.lego-head').style.backgroundColor = db.assets.heads[head % db.assets.heads.length];
-                el.querySelector('.lego-torso').style.backgroundColor = db.assets.shirts[shirt % db.assets.shirts.length];
-                el.querySelectorAll('.arm').forEach(a => a.style.backgroundColor = db.assets.shirts[shirt % db.assets.shirts.length]);
-                el.querySelectorAll('.leg').forEach(l => l.style.backgroundColor = db.assets.pants[pants % db.assets.pants.length]);
-            },
-            cycle: (p, d) => {
-                let v = db.user.avatar[p] + d;
-                if(v < 0) v = 5; 
-                db.user.avatar[p] = v;
-                avatar.update();
+            togglePlay() {
+                if(!this.audio.src) return;
+                
+                if (this.audio.paused) {
+                    this.audio.play();
+                    this.isPlaying = true;
+                } else {
+                    this.audio.pause();
+                    this.isPlaying = false;
+                }
+                this.updatePlayBtnState();
             }
-        };
 
-        function handleAuth() {
-            const u = document.getElementById('auth-username').value;
-            if(!u) return;
-            db.user.username = u;
-            localStorage.setItem('peytotoria_user', JSON.stringify(db.user));
-            router.init();
+            updatePlayBtnState() {
+                const icon = this.isPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play ml-1"></i>';
+                document.getElementById('play-btn').innerHTML = icon;
+                document.getElementById('fs-play-btn').innerHTML = icon;
+            }
+
+            toggleTheme() {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.theme = 'light';
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.theme = 'dark';
+                }
+            }
+
+            toggleFullscreen() {
+                const fs = document.getElementById('fs-player');
+                const main = document.getElementById('main-scroll');
+                
+                if (fs.classList.contains('translate-y-full')) {
+                    fs.classList.remove('translate-y-full');
+                    document.body.classList.add('hide-scroll'); // Prevent background scroll
+                } else {
+                    fs.classList.add('translate-y-full');
+                    document.body.classList.remove('hide-scroll');
+                }
+            }
         }
 
-        router.init();
+        // Init App
+        const app = new App();
     </script>
 </body>
 </html>
