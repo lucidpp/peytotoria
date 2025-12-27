@@ -3,389 +3,724 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peytotoria - Coming Soon</title>
+    <meta name="description" content="Peytotoria - A 2D world of games, trading, and fun. Coming 2026.">
+    <title>Peytotoria</title>
+    <link rel="icon" href="SiteIcon.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        glass: "rgba(255, 255, 255, 0.1)",
+                        glassBorder: "rgba(255, 255, 255, 0.2)",
+                        peytoRed: "#e11d48",
+                        peytoDark: "#0f0505",
+                    },
+                    boxShadow: {
+                        'block': '4px 4px 0px 0px rgba(0,0,0,0.3)',
+                        'block-sm': '2px 2px 0px 0px rgba(0,0,0,0.3)',
+                    },
+                    keyframes: {
+                        'bounce-slight': { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-5px)' } },
+                        'leg-walk': { '0%, 100%': { transform: 'rotate(-30deg)' }, '50%': { transform: 'rotate(30deg)' } },
+                        'arm-walk': { '0%, 100%': { transform: 'rotate(30deg)' }, '50%': { transform: 'rotate(-30deg)' } }
+                    },
+                    animation: {
+                        'bounce-slight': 'bounce-slight 2s infinite',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Fredoka:wght@300;400;500;600;700&display=swap');
 
         body {
             font-family: 'Fredoka', sans-serif;
-            overflow-x: hidden;
-        }
-
-        /* 2D Background Scene */
-        .scene-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
             overflow: hidden;
-            background: linear-gradient(to bottom, #ff9a9e 0%, #fecfef 50%, #e0c3fc 100%);
+            background-color: #0f0505;
+            color: #ffffff;
+            user-select: none;
         }
 
-        .sun {
-            position: absolute;
-            top: 10%;
-            right: 15%;
-            width: 80px;
-            height: 80px;
-            background: #ffecd2;
-            border-radius: 50%;
-            box-shadow: 0 0 40px #ffecd2;
-            opacity: 0.8;
-        }
-
-        /* City Layer */
-        .city-layer {
-            position: absolute;
-            bottom: 15%; /* Sit on top of grass */
-            left: 0;
-            width: 100%;
-            height: 30%;
-            display: flex;
-            align-items: flex-end;
-            justify-content: flex-end;
-            padding-right: 5%;
-            z-index: 1;
-            opacity: 0.7;
+        /* --- UTILITIES --- */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
         
-        .building {
-            background: #6b4c9a;
-            width: 40px;
-            margin-right: 2px;
+        /* Blocky UI Overrides */
+        .block-btn {
+            border-radius: 4px;
+            border-bottom: 4px solid rgba(0,0,0,0.4);
+            transition: all 0.1s;
         }
-        .b-1 { height: 100px; width: 30px; }
-        .b-2 { height: 160px; width: 50px; }
-        .b-3 { height: 80px; width: 60px; }
-        .b-4 { height: 200px; width: 40px; }
-        .b-5 { height: 120px; width: 45px; }
-
-        /* Grass Layer */
-        .grass-layer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 15%;
-            background: #4ade80; /* bright grass */
-            border-top: 8px solid #22c55e;
-            z-index: 2;
+        .block-btn:active {
+            border-bottom-width: 0px;
+            transform: translateY(4px);
+        }
+        .sidebar-active {
+            background: rgba(225, 29, 72, 0.2);
+            border-left: 6px solid #e11d48;
+            color: #fff;
         }
 
-        /* Carnival Layer */
-        .carnival-layer {
-            position: absolute;
-            bottom: 15%;
-            left: 10%;
-            width: 500px;
-            height: 300px;
-            z-index: 1;
-        }
+        /* --- SCENE BACKGROUNDS --- */
+        #view-landing .scene-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: linear-gradient(to bottom, #4a0404 0%, #9f1239 50%, #e11d48 100%); }
+        .sun { position: absolute; top: 10%; right: 15%; width: 80px; height: 80px; background: #fbbf24; border-radius: 4px; box-shadow: 0 0 60px #fbbf24; opacity: 0.9; }
+        .city-layer { position: absolute; bottom: 15%; left: 0; width: 100%; height: 30%; display: flex; align-items: flex-end; justify-content: flex-end; padding-right: 5%; z-index: 1; opacity: 0.8; }
+        .building { background: #2f0812; width: 40px; margin-right: 2px; } .b-1 { height: 100px; width: 30px; } .b-2 { height: 160px; width: 50px; } .b-4 { height: 200px; width: 40px; }
+        .grass-layer { position: absolute; bottom: 0; left: 0; width: 100%; height: 15%; background: #064e3b; border-top: 8px solid #059669; z-index: 2; }
 
-        /* Ferris Wheel */
-        .wheel-container {
-            position: absolute;
-            bottom: 0;
-            left: 50px;
-            width: 150px;
-            height: 150px;
-            animation: rotate 20s linear infinite;
-        }
-
-        .wheel-rim {
-            width: 100%;
-            height: 100%;
-            border: 4px solid #f87171;
-            border-radius: 50%;
-            position: relative;
-        }
-
-        .wheel-spoke {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 96%;
-            height: 2px;
-            background: #f87171;
-            transform-origin: center;
-            transform: translate(-50%, -50%);
-        }
+        /* --- CHARACTER --- */
+        .lego-char { width: 40px; height: 70px; position: absolute; z-index: 100; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); pointer-events: none; }
+        .lego-head { width: 24px; height: 20px; background: #fbbf24; border-radius: 2px; margin: 0 auto; position: relative; border: 2px solid rgba(0,0,0,0.2); }
+        .lego-head::before { content: ''; position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 10px; height: 4px; background: inherit; border: 2px solid rgba(0,0,0,0.2); border-bottom: none; }
+        .lego-face { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 14px; display: flex; justify-content: space-between; }
+        .eye { width: 3px; height: 3px; background: black; }
+        .mouth { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 8px; height: 2px; background: black; }
+        .lego-torso { width: 32px; height: 28px; background: #e11d48; margin: 0 auto; position: relative; border: 2px solid rgba(0,0,0,0.2); z-index: 1; }
+        .lego-logo-print { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(0,0,0,0.3); font-size: 8px; font-weight: bold; }
+        .lego-arms { position: absolute; top: 2px; width: 100%; display: flex; justify-content: space-between; padding: 0 -6px; }
+        .arm { width: 8px; height: 20px; background: inherit; border: 2px solid rgba(0,0,0,0.2); border-radius: 2px; transform-origin: top center; transition: transform 0.1s; }
+        .lego-hand { width: 8px; height: 8px; background: #fbbf24; border: 2px solid rgba(0,0,0,0.2); border-radius: 2px; margin-top: -2px; }
+        .lego-legs { width: 32px; height: 22px; margin: 0 auto; display: flex; position: relative; }
+        .leg { width: 50%; height: 100%; border: 2px solid rgba(0,0,0,0.2); background: #3b82f6; transform-origin: top center; transition: transform 0.1s; }
         
-        .cabin {
-            width: 20px;
-            height: 20px;
-            background: #fbbf24;
-            position: absolute;
-            border-radius: 5px;
-            animation: counter-rotate 20s linear infinite; /* Keep cabins upright */
-        }
-
-        /* Tent */
-        .tent {
-            position: absolute;
-            bottom: 0;
-            left: 250px;
-            width: 0; 
-            height: 0; 
-            border-left: 60px solid transparent;
-            border-right: 60px solid transparent;
-            border-bottom: 100px solid #ef4444;
-        }
-        .tent::after {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: -40px;
-            width: 0;
-            height: 0;
-            border-left: 40px solid transparent;
-            border-right: 40px solid transparent;
-            border-bottom: 80px solid #ffffff;
-            opacity: 0.3;
-        }
-
-        /* Lights */
-        .lights-string {
-            position: absolute;
-            top: -20px;
-            left: 0;
-            width: 100%;
-            height: 20px;
-            display: flex;
-            justify-content: space-around;
-        }
-        .light {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: yellow;
-            animation: blink 1s infinite alternate;
-        }
-
         /* Animations */
-        @keyframes rotate { 100% { transform: rotate(360deg); } }
-        @keyframes counter-rotate { 100% { transform: rotate(-360deg); } }
-        @keyframes blink { 0% { opacity: 0.4; } 100% { opacity: 1; box-shadow: 0 0 10px yellow; } }
+        .walking .leg:first-child { animation: leg-walk 0.3s infinite alternate; }
+        .walking .leg:last-child { animation: leg-walk 0.3s infinite alternate-reverse; }
+        .walking .arm:first-child { animation: arm-walk 0.3s infinite alternate; }
+        .walking .arm:last-child { animation: arm-walk 0.3s infinite alternate-reverse; }
+        .jumping .leg { transform: rotate(-45deg); }
+        .jumping .arm { transform: rotate(-140deg); }
 
-        /* Clouds */
-        .cloud {
-            position: absolute;
-            background: white;
-            border-radius: 20px;
-            opacity: 0.8;
-            animation: float 60s linear infinite;
-        }
-        .c1 { top: 15%; left: -100px; width: 100px; height: 40px; animation-duration: 45s; }
-        .c2 { top: 25%; left: -200px; width: 140px; height: 60px; animation-duration: 55s; animation-delay: 5s; }
-        .c3 { top: 10%; left: -150px; width: 80px; height: 30px; animation-duration: 35s; animation-delay: 15s; }
+        /* --- LAYOUT --- */
+        .app-shell { display: flex; height: 100vh; width: 100vw; background: radial-gradient(circle at 10% 20%, rgb(69, 10, 10) 0%, rgb(27, 2, 2) 90%); }
+        .sidebar { width: 260px; display: flex; flex-direction: column; padding: 20px; z-index: 40; }
+        .main-content { flex: 1; overflow-y: auto; padding: 20px; position: relative; }
+        .mobile-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #0f0505; display: none; justify-content: space-around; padding: 15px 10px; z-index: 50; border-top: 2px solid #333; }
+        @media (max-width: 768px) { .sidebar { display: none; } .mobile-nav { display: flex; } .main-content { padding-bottom: 90px; } }
 
-        @keyframes float {
-            0% { transform: translateX(-100px); }
-            100% { transform: translateX(110vw); }
-        }
+        /* --- GAME UI ELEMENTS --- */
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
+        .cover { height: 160px; width: 100%; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 4rem; text-shadow: 4px 4px 0 rgba(0,0,0,0.5); }
+        .cover-halloween { background: linear-gradient(to bottom, #31004a, #1a0014); }
+        .cover-bricktown { background: linear-gradient(to top, #0ea5e9, #bae6fd); }
+        .cover-peytotopia { background: linear-gradient(to top, #10b981, #d1fae5); }
+        .cover-generic { background: linear-gradient(45deg, #4b5563, #1f2937); }
 
-        /* Glassmorphism Cards */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-        }
+        /* --- LOADING SCREEN --- */
+        #loading-screen { position: absolute; inset: 0; background: #0f0505; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .loading-bar-container { width: 300px; height: 20px; background: #333; border: 2px solid #555; border-radius: 4px; margin-top: 20px; overflow: hidden; }
+        .loading-bar-fill { height: 100%; background: #e11d48; width: 0%; transition: width 0.1s; }
+
+        /* --- ACTIVE GAME CONTAINER --- */
+        #active-game-container { position: absolute; inset: 0; background: #000; z-index: 100; overflow: hidden; }
+        #game-view { position: absolute; width: 100%; height: 100%; overflow: hidden; }
+        #game-world { position: absolute; top: 0; left: 0; height: 100%; width: 5000px; }
+        .game-bg { position: absolute; width: 100%; height: 100%; z-index: -1; }
+        
+        .platform { position: absolute; background: #333; border: 2px solid #000; box-shadow: 4px 4px 0 rgba(0,0,0,0.3); }
+        .pumpkin { position: absolute; font-size: 2rem; filter: drop-shadow(0 0 5px orange); animation: bounce-slight 2s infinite; }
+        .npc { position: absolute; width: 40px; height: 70px; }
+        .door { position: absolute; width: 50px; height: 80px; background: #4a2c0f; border: 2px solid #2a1805; border-radius: 4px 4px 0 0; display: flex; justify-content: center; align-items: flex-end; }
+        .door::after { content: ''; width: 8px; height: 8px; background: #ffd700; border-radius: 50%; position: absolute; right: 8px; top: 40px; }
+
+        /* Chat/UI Overlay */
+        .chat-box { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; background: rgba(0,0,0,0.8); border: 2px solid white; color: white; padding: 10px; font-family: 'VT323', monospace; font-size: 1.5rem; display: none; z-index: 150; }
+        .chat-options { display: flex; gap: 10px; margin-top: 10px; }
+        .chat-btn { background: #333; border: 1px solid white; color: white; padding: 5px 15px; cursor: pointer; }
+        .chat-btn:hover { background: #555; }
+
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="text-gray-800">
+<body>
 
-    <!-- 2D Animated Background -->
-    <div class="scene-container">
-        <div class="sun"></div>
-        
-        <!-- Clouds -->
-        <div class="cloud c1"></div>
-        <div class="cloud c2"></div>
-        <div class="cloud c3"></div>
-
-        <!-- City Skyline (Far back) -->
-        <div class="city-layer">
-            <div class="building b-2"></div>
-            <div class="building b-5"></div>
-            <div class="building b-1"></div>
-            <div class="building b-4"></div>
-            <div class="building b-3"></div>
-            <div class="building b-2"></div>
+    <!-- ================= VIEW: LANDING ================= -->
+    <div id="view-landing" class="relative w-full h-full">
+        <div class="scene-container">
+            <div class="sun"></div>
+            <div class="city-layer"><div class="building b-2"></div><div class="building b-5"></div><div class="building b-1"></div></div>
+            <div class="grass-layer"></div>
         </div>
-
-        <!-- Carnival (Midground) -->
-        <div class="carnival-layer">
-            <!-- Ferris Wheel -->
-            <div class="wheel-container">
-                <div class="wheel-rim">
-                    <div class="wheel-spoke" style="transform: translate(-50%, -50%) rotate(0deg);"></div>
-                    <div class="wheel-spoke" style="transform: translate(-50%, -50%) rotate(45deg);"></div>
-                    <div class="wheel-spoke" style="transform: translate(-50%, -50%) rotate(90deg);"></div>
-                    <div class="wheel-spoke" style="transform: translate(-50%, -50%) rotate(135deg);"></div>
-                    
-                    <!-- Cabins -->
-                    <div class="cabin" style="top: -10px; left: 50%; margin-left: -10px;"></div>
-                    <div class="cabin" style="bottom: -10px; left: 50%; margin-left: -10px;"></div>
-                    <div class="cabin" style="left: -10px; top: 50%; margin-top: -10px;"></div>
-                    <div class="cabin" style="right: -10px; top: 50%; margin-top: -10px;"></div>
-                </div>
-            </div>
-
-            <!-- Tent -->
-            <div class="tent">
-                <div class="lights-string">
-                    <div class="light" style="background: cyan; animation-delay: 0s;"></div>
-                    <div class="light" style="background: magenta; animation-delay: 0.2s;"></div>
-                    <div class="light" style="background: yellow; animation-delay: 0.4s;"></div>
-                    <div class="light" style="background: lime; animation-delay: 0.6s;"></div>
-                    <div class="light" style="background: cyan; animation-delay: 0.8s;"></div>
-                </div>
-            </div>
+        <div class="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center">
+            <h1 class="text-6xl md:text-8xl font-black text-rose-500 drop-shadow-2xl mb-2 tracking-tight" style="font-family: 'VT323', monospace;">PEYTOTORIA</h1>
+            <div class="glass-panel px-6 py-2 rounded-sm mb-8"><span class="font-bold text-gray-200">Estimated Starters: <span class="text-rose-400">1,000+</span></span></div>
+            <button onclick="router.navigateTo('auth')" class="bg-rose-600 hover:bg-rose-500 text-white text-xl font-bold py-4 px-12 block-btn shadow-block">Play (BETA)</button>
         </div>
-
-        <!-- Grass (Foreground) -->
-        <div class="grass-layer"></div>
     </div>
 
-    <!-- Main Content -->
-    <div class="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
-        
-        <!-- Hero Section -->
-        <div class="text-center mb-12 max-w-4xl mx-auto">
-            <h1 class="text-6xl md:text-8xl font-black text-rose-600 drop-shadow-lg tracking-tight mb-2">
-                PEYTOTORIA
-            </h1>
-            <div class="inline-flex items-center gap-2 bg-white/80 px-4 py-1 rounded-full shadow-sm mb-8">
-                <span class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
-                <span class="font-bold text-gray-600">Estimated Starters: <span class="text-rose-600">1,000+</span></span>
+    <!-- ================= VIEW: AUTH ================= -->
+    <div id="view-auth" class="hidden w-full h-full bg-black flex items-center justify-center p-4 relative">
+        <div class="absolute inset-0 bg-gradient-to-br from-rose-900/30 to-black"></div>
+        <div class="glass-panel p-8 rounded-sm max-w-md w-full relative z-10 text-center border-4 border-rose-900">
+            <h2 class="text-3xl font-bold text-white mb-2 font-mono">IDENTIFY YOURSELF</h2>
+            <input type="text" id="auth-username" class="w-full p-3 bg-black border-2 border-white/20 rounded-sm text-white mb-4 mt-6 font-mono" placeholder="USERNAME">
+            <input type="file" id="auth-pfp" class="w-full text-sm text-gray-500 mb-4"/>
+            <button onclick="handleAuth()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-sm block-btn shadow-block">ENTER WORLD</button>
+        </div>
+    </div>
+
+    <!-- ================= VIEW: APP ================= -->
+    <div id="view-app" class="hidden app-shell relative">
+        <!-- Sidebar -->
+        <aside class="sidebar glass-panel m-4 rounded-sm border-2 border-white/10 bg-black/50">
+            <div class="flex items-center gap-3 mb-8 px-2 border-b-2 border-white/10 pb-4">
+                <div class="w-10 h-10 bg-rose-600 rounded-sm flex items-center justify-center border-2 border-white/20"><span class="font-bold text-white">P</span></div>
+                <span class="text-xl font-bold tracking-wide font-mono">PEYTOTORIA</span>
+            </div>
+            <nav class="flex-1 space-y-2">
+                <button onclick="router.switchTab('home')" class="nav-btn w-full text-left px-4 py-3 rounded-sm hover:bg-white/5 text-gray-300 font-bold block-btn">🏠 HOME</button>
+                <button onclick="router.switchTab('games')" class="nav-btn w-full text-left px-4 py-3 rounded-sm hover:bg-white/5 text-gray-300 font-bold block-btn">🎮 GAMES</button>
+                <button onclick="router.switchTab('marketplace')" class="nav-btn w-full text-left px-4 py-3 rounded-sm hover:bg-white/5 text-gray-300 font-bold block-btn">🛒 SHOP</button>
+                <button onclick="router.switchTab('profile')" class="nav-btn w-full text-left px-4 py-3 rounded-sm hover:bg-white/5 text-gray-300 font-bold block-btn">👤 PROFILE</button>
+            </nav>
+            <div class="mt-auto border-t-2 border-white/10 pt-4 flex items-center gap-3">
+                <img id="sidebar-pfp" class="w-10 h-10 rounded-sm bg-gray-700 object-cover border-2 border-white/20" src="">
+                <div><p id="sidebar-username" class="text-sm font-bold text-gray-200 font-mono">USER</p><p class="text-xs text-green-400">● ONLINE</p></div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="flex justify-between items-center mb-8 sticky top-0 z-30 py-2">
+                <div class="glass-panel px-4 py-2 rounded-sm border-2 border-white/10"><h2 id="page-title" class="text-xl font-bold text-white font-mono">HOME</h2></div>
+                <div class="flex gap-4">
+                    <div class="glass-panel px-4 py-2 rounded-sm flex items-center gap-2 border-rose-500/30">💎 <span id="currency-bucks" class="font-bold text-rose-300 font-mono">0</span></div>
+                    <div class="glass-panel px-4 py-2 rounded-sm flex items-center gap-2 border-orange-500/30">🧱 <span id="currency-coins" class="font-bold text-rose-200 font-mono">0</span></div>
+                </div>
+            </header>
+
+            <!-- TAB: HOME -->
+            <div id="tab-home" class="tab-content">
+                <div class="glass-panel rounded-sm p-6 mb-8 relative overflow-hidden group border-2 border-white/10">
+                    <h3 class="text-2xl font-bold mb-2 text-white font-mono">LOBBY <span class="text-xs bg-rose-600 px-2 py-1 rounded-sm text-white ml-2">BETA</span></h3>
+                    <div id="playground" class="relative w-full h-[300px] bg-[#0f172a] rounded-sm overflow-hidden border-2 border-white/10 shadow-inner">
+                        <div class="absolute inset-0" style="background-image: radial-gradient(rgba(255,255,255,0.1) 2px, transparent 2px); background-size: 30px 30px;"></div>
+                        <div id="player-char-lobby" class="lego-char" style="top: 50%; left: 50%;">
+                            <div class="lego-head"><div class="lego-face"><div class="eye"></div><div class="eye"></div><div class="mouth"></div></div></div>
+                            <div class="lego-torso"><div class="lego-arms"><div class="arm"><div class="lego-hand"></div></div><div class="arm"><div class="lego-hand"></div></div></div><div class="lego-logo-print">P</div></div>
+                            <div class="lego-legs"><div class="leg"></div><div class="leg"></div></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <h2 class="text-3xl md:text-5xl font-bold text-white drop-shadow-md mb-8">
-                Coming January 1st! 2026
-            </h2>
+            <!-- TAB: GAMES -->
+            <div id="tab-games" class="tab-content hidden">
+                <div class="game-grid" id="games-list"></div>
+            </div>
 
-            <!-- Countdown Timer -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto mb-16">
-                <div class="glass-card p-4 rounded-2xl flex flex-col items-center">
-                    <span id="days" class="text-4xl font-bold text-rose-600">00</span>
-                    <span class="text-sm font-semibold text-gray-600 uppercase">Days</span>
+            <!-- TAB: GAME DETAILS -->
+            <div id="tab-game-details" class="tab-content hidden">
+                <button onclick="router.switchTab('games')" class="text-sm text-gray-400 mb-4 hover:text-rose-500 font-bold font-mono">← BACK</button>
+                <div class="glass-panel rounded-sm overflow-hidden relative p-8 border-2 border-white/10">
+                    <h1 id="game-title-display" class="text-4xl font-black text-white mb-2 font-mono">TITLE</h1>
+                    <p id="game-stats-display" class="text-rose-400 font-mono mb-4">STATS</p>
+                    <button id="play-btn" class="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-sm font-bold mt-4 block-btn shadow-block">PLAY NOW</button>
                 </div>
-                <div class="glass-card p-4 rounded-2xl flex flex-col items-center">
-                    <span id="hours" class="text-4xl font-bold text-rose-600">00</span>
-                    <span class="text-sm font-semibold text-gray-600 uppercase">Hours</span>
+            </div>
+
+            <!-- TAB: MARKETPLACE -->
+            <div id="tab-marketplace" class="tab-content hidden">
+                <h3 class="text-2xl font-bold mb-6 font-mono">MARKETPLACE</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="marketplace-grid"></div>
+            </div>
+
+            <!-- TAB: PROFILE -->
+            <div id="tab-profile" class="tab-content hidden">
+                <div class="glass-panel rounded-sm p-8 flex flex-col items-center border-2 border-white/10">
+                    <h3 class="text-2xl font-bold mb-4 font-mono">CUSTOMIZER</h3>
+                    <div class="flex items-center gap-8">
+                        <div class="flex flex-col gap-4">
+                            <button onclick="avatar.cycle('head', -1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">◀ HEAD</button>
+                            <button onclick="avatar.cycle('shirt', -1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">◀ SHIRT</button>
+                            <button onclick="avatar.cycle('pants', -1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">◀ PANTS</button>
+                        </div>
+                        <div class="relative w-40 h-64 bg-white/5 rounded-sm flex items-center justify-center border-2 border-white/10">
+                            <div id="preview-char" class="lego-char" style="transform: scale(2.5); position: relative;">
+                                <div class="lego-head"><div class="lego-face"><div class="eye"></div><div class="eye"></div><div class="mouth"></div></div></div>
+                                <div class="lego-torso"><div class="lego-arms"><div class="arm"><div class="lego-hand"></div></div><div class="arm"><div class="lego-hand"></div></div></div><div class="lego-logo-print">P</div></div>
+                                <div class="lego-legs"><div class="leg"></div><div class="leg"></div></div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-4">
+                            <button onclick="avatar.cycle('head', 1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">HEAD ▶</button>
+                            <button onclick="avatar.cycle('shirt', 1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">SHIRT ▶</button>
+                            <button onclick="avatar.cycle('pants', 1)" class="p-2 bg-white/10 rounded-sm hover:bg-white/20 font-mono">PANTS ▶</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="glass-card p-4 rounded-2xl flex flex-col items-center">
-                    <span id="minutes" class="text-4xl font-bold text-rose-600">00</span>
-                    <span class="text-sm font-semibold text-gray-600 uppercase">Minutes</span>
-                </div>
-                <div class="glass-card p-4 rounded-2xl flex flex-col items-center">
-                    <span id="seconds" class="text-4xl font-bold text-rose-600">00</span>
-                    <span class="text-sm font-semibold text-gray-600 uppercase">Seconds</span>
-                </div>
+            </div>
+        </main>
+        <nav class="mobile-nav">
+            <button onclick="router.switchTab('home')" class="text-2xl text-white">🏠</button>
+            <button onclick="router.switchTab('games')" class="text-2xl text-white">🎮</button>
+            <button onclick="router.switchTab('marketplace')" class="text-2xl text-white">🛒</button>
+            <button onclick="router.switchTab('profile')" class="text-2xl text-white">👤</button>
+        </nav>
+    </div>
+
+    <!-- ================= LOADING SCREEN ================= -->
+    <div id="loading-screen" class="hidden">
+        <h2 class="text-4xl font-mono font-bold text-white mb-4">LOADING WORLD...</h2>
+        <div class="loading-bar-container"><div id="loading-bar" class="loading-bar-fill"></div></div>
+        <p class="text-gray-500 mt-2 font-mono" id="loading-text">Initializing Physics...</p>
+    </div>
+
+    <!-- ================= ACTIVE GAME CONTAINER ================= -->
+    <div id="active-game-container" class="hidden">
+        
+        <!-- Game World -->
+        <div id="game-view">
+            <div id="game-world">
+                <!-- Dynamic BG and Platforms -->
+            </div>
+            <!-- Player Entity -->
+            <div id="game-player" class="lego-char" style="left:100px; bottom:200px;">
+                <div class="lego-head"><div class="lego-face"><div class="eye"></div><div class="eye"></div><div class="mouth"></div></div></div>
+                <div class="lego-torso"><div class="lego-arms"><div class="arm"></div><div class="arm"></div></div><div class="lego-logo-print">P</div></div>
+                <div class="lego-legs"><div class="leg"></div><div class="leg"></div></div>
             </div>
         </div>
 
-        <!-- Features Section -->
-        <div class="w-full max-w-6xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                <!-- Feature 1 -->
-                <div class="glass-card p-8 rounded-3xl hover:transform hover:-translate-y-2 transition-all duration-300">
-                    <div class="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center mb-4 text-rose-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        <!-- In-Game UI -->
+        <div id="in-game-ui" class="flex flex-col justify-between p-4 h-full pointer-events-none">
+            <div class="flex justify-between items-start pointer-events-auto">
+                <button onclick="engine.stop()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-sm border-b-4 border-red-800 shadow-lg active:border-b-0 active:translate-y-1 transition-all">LEAVE GAME</button>
+                <div class="flex gap-2">
+                    <div id="pumpkin-counter" class="hidden flex gap-2">
+                         <div class="bg-orange-600 text-white px-4 py-2 rounded-sm border-2 border-orange-800 font-bold">🎃 <span id="p-count">0</span></div>
+                         <button onclick="engine.sellPumpkins()" class="bg-green-600 text-white px-4 py-2 rounded-sm border-b-4 border-green-800 font-bold active:border-b-0 active:translate-y-1">SELL ALL</button>
                     </div>
-                    <h3 class="text-xl font-bold mb-2 text-gray-800">Dynamic Marketplace</h3>
-                    <p class="text-gray-600">Trade items, buy skins, and build your economy in a fully player-driven market.</p>
                 </div>
-
-                <!-- Feature 2 -->
-                <div class="glass-card p-8 rounded-3xl hover:transform hover:-translate-y-2 transition-all duration-300">
-                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 text-blue-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-gray-800">Awesome Modern UI</h3>
-                    <p class="text-gray-600">Sleek, responsive, and easy to navigate interface designed for the future.</p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="glass-card p-8 rounded-3xl hover:transform hover:-translate-y-2 transition-all duration-300">
-                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4 text-green-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-gray-800">New Currency System</h3>
-                    <p class="text-gray-600">Earn, save, and spend the exclusive Peytotoria currency across all games.</p>
-                </div>
-
-                <!-- Feature 4 -->
-                <div class="glass-card p-8 rounded-3xl hover:transform hover:-translate-y-2 transition-all duration-300">
-                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4 text-purple-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-gray-800">Offline Playing</h3>
-                    <p class="text-gray-600">No internet? No problem. Enjoy seamless gameplay even when disconnected.</p>
-                </div>
-
-                <!-- Feature 5 -->
-                <div class="glass-card p-8 rounded-3xl hover:transform hover:-translate-y-2 transition-all duration-300">
-                    <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mb-4 text-yellow-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-gray-800">4+ Starter Games</h3>
-                    <p class="text-gray-600">Launch day includes over 4 distinct titles to jump into immediately.</p>
-                </div>
-
-                <!-- Feature 6 -->
-                <div class="glass-card p-8 rounded-3xl hover:transform hover:-translate-y-2 transition-all duration-300">
-                    <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4 text-orange-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-gray-800">Awesome Dev Team</h3>
-                    <p class="text-gray-600">Dedicated developers working around the clock to bring you the best experience.</p>
-                </div>
-
+            </div>
+            
+            <!-- BrickTown Tools -->
+            <div id="bricktown-ui" class="hidden pointer-events-auto self-center bg-black/80 p-2 rounded-sm border-2 border-white/20 flex gap-2">
+                <button onclick="engine.setTool('place')" class="bg-blue-600 text-white px-4 py-2 rounded-sm font-bold border-b-4 border-blue-800 active:border-b-0 active:translate-y-1">🛠️ PLACE</button>
+                <button onclick="engine.setTool('destroy')" class="bg-red-600 text-white px-4 py-2 rounded-sm font-bold border-b-4 border-red-800 active:border-b-0 active:translate-y-1">🧨 DESTROY</button>
+                 <button onclick="engine.togglePhysics()" class="bg-yellow-600 text-white px-4 py-2 rounded-sm font-bold border-b-4 border-yellow-800 active:border-b-0 active:translate-y-1">🏃 SPAWN/PLAY</button>
             </div>
 
-            <div class="mt-12 text-center">
-                <button class="bg-rose-600 hover:bg-rose-700 text-white text-lg font-bold py-4 px-10 rounded-full shadow-lg transform transition hover:scale-105">
-                    Join the Waitlist
-                </button>
+            <!-- Interaction Prompt -->
+            <div id="interaction-prompt" class="hidden pointer-events-none absolute bottom-32 left-1/2 transform -translate-x-1/2 bg-white text-black font-bold px-4 py-2 rounded-sm border-2 border-black animate-bounce">
+                PRESS [E]
+            </div>
+
+            <!-- Chat Box -->
+            <div id="chat-box" class="chat-box pointer-events-auto">
+                <div id="chat-text">Hello citizen!</div>
+                <div class="chat-options">
+                    <button class="chat-btn" onclick="engine.handleChat('job')">Ask for Job</button>
+                    <button class="chat-btn" onclick="engine.handleChat('shop')">Shop</button>
+                    <button class="chat-btn" onclick="document.getElementById('chat-box').style.display='none'">Close</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Countdown Logic
-        const targetDate = new Date("January 1, 2026 00:00:00").getTime();
-
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-
-            if (distance < 0) {
-                document.getElementById("days").innerText = "00";
-                document.getElementById("hours").innerText = "00";
-                document.getElementById("minutes").innerText = "00";
-                document.getElementById("seconds").innerText = "00";
-                return;
+        // --- DATA LAYER ---
+        const db = {
+            user: JSON.parse(localStorage.getItem('peytotoria_user')) || { username: null, pfp: null, avatar: { head: 0, shirt: 0, pants: 0 } },
+            games: [
+                { id: 'halloween', title: 'Halloween Lantern Town', icon: '🎃', bg: 'cover-halloween', visits: '3.4K', type: 'collection' },
+                { id: 'bricktown', title: 'BrickTown', icon: '🧱', bg: 'cover-bricktown', visits: '102K', type: 'sandbox' },
+                { id: 'peytotopia', title: 'PeytoTopia RP', icon: '🏙️', bg: 'cover-peytotopia', visits: '1.1M', type: 'rp' },
+                // 10 New Concepts
+                { id: 'space', title: 'Moon Base Alpha', icon: '🚀', bg: 'cover-generic', visits: '500', type: 'platformer', theme: '#000' },
+                { id: 'medieval', title: 'Knights Quest', icon: '⚔️', bg: 'cover-generic', visits: '1.2K', type: 'platformer', theme: '#555' },
+                { id: 'pirate', title: 'Seven Seas', icon: '🏴‍☠️', bg: 'cover-generic', visits: '800', type: 'platformer', theme: '#0099cc' },
+                { id: 'dino', title: 'Dino Park', icon: '🦖', bg: 'cover-generic', visits: '2K', type: 'platformer', theme: '#228b22' },
+                { id: 'ninja', title: 'Shadow Dojo', icon: '🥷', bg: 'cover-generic', visits: '3K', type: 'platformer', theme: '#333' },
+                { id: 'cyber', title: 'Neon City', icon: '🤖', bg: 'cover-generic', visits: '5K', type: 'platformer', theme: '#ff00ff' },
+                { id: 'candy', title: 'Sugar Rush', icon: '🍭', bg: 'cover-generic', visits: '10K', type: 'platformer', theme: '#ff69b4' },
+                { id: 'western', title: 'Dusty Gulch', icon: '🤠', bg: 'cover-generic', visits: '1K', type: 'platformer', theme: '#d2691e' },
+                { id: 'arctic', title: 'Frost Peak', icon: '❄️', bg: 'cover-generic', visits: '900', type: 'platformer', theme: '#e0ffff' },
+                { id: 'lava', title: 'Magma Core', icon: '🌋', bg: 'cover-generic', visits: '4K', type: 'platformer', theme: '#ff4500' }
+            ],
+            currencies: { bucks: 100, coins: 50 },
+            assets: {
+                heads: ['#fbbf24', '#fca5a5', '#d4d4d4', '#a3e635', '#60a5fa'],
+                shirts: ['#e11d48', '#2563eb', '#16a34a', '#ca8a04', '#9333ea', '#111'],
+                pants: ['#3b82f6', '#1e293b', '#92400e', '#15803d', '#4c1d95', '#333']
             }
+        };
 
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        // --- GAME ENGINE ---
+        const engine = {
+            running: false,
+            gameId: null,
+            player: { x: 100, y: 300, vx: 0, vy: 0, grounded: false, facingRight: true },
+            cameraX: 0,
+            keys: { left: false, right: false, up: false, interact: false },
+            entities: [], 
+            platforms: [],
+            tool: 'place',
+            paused: false,
 
-            document.getElementById("days").innerText = days < 10 ? "0" + days : days;
-            document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
-            document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
-            document.getElementById("seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
+            launch: (id) => {
+                document.getElementById('view-app').classList.add('hidden');
+                document.getElementById('loading-screen').classList.remove('hidden');
+                let p = 0;
+                const bar = document.getElementById('loading-bar');
+                const interval = setInterval(() => {
+                    p += 5;
+                    bar.style.width = p + '%';
+                    if(p >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => engine.start(id), 500);
+                    }
+                }, 50);
+            },
+
+            start: (id) => {
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('active-game-container').classList.remove('hidden');
+                engine.running = true;
+                engine.gameId = id;
+                engine.buildWorld(id);
+                engine.loop();
+            },
+
+            stop: () => {
+                engine.running = false;
+                document.getElementById('active-game-container').classList.add('hidden');
+                document.getElementById('view-app').classList.remove('hidden');
+                router.switchTab('games');
+            },
+
+            buildWorld: (id) => {
+                const world = document.getElementById('game-world');
+                world.innerHTML = '<div class="game-bg"></div>'; 
+                const bg = world.querySelector('.game-bg');
+                
+                engine.player = { x: 100, y: 300, vx: 0, vy: 0, grounded: false, facingRight: true };
+                engine.entities = [];
+                engine.platforms = [];
+                engine.cameraX = 0;
+                
+                document.getElementById('pumpkin-counter').classList.add('hidden');
+                document.getElementById('bricktown-ui').classList.add('hidden');
+                document.getElementById('chat-box').style.display = 'none';
+
+                if (id === 'halloween') {
+                    bg.style.background = 'linear-gradient(to bottom, #1e1b4b, #ea580c)';
+                    document.getElementById('pumpkin-counter').classList.remove('hidden');
+                    engine.addPlatform(0, 0, 5000, 50, '#2a1a08');
+                    for(let i=0; i<20; i++) {
+                        const px = 300 + i*400;
+                        const py = 100 + Math.random()*200;
+                        engine.addPlatform(px, py, 150, 40, '#2a1a08');
+                        engine.addEntity('pumpkin', px + 50, py + 50, '🎃');
+                    }
+                } 
+                else if (id === 'bricktown') {
+                    bg.style.background = 'linear-gradient(to top, #0ea5e9, #bae6fd)';
+                    bg.style.backgroundImage = 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)';
+                    bg.style.backgroundSize = '40px 40px';
+                    document.getElementById('bricktown-ui').classList.remove('hidden');
+                    engine.addPlatform(0, 0, 5000, 40, '#4ade80');
+                }
+                else if (id === 'peytotopia') {
+                    bg.style.background = 'linear-gradient(to bottom, #60a5fa, #bfdbfe)';
+                    engine.addPlatform(0, 0, 5000, 50, '#333');
+                    engine.addStructure(300, 50, 'STORE', '#ef4444');
+                    engine.addStructure(800, 50, 'HOME', '#f59e0b');
+                    engine.addStructure(1300, 50, 'STORE', '#3b82f6');
+                    engine.addEntity('npc', 400, 50, null, 'Shopkeeper');
+                    engine.addEntity('npc', 900, 50, null, 'Citizen');
+                }
+                else {
+                    bg.style.background = '#333';
+                    engine.addPlatform(0, 0, 5000, 50, '#555');
+                    for(let i=0; i<10; i++) engine.addPlatform(200 + i*300, 100 + Math.random()*150, 100, 20, '#777');
+                }
+                
+                avatar.applyTo(document.getElementById('game-player'));
+            },
+
+            addPlatform: (x, y, w, h, color) => {
+                const el = document.createElement('div');
+                el.className = 'platform';
+                el.style.left = x + 'px'; el.style.bottom = y + 'px';
+                el.style.width = w + 'px'; el.style.height = h + 'px';
+                el.style.backgroundColor = color;
+                document.getElementById('game-world').appendChild(el);
+                engine.platforms.push({ x, y, w, h, el });
+            },
+
+            addStructure: (x, y, label, color) => {
+                const world = document.getElementById('game-world');
+                const house = document.createElement('div');
+                house.style.position = 'absolute'; house.style.left = x + 'px'; house.style.bottom = y + 'px';
+                house.style.width = '200px'; house.style.height = '150px'; house.style.background = color;
+                house.style.border = '4px solid rgba(0,0,0,0.5)';
+                const door = document.createElement('div');
+                door.className = 'door';
+                door.style.left = '75px'; door.style.bottom = '0px';
+                house.appendChild(door);
+                const sign = document.createElement('div');
+                sign.innerText = label;
+                sign.style.position = 'absolute'; sign.style.top = '-30px'; sign.style.width = '100%';
+                sign.style.textAlign = 'center'; sign.style.fontWeight = 'bold'; sign.style.background = 'white'; sign.style.color = 'black';
+                house.appendChild(sign);
+                world.appendChild(house);
+                engine.entities.push({ type: 'door', x: x + 75, y: y, w: 50, h: 80, label: label });
+            },
+
+            addEntity: (type, x, y, content, name) => {
+                const el = document.createElement('div');
+                el.style.left = x + 'px'; el.style.bottom = y + 'px';
+                el.style.position = 'absolute';
+                if (type === 'pumpkin') { el.className = 'pumpkin'; el.innerText = content; } 
+                else if (type === 'npc') {
+                    el.className = 'npc';
+                    el.innerHTML = `<div class="lego-char" style="position:relative;"><div class="lego-head" style="background:#fbbf24"><div class="lego-face"><div class="eye"></div><div class="eye"></div><div class="mouth"></div></div></div><div class="lego-torso" style="background:#555"><div class="lego-arms"><div class="arm" style="background:#555"></div><div class="arm" style="background:#555"></div></div></div><div class="lego-legs" style="background:#333"><div class="leg" style="background:#333"></div><div class="leg" style="background:#333"></div></div></div>`;
+                }
+                document.getElementById('game-world').appendChild(el);
+                engine.entities.push({ type, x, y, el, collected: false, name });
+            },
+
+            loop: () => {
+                if(!engine.running) return;
+                const p = engine.player;
+                const playerEl = document.getElementById('game-player');
+
+                if(engine.keys.left) { p.vx = -5; p.facingRight = false; }
+                else if(engine.keys.right) { p.vx = 5; p.facingRight = true; }
+                else { p.vx *= 0.8; }
+
+                p.vy -= 0.8; 
+                p.x += p.vx;
+                p.y += p.vy;
+
+                p.grounded = false;
+                if(p.y < 0) { p.y = 0; p.vy = 0; p.grounded = true; }
+                
+                engine.platforms.forEach(plat => {
+                    if (p.x + 20 > plat.x && p.x + 20 < plat.x + plat.w && 
+                        p.y <= plat.y + plat.h && p.y + p.vy >= plat.y + plat.h) { 
+                        p.y = plat.y + plat.h;
+                        p.vy = 0;
+                        p.grounded = true;
+                    }
+                });
+
+                playerEl.style.bottom = p.y + 'px';
+                playerEl.classList.remove('walking', 'jumping');
+                if(!p.grounded) playerEl.classList.add('jumping');
+                else if(Math.abs(p.vx) > 1) playerEl.classList.add('walking');
+                playerEl.style.transform = p.facingRight ? 'scaleX(1)' : 'scaleX(-1)';
+
+                const screenCenter = window.innerWidth / 2;
+                if(p.x > screenCenter) {
+                    engine.cameraX = p.x - screenCenter;
+                    playerEl.style.left = screenCenter + 'px';
+                    document.getElementById('game-world').style.transform = `translateX(${-engine.cameraX}px)`;
+                } else {
+                    engine.cameraX = 0;
+                    playerEl.style.left = p.x + 'px';
+                    document.getElementById('game-world').style.transform = `translateX(0px)`;
+                }
+
+                const prompt = document.getElementById('interaction-prompt');
+                prompt.classList.add('hidden');
+                engine.entities.forEach(ent => {
+                    if(ent.collected) return;
+                    const dist = Math.abs(p.x - ent.x);
+                    if(dist < 50 && Math.abs(p.y - ent.y) < 50) {
+                        if(ent.type === 'pumpkin' && engine.keys.interact) {
+                            ent.collected = true;
+                            ent.el.style.display = 'none';
+                            const countEl = document.getElementById('p-count');
+                            countEl.innerText = parseInt(countEl.innerText) + 1;
+                        }
+                        if(ent.type === 'npc' || ent.type === 'door') {
+                            prompt.classList.remove('hidden');
+                            prompt.innerText = `PRESS [E] ${ent.name || 'ENTER'}`;
+                            if(engine.keys.interact) {
+                                engine.keys.interact = false; 
+                                if(ent.type === 'npc') {
+                                    document.getElementById('chat-box').style.display = 'block';
+                                    document.getElementById('chat-text').innerText = `Hello! I am a ${ent.name}.`;
+                                } else if (ent.type === 'door') {
+                                    alert(`Entering ${ent.label}...`);
+                                }
+                            }
+                        }
+                    }
+                });
+                requestAnimationFrame(engine.loop);
+            },
+            
+            setTool: (t) => { engine.tool = t; },
+            togglePhysics: () => { 
+                // In a real engine, this would toggle building mode vs playing mode
+                // For now, it resets player to a safe spawn
+                engine.player.x = 100; engine.player.y = 300; 
+                alert("Respawned at start!");
+            },
+            handleChat: (opt) => {
+                alert(`You selected: ${opt}`);
+                document.getElementById('chat-box').style.display = 'none';
+            },
+            spawnBlock: (e) => {
+                if(engine.gameId !== 'bricktown') return;
+                const rect = document.getElementById('game-view').getBoundingClientRect();
+                const x = (e.clientX - rect.left) + engine.cameraX;
+                const y = (window.innerHeight - e.clientY);
+                const gx = Math.floor(x / 40) * 40;
+                const gy = Math.floor(y / 40) * 40;
+
+                if(engine.tool === 'place') {
+                    engine.addPlatform(gx, gy, 40, 40, '#3b82f6');
+                } else {
+                    const idx = engine.platforms.findIndex(p => p.x === gx && p.y === gy);
+                    if(idx > -1) {
+                        engine.platforms[idx].el.remove();
+                        engine.platforms.splice(idx, 1);
+                    }
+                }
+            },
+            sellPumpkins: () => {
+                const countEl = document.getElementById('p-count');
+                const count = parseInt(countEl.innerText);
+                if(count > 0) {
+                    db.currencies.bucks += count * 5;
+                    countEl.innerText = '0';
+                    alert(`Sold ${count} pumpkins for ${count * 5} Bucks!`);
+                    ui.updateCurrency();
+                } else {
+                    alert("No pumpkins to sell!");
+                }
+            }
+        };
+
+        window.addEventListener('keydown', e => {
+            if(engine.running) {
+                if(e.key === 'ArrowLeft' || e.key === 'a') engine.keys.left = true;
+                if(e.key === 'ArrowRight' || e.key === 'd') engine.keys.right = true;
+                if(e.key === 'e' || e.key === 'E') engine.keys.interact = true;
+                if((e.key === ' ' || e.key === 'ArrowUp') && engine.player.grounded) {
+                    engine.player.vy = 12; engine.player.grounded = false;
+                }
+            }
+        });
+        window.addEventListener('keyup', e => {
+            if(e.key === 'ArrowLeft' || e.key === 'a') engine.keys.left = false;
+            if(e.key === 'ArrowRight' || e.key === 'd') engine.keys.right = false;
+            if(e.key === 'e' || e.key === 'E') engine.keys.interact = false;
+        });
+        document.getElementById('game-view').addEventListener('mousedown', (e) => engine.spawnBlock(e));
+
+        const router = {
+            init: () => {
+                if(db.user.username) {
+                    router.navigateTo('app');
+                    ui.loadUser(); ui.genGames(); ui.genMarket(); avatar.update();
+                } else {
+                    router.navigateTo('landing');
+                }
+            },
+            navigateTo: (id) => {
+                document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+                document.getElementById(`view-${id}`).classList.remove('hidden');
+                if(id==='app') router.switchTab('home');
+            },
+            switchTab: (id) => {
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+                document.getElementById(`tab-${id}`).classList.remove('hidden');
+                document.querySelectorAll('.nav-btn').forEach(b => {
+                    b.classList.remove('sidebar-active'); b.classList.add('text-gray-300');
+                });
+                const map = {'home':0, 'games':1, 'marketplace':2, 'profile':3};
+                const btns = document.querySelectorAll('.nav-btn');
+                if(btns[map[id]]) btns[map[id]].classList.add('sidebar-active', 'text-white');
+            },
+            openGamePage: (gameId) => {
+                const game = db.games.find(g => g.id === gameId);
+                document.getElementById('game-title-display').innerText = game.title.toUpperCase();
+                document.getElementById('game-stats-display').innerText = `${game.visits} VISITS • ${game.type.toUpperCase()}`;
+                const btn = document.getElementById('play-btn');
+                btn.onclick = () => engine.launch(gameId);
+                router.switchTab('game-details');
+            }
+        };
+
+        const ui = {
+            loadUser: () => {
+                document.getElementById('sidebar-username').innerText = db.user.username.toUpperCase();
+                if(db.user.pfp) document.getElementById('sidebar-pfp').src = db.user.pfp;
+                ui.updateCurrency();
+            },
+            updateCurrency: () => {
+                document.getElementById('currency-bucks').innerText = db.currencies.bucks;
+                document.getElementById('currency-coins').innerText = db.currencies.coins;
+            },
+            genGames: () => {
+                const grid = document.getElementById('games-list');
+                grid.innerHTML = '';
+                db.games.forEach(g => {
+                    const card = document.createElement('div');
+                    card.className = 'glass-panel rounded-sm overflow-hidden cursor-pointer hover:-translate-y-2 transition-transform border-2 border-white/10';
+                    card.onclick = () => router.openGamePage(g.id);
+                    card.innerHTML = `<div class="cover ${g.bg} text-white">${g.icon}</div><div class="p-4 bg-black/60"><h3 class="font-bold text-white font-mono text-lg truncate">${g.title}</h3><p class="text-xs text-gray-400 font-mono mt-1">${g.visits} VISITS</p></div>`;
+                    grid.appendChild(card);
+                });
+            },
+            genMarket: () => {
+                const grid = document.getElementById('marketplace-grid');
+                grid.innerHTML = '';
+                const items = [{n:'RED CAP', p:50}, {n:'BLUE SHIRT', p:25}, {n:'TUXEDO', p:200}, {n:'GOLD HEAD', p:1000}, {n:'NINJA', p:150}, {n:'SPACE SUIT', p:500}, {n:'CAMO', p:60}, {n:'CYBER', p:300}];
+                items.forEach(i => {
+                    grid.innerHTML += `<div class="glass-panel p-4 rounded-sm flex flex-col items-center border-2 border-white/10"><div class="w-12 h-12 bg-white/10 mb-2 rounded-sm"></div><h4 class="font-bold text-sm font-mono">${i.n}</h4><span class="text-rose-400 text-xs font-mono mt-1">💎 ${i.p}</span><button class="mt-2 text-xs bg-rose-600 text-white px-3 py-1 rounded-sm block-btn">BUY</button></div>`;
+                });
+            }
+        };
+
+        const avatar = {
+            update: () => {
+                const els = document.querySelectorAll('.lego-char');
+                const { head, shirt, pants } = db.user.avatar;
+                els.forEach(el => {
+                    el.querySelector('.lego-head').style.backgroundColor = db.assets.heads[head % db.assets.heads.length];
+                    el.querySelector('.lego-torso').style.backgroundColor = db.assets.shirts[shirt % db.assets.shirts.length];
+                    el.querySelectorAll('.arm').forEach(a => a.style.backgroundColor = db.assets.shirts[shirt % db.assets.shirts.length]);
+                    el.querySelectorAll('.leg').forEach(l => l.style.backgroundColor = db.assets.pants[pants % db.assets.pants.length]);
+                });
+                localStorage.setItem('peytotoria_user', JSON.stringify(db.user));
+            },
+            applyTo: (el) => {
+                const { head, shirt, pants } = db.user.avatar;
+                el.querySelector('.lego-head').style.backgroundColor = db.assets.heads[head % db.assets.heads.length];
+                el.querySelector('.lego-torso').style.backgroundColor = db.assets.shirts[shirt % db.assets.shirts.length];
+                el.querySelectorAll('.arm').forEach(a => a.style.backgroundColor = db.assets.shirts[shirt % db.assets.shirts.length]);
+                el.querySelectorAll('.leg').forEach(l => l.style.backgroundColor = db.assets.pants[pants % db.assets.pants.length]);
+            },
+            cycle: (p, d) => {
+                let v = db.user.avatar[p] + d;
+                if(v < 0) v = 5; 
+                db.user.avatar[p] = v;
+                avatar.update();
+            }
+        };
+
+        function handleAuth() {
+            const u = document.getElementById('auth-username').value;
+            if(!u) return;
+            db.user.username = u;
+            localStorage.setItem('peytotoria_user', JSON.stringify(db.user));
+            router.init();
         }
 
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
+        router.init();
     </script>
 </body>
 </html>
