@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PeytoTopia | The Future of Podcasting</title>
     <meta name="description" content="PeytoTopia is the ultimate destination for podcast lovers. Stream millions of episodes, follow your favorites, and discover new stories.">
+    <link rel="icon" type="image/png" href="siteicon.png">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -169,26 +170,31 @@
         </main>
     </div>
 
-    <!-- Persistent Player Bar -->
-    <div id="player-bar" class="h-24 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-gray-800 px-4 md:px-8 flex items-center justify-between z-40 transition-colors duration-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+    <!-- Mini Player FAB (Mobile Only) -->
+    <button id="mini-player-fab" onclick="app.restorePlayer()" class="hidden md:hidden fixed bottom-20 right-4 z-50 w-12 h-12 bg-primary-500 rounded-full shadow-lg items-center justify-center text-white animate-bounce active:scale-95 transition-transform border-2 border-white dark:border-dark-surface">
+        <i class="fa-solid fa-music animate-pulse"></i>
+    </button>
+
+    <!-- Persistent Player Bar (Hidden by Default) -->
+    <div id="player-bar" class="hidden h-24 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-gray-800 px-4 md:px-8 items-center justify-between z-40 transition-colors duration-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         
         <!-- Track Info -->
-        <div class="flex items-center gap-4 w-1/3 min-w-0" onclick="app.toggleFullscreen()" style="cursor: pointer;">
-            <img id="player-img" src="https://placehold.co/600x600/f97316/ffffff?text=Peyto" alt="Album Art" class="w-14 h-14 rounded-lg object-cover shadow-sm">
+        <div class="flex items-center gap-4 w-2/3 md:w-1/3 min-w-0" onclick="app.toggleFullscreen()" style="cursor: pointer;">
+            <img id="player-img" src="https://placehold.co/600x600/f97316/ffffff?text=Peyto" alt="Album Art" class="w-14 h-14 rounded-lg object-cover shadow-sm flex-shrink-0">
             <div class="min-w-0">
-                <h4 id="player-title" class="font-semibold text-gray-900 dark:text-white truncate">Select a Podcast</h4>
+                <h4 id="player-title" class="font-semibold text-gray-900 dark:text-white truncate text-sm md:text-base">Select a Podcast</h4>
                 <p id="player-show" class="text-xs text-gray-500 dark:text-gray-400 truncate">No Episode Playing</p>
             </div>
-             <button class="ml-2 text-gray-400 hover:text-primary-500 md:hidden">
+             <button class="ml-2 text-gray-400 hover:text-primary-500 md:hidden p-2">
                 <i class="fa-solid fa-expand"></i>
             </button>
         </div>
 
         <!-- Controls -->
-        <div class="flex flex-col items-center w-1/3">
+        <div class="flex flex-col items-center w-1/3 md:w-1/3 hidden md:flex">
             <div class="flex items-center gap-6 mb-1">
                 <button class="text-gray-400 hover:text-primary-600 transition-colors"><i class="fa-solid fa-backward-15"></i></button>
-                <button id="play-btn" onclick="app.togglePlay()" class="w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center hover:bg-primary-600 shadow-md hover:scale-105 transition-all">
+                <button id="play-btn" onclick="app.togglePlay(event)" class="w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center hover:bg-primary-600 shadow-md hover:scale-105 transition-all">
                     <i class="fa-solid fa-play ml-1"></i>
                 </button>
                 <button class="text-gray-400 hover:text-primary-600 transition-colors"><i class="fa-solid fa-forward-15"></i></button>
@@ -200,9 +206,20 @@
             </div>
         </div>
 
-        <!-- Volume/Extras -->
-        <div class="w-1/3 flex justify-end items-center gap-4">
-            <button onclick="app.toggleFullscreen()" class="hidden md:block text-gray-500 hover:text-primary-600 transition-colors" title="Fullscreen">
+        <!-- Mobile Play Button (Simplified) -->
+        <div class="flex md:hidden items-center gap-4">
+            <button id="mobile-play-btn" onclick="app.togglePlay(event)" class="w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center hover:bg-primary-600 shadow-md">
+                <i class="fa-solid fa-play ml-1"></i>
+            </button>
+            <!-- Minimize Button -->
+            <button onclick="app.minimizePlayer(event)" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300 flex items-center justify-center">
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+        </div>
+
+        <!-- Volume/Extras (Desktop) -->
+        <div class="w-1/3 hidden md:flex justify-end items-center gap-4">
+            <button onclick="app.toggleFullscreen()" class="text-gray-500 hover:text-primary-600 transition-colors" title="Fullscreen">
                 <i class="fa-solid fa-expand"></i>
             </button>
         </div>
@@ -225,8 +242,8 @@
     </div>
 
     <!-- Fullscreen Player Overlay -->
-    <div id="fs-player" class="fixed inset-0 bg-white dark:bg-dark-bg z-[60] transform translate-y-full fs-player flex flex-col">
-        <div class="p-6 flex justify-between items-center">
+    <div id="fs-player" class="fixed inset-0 bg-white dark:bg-dark-bg z-[60] transform translate-y-full fs-player flex flex-col overflow-y-auto">
+        <div class="p-6 flex justify-between items-center shrink-0">
             <button onclick="app.toggleFullscreen()" class="text-2xl text-gray-600 dark:text-white hover:text-primary-600">
                 <i class="fa-solid fa-chevron-down"></i>
             </button>
@@ -236,14 +253,17 @@
             </button>
         </div>
 
-        <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
-            <div class="w-full max-w-sm aspect-square bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-2xl mb-8 overflow-hidden">
-                <img id="fs-img" src="" class="w-full h-full object-cover">
+        <div class="flex-1 flex flex-col items-center justify-start md:justify-center p-6 text-center min-h-0">
+            <div class="w-full max-w-sm aspect-square bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-2xl mb-8 overflow-hidden mx-auto relative shrink-0">
+                <img id="fs-img" src="" class="absolute inset-0 w-full h-full object-cover">
             </div>
             
-            <div class="w-full max-w-md">
-                <h2 id="fs-title" class="text-3xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">Podcast Title</h2>
-                <p id="fs-show" class="text-lg text-primary-600 font-medium mb-8">Show Name</p>
+            <div class="w-full max-w-md mx-auto shrink-0 pb-8">
+                <h2 id="fs-title" class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">Podcast Title</h2>
+                <div class="flex items-center justify-center gap-2 mb-8">
+                    <p id="fs-show" class="text-lg text-primary-600 font-medium">Show Name</p>
+                    <span id="fs-badge"></span>
+                </div>
                 
                 <div class="w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full mb-2 relative group cursor-pointer">
                     <div id="fs-progress" class="absolute left-0 top-0 h-full bg-primary-500 rounded-full w-0"></div>
@@ -255,7 +275,7 @@
 
                 <div class="flex items-center justify-center gap-10">
                     <button class="text-3xl text-gray-400 hover:text-primary-600"><i class="fa-solid fa-backward-15"></i></button>
-                    <button onclick="app.togglePlay()" id="fs-play-btn" class="w-20 h-20 rounded-full bg-primary-500 text-white text-3xl flex items-center justify-center shadow-xl hover:scale-105 transition-transform">
+                    <button onclick="app.togglePlay(event)" id="fs-play-btn" class="w-20 h-20 rounded-full bg-primary-500 text-white text-3xl flex items-center justify-center shadow-xl hover:scale-105 transition-transform">
                         <i class="fa-solid fa-play ml-2"></i>
                     </button>
                     <button class="text-3xl text-gray-400 hover:text-primary-600"><i class="fa-solid fa-forward-15"></i></button>
@@ -279,31 +299,22 @@
                 const key = `peyto_stats_${id}`;
                 let stats = localStorage.getItem(key);
                 if (!stats) {
-                    // Logic Adjustment:
-                    // Only 15% of podcasts are "Super Popular" (Millions)
-                    // The rest are "Normal/Indie" (Hundreds to Thousands)
                     const isSuperPopular = Math.random() > 0.85; 
                     
                     let listeners, plays;
 
                     if (type === 'show') {
                          if (isSuperPopular) {
-                             // 100k to 10M
                              listeners = Math.floor(Math.random() * (10000000 - 100000) + 100000);
                          } else {
-                             // 50 to 50k - Much more realistic for average pods
                              listeners = Math.floor(Math.random() * (50000 - 50) + 50);
                          }
-                         
-                         // Followers approx 20-40% of listeners
                          var followers = Math.floor(listeners * (0.2 + Math.random() * 0.2));
-                         plays = 0; // Show level doesn't need play count usually, episodes do
+                         plays = 0;
                     } else {
-                        // Episode Stats
                         if (isSuperPopular) {
                              plays = Math.floor(Math.random() * (5000000 - 10000) + 10000);
                         } else {
-                             // Can be very small now: 10 to 5000
                              plays = Math.floor(Math.random() * (5000 - 10) + 10);
                         }
                         listeners = 0;
@@ -321,7 +332,6 @@
                 const key = `peyto_stats_${id}`;
                 let stats = JSON.parse(localStorage.getItem(key));
                 stats.isFollowing = !stats.isFollowing;
-                // Adjust followers count slightly
                 stats.followers += stats.isFollowing ? 1 : -1;
                 localStorage.setItem(key, JSON.stringify(stats));
                 return stats;
@@ -341,9 +351,6 @@
             }
         };
 
-        // --- Mock Data (Fallback) ---
-        // Manually set stats for these mock items in code logic if needed, 
-        // but current random logic will handle them fine on first load.
         const mockPodcasts = [
             { id: 'mock1', name: 'The Daily', publisher: 'The New York Times', image: 'https://upload.wikimedia.org/wikipedia/en/5/5b/The_Daily_podcast_logo.jpg', description: 'This is what the news should sound like.' },
             { id: 'mock2', name: 'Serial', publisher: 'Serial Productions', image: 'https://upload.wikimedia.org/wikipedia/en/5/52/Serial_podcast_logo.png', description: 'One story told week by week.' },
@@ -352,7 +359,6 @@
             { id: 'mock5', name: 'SmartLess', publisher: 'Jason Bateman, Sean Hayes, Will Arnett', image: 'https://upload.wikimedia.org/wikipedia/en/e/e0/SmartLess_podcast_art.jpg', description: 'Connecting and bonding through hilarity.' }
         ];
 
-        // --- App Class ---
         class App {
             constructor() {
                 this.token = null;
@@ -366,22 +372,15 @@
             }
 
             async init() {
-                // Initialize Theme
                 if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                     document.documentElement.classList.add('dark');
                 } else {
                     document.documentElement.classList.remove('dark');
-                    // Ensure Light is default if not set
                     if(!localStorage.theme) localStorage.theme = 'light';
                 }
 
-                // Initialize Token
                 await this.getToken();
-
-                // Setup Audio Listeners
                 this.setupAudio();
-
-                // Load Home
                 this.navigate('home');
             }
 
@@ -399,9 +398,7 @@
                     if (!response.ok) throw new Error('Auth Failed');
                     const data = await response.json();
                     this.token = data.access_token;
-                    console.log('Spotify Connected');
                 } catch (e) {
-                    console.warn('Spotify API blocked by browser CORS (expected). Switching to Mock Mode.');
                     this.useMock = true;
                 }
             }
@@ -413,7 +410,6 @@
                     document.getElementById('current-time').innerText = this.formatTime(this.audio.currentTime);
                     document.getElementById('duration').innerText = this.formatTime(this.audio.duration || 0);
                     
-                    // Fullscreen updates
                     document.getElementById('fs-progress').style.width = `${pct}%`;
                     document.getElementById('fs-current-time').innerText = this.formatTime(this.audio.currentTime);
                     document.getElementById('fs-duration').innerText = this.formatTime(this.audio.duration || 0);
@@ -438,14 +434,10 @@
             }
 
             async navigate(page) {
-                // Update Sidebar/Nav UI
                 document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(el => {
                     el.classList.remove('text-primary-600', 'active', 'bg-primary-50', 'dark:bg-dark-highlight');
                     if(!el.classList.contains('mobile-nav-item')) el.classList.add('text-gray-600', 'dark:text-gray-300');
                 });
-                
-                // Add active styles
-                // (Omitted for brevity, logical only)
                 
                 this.viewContainer.innerHTML = '<div class="flex justify-center p-10"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div></div>';
 
@@ -454,8 +446,17 @@
                 if (page === 'library') await this.renderLibrary();
             }
 
+            getVerifiedBadge(followers) {
+                if (followers >= 10000) {
+                    return `
+                    <span class="inline-flex items-center justify-center w-5 h-5 bg-orange-100 dark:bg-orange-900/30 rounded-full ml-2 shadow-sm" title="Verified Creator">
+                        <i class="fa-solid fa-check text-[10px] text-primary-500"></i>
+                    </span>`;
+                }
+                return '';
+            }
+
             renderHome() {
-                // Replaced Trending with Welcome Screen
                 const html = `
                     <div class="animate-fade-up flex flex-col items-center text-center py-10 md:py-20">
                         <div class="w-24 h-24 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mb-6">
@@ -465,8 +466,7 @@
                             Welcome to <span class="text-primary-600">PeytoTopia</span>
                         </h1>
                         <p class="text-lg md:text-xl text-gray-500 dark:text-gray-400 max-w-2xl mb-10 leading-relaxed">
-                            Discover the world's most fascinating stories. Search for your favorite podcasts, 
-                            track popularity stats, and immerse yourself in audio without the noise.
+                            Discover the world's most fascinating stories. Stream millions of episodes, follow your favorites, and discover new stories.
                         </p>
                         
                         <div class="flex flex-col md:flex-row gap-4 w-full justify-center">
@@ -476,30 +476,6 @@
                              <button onclick="app.navigate('library')" class="px-8 py-4 bg-white dark:bg-dark-surface text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-full font-bold text-lg hover:bg-gray-50 dark:hover:bg-dark-highlight hover:scale-105 transition-all">
                                 <i class="fa-solid fa-heart mr-2"></i> Go to Library
                             </button>
-                        </div>
-                        
-                        <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 text-left w-full max-w-4xl">
-                            <div class="p-6 rounded-2xl bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 shadow-sm">
-                                <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mb-4 text-xl">
-                                    <i class="fa-solid fa-chart-simple"></i>
-                                </div>
-                                <h3 class="font-bold text-lg mb-2 dark:text-white">Real Stats</h3>
-                                <p class="text-sm text-gray-500">Track monthly listeners and follower counts that stay with you.</p>
-                            </div>
-                            <div class="p-6 rounded-2xl bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 shadow-sm">
-                                <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mb-4 text-xl">
-                                    <i class="fa-solid fa-headphones-simple"></i>
-                                </div>
-                                <h3 class="font-bold text-lg mb-2 dark:text-white">Pure Audio</h3>
-                                <p class="text-sm text-gray-500">A focused experience dedicated entirely to podcasts. No music distractions.</p>
-                            </div>
-                            <div class="p-6 rounded-2xl bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 shadow-sm">
-                                <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mb-4 text-xl">
-                                    <i class="fa-solid fa-moon"></i>
-                                </div>
-                                <h3 class="font-bold text-lg mb-2 dark:text-white">Any Time</h3>
-                                <p class="text-sm text-gray-500">Switch between Light and Dark mode to suit your listening environment.</p>
-                            </div>
                         </div>
                     </div>
                 `;
@@ -539,7 +515,7 @@
                         const data = await res.json();
                         results = data.shows.items;
                     } catch (e) {
-                        results = []; // Error handle
+                        results = []; 
                     }
                 }
 
@@ -551,11 +527,15 @@
                 container.innerHTML = results.map(p => {
                     const stats = db.getStats(p.id);
                     const imgUrl = p.images?.[0]?.url || p.image;
+                    const badge = this.getVerifiedBadge(stats.followers);
+                    
                     return `
                     <div onclick="app.loadPodcast('${p.id}')" class="flex items-center gap-4 bg-white dark:bg-dark-surface p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-dark-highlight cursor-pointer transition-colors border border-gray-100 dark:border-gray-800">
                         <img src="${imgUrl}" class="w-16 h-16 rounded-lg object-cover">
                         <div class="min-w-0 flex-1">
-                            <h4 class="font-bold text-gray-900 dark:text-white truncate">${p.name}</h4>
+                            <h4 class="font-bold text-gray-900 dark:text-white truncate flex items-center">
+                                ${p.name} ${badge}
+                            </h4>
                             <p class="text-xs text-gray-500 truncate mb-1">${p.publisher}</p>
                             <span class="text-[10px] text-primary-600 font-medium"><i class="fa-solid fa-signal"></i> ${stats.listeners.toLocaleString()} listeners</span>
                         </div>
@@ -579,7 +559,6 @@
                 const grid = document.getElementById('lib-grid');
 
                 for (let item of following) {
-                    // Fetch Details
                     let p = null;
                     if(this.useMock) {
                         p = mockPodcasts.find(m => m.id === item.id) || mockPodcasts[0];
@@ -591,10 +570,11 @@
                     }
                     
                     if(p) {
+                         const badge = this.getVerifiedBadge(item.followers);
                          grid.innerHTML += `
                             <div onclick="app.loadPodcast('${p.id}')" class="bg-white dark:bg-dark-surface p-4 rounded-2xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-primary-400 transition-colors">
                                 <img src="${p.images?.[0]?.url || p.image}" class="w-full aspect-square rounded-xl mb-3 object-cover">
-                                <h3 class="font-bold truncate dark:text-white">${p.name}</h3>
+                                <h3 class="font-bold truncate dark:text-white flex items-center">${p.name} ${badge}</h3>
                                 <p class="text-xs text-primary-600">${item.followers.toLocaleString()} Followers</p>
                             </div>
                          `;
@@ -606,10 +586,8 @@
                 let show = null;
                 let episodes = [];
                 
-                // Fallback for demo flow
                 if (this.useMock) {
                     show = mockPodcasts.find(p => p.id === id) || mockPodcasts[0];
-                    // Generate fake episodes
                     for(let i=1; i<=10; i++) {
                         episodes.push({
                             id: `ep${id}_${i}`,
@@ -617,7 +595,7 @@
                             description: 'In this episode we explore the depths of the topic with special guests.',
                             duration_ms: 1000 * 60 * (20 + Math.random() * 40),
                             release_date: '2023-10-12',
-                            audio_preview_url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' // Reliable MP3
+                            audio_preview_url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' 
                         });
                     }
                 } else {
@@ -637,6 +615,7 @@
                 const isFollowing = stats.isFollowing;
                 const buttonText = isFollowing ? 'Following' : 'Follow';
                 const buttonClass = isFollowing ? 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white' : 'bg-primary-600 text-white hover:bg-primary-700';
+                const badge = this.getVerifiedBadge(stats.followers);
 
                 const html = `
                     <div class="animate-fade-up">
@@ -650,7 +629,9 @@
                             </div>
                             <div class="flex-1">
                                 <span class="text-xs font-bold tracking-wider text-primary-600 uppercase mb-2 block">Podcast</span>
-                                <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 leading-tight">${show.name}</h1>
+                                <h1 class="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 leading-tight flex flex-wrap items-center">
+                                    ${show.name} ${badge}
+                                </h1>
                                 <p class="text-lg text-gray-600 dark:text-gray-300 mb-6 line-clamp-3">${show.description}</p>
                                 
                                 <div class="flex flex-wrap items-center gap-6 mb-8">
@@ -672,14 +653,14 @@
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Episodes</h3>
                         <div class="space-y-4">
                             ${episodes.map(ep => {
-                                const epStats = db.getStats(ep.id, 'ep'); // Get random play count
-                                const audioUrl = ep.audio_preview_url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'; // Fallback for "MP3s work"
+                                const epStats = db.getStats(ep.id, 'ep'); 
+                                const audioUrl = ep.audio_preview_url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'; 
                                 const duration = Math.round(ep.duration_ms / 60000) + " min";
                                 const date = ep.release_date.substring(0,4);
                                 
                                 return `
                                 <div class="group flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-dark-surface hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors border border-transparent hover:border-primary-200 dark:hover:border-gray-700">
-                                    <button onclick="app.play('${audioUrl}', '${ep.name.replace(/'/g, "\\'")}', '${show.name.replace(/'/g, "\\'")}', '${show.images?.[0]?.url || show.image}')" 
+                                    <button onclick="app.play('${audioUrl}', '${ep.name.replace(/'/g, "\\'")}', '${show.name.replace(/'/g, "\\'")}', '${show.images?.[0]?.url || show.image}', ${stats.followers})" 
                                             class="flex-shrink-0 w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 text-primary-600 flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm">
                                         <i class="fa-solid fa-play ml-1"></i>
                                     </button>
@@ -716,11 +697,19 @@
                 }
             }
 
-            play(url, title, show, img) {
+            play(url, title, show, img, followers) {
                 if(!url) return alert('No audio available for this episode.');
                 
                 this.currentTrack = { url, title, show, img };
                 this.audio.src = url;
+                
+                // Show Player Bar
+                const player = document.getElementById('player-bar');
+                player.classList.remove('hidden');
+                player.classList.add('flex');
+                
+                // Hide Mini FAB if visible
+                document.getElementById('mini-player-fab').classList.add('hidden');
                 
                 // Update UI
                 document.getElementById('player-title').innerText = title;
@@ -731,13 +720,22 @@
                 document.getElementById('fs-title').innerText = title;
                 document.getElementById('fs-show').innerText = show;
                 document.getElementById('fs-img').src = img;
+                
+                // Update Fullscreen Badge
+                const fsBadge = document.getElementById('fs-badge');
+                if(followers && followers >= 10000) {
+                     fsBadge.innerHTML = `<span class="inline-flex items-center justify-center w-5 h-5 bg-orange-100 dark:bg-orange-900/30 rounded-full shadow-sm" title="Verified Creator"><i class="fa-solid fa-check text-[10px] text-primary-500"></i></span>`;
+                } else {
+                     fsBadge.innerHTML = '';
+                }
 
                 this.audio.play();
                 this.isPlaying = true;
                 this.updatePlayBtnState();
             }
 
-            togglePlay() {
+            togglePlay(e) {
+                if (e) e.stopPropagation();
                 if(!this.audio.src) return;
                 
                 if (this.audio.paused) {
@@ -753,7 +751,33 @@
             updatePlayBtnState() {
                 const icon = this.isPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play ml-1"></i>';
                 document.getElementById('play-btn').innerHTML = icon;
+                document.getElementById('mobile-play-btn').innerHTML = icon;
                 document.getElementById('fs-play-btn').innerHTML = icon;
+            }
+
+            minimizePlayer(e) {
+                if(e) e.stopPropagation();
+                // Hide main bar
+                const bar = document.getElementById('player-bar');
+                bar.classList.add('hidden');
+                bar.classList.remove('flex');
+                
+                // Show floating FAB
+                const fab = document.getElementById('mini-player-fab');
+                fab.classList.remove('hidden');
+                fab.classList.add('flex');
+            }
+
+            restorePlayer() {
+                // Show main bar
+                const bar = document.getElementById('player-bar');
+                bar.classList.remove('hidden');
+                bar.classList.add('flex');
+                
+                // Hide floating FAB
+                const fab = document.getElementById('mini-player-fab');
+                fab.classList.add('hidden');
+                fab.classList.remove('flex');
             }
 
             toggleTheme() {
@@ -768,11 +792,10 @@
 
             toggleFullscreen() {
                 const fs = document.getElementById('fs-player');
-                const main = document.getElementById('main-scroll');
                 
                 if (fs.classList.contains('translate-y-full')) {
                     fs.classList.remove('translate-y-full');
-                    document.body.classList.add('hide-scroll'); // Prevent background scroll
+                    document.body.classList.add('hide-scroll'); 
                 } else {
                     fs.classList.add('translate-y-full');
                     document.body.classList.remove('hide-scroll');
