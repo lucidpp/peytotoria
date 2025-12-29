@@ -261,6 +261,33 @@
         .animate-thumb {
             animation: thumbPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 10px;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col bg-yt-base text-white">
@@ -286,6 +313,7 @@
         </div>
 
         <div class="flex items-center gap-4">
+             <button onclick="resetData()" class="bg-[#212121] border border-[#333] text-red-500 text-xs px-3 py-1 rounded hover:bg-[#333]">Reset</button>
             <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-lg">U</div>
         </div>
     </nav>
@@ -320,6 +348,25 @@
         <main id="main-content" class="flex-1 overflow-y-auto p-4 md:p-8 relative pb-32 md:pb-8">
             <!-- Content Injected Here -->
         </main>
+    </div>
+
+    <!-- Mini Player -->
+    <div id="mini-player" class="fixed bottom-16 md:bottom-0 left-0 right-0 h-16 bg-[#212121] border-t border-[#333] flex items-center justify-between px-4 z-40 hidden cursor-pointer" onclick="openPlayer()">
+        <div class="flex items-center gap-3">
+            <img id="mini-img" src="" class="w-10 h-10 rounded object-cover">
+            <div class="flex flex-col">
+                <span id="mini-title" class="text-sm font-medium text-white truncate max-w-[150px]">Song</span>
+                <span id="mini-artist" class="text-xs text-gray-400 truncate max-w-[150px]">Artist</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="event.stopPropagation(); togglePlay()" class="p-2 text-white hover:bg-white/10 rounded-full">
+                <span id="mini-play-icon" class="material-icons-round">play_arrow</span>
+            </button>
+            <button onclick="event.stopPropagation(); closeMiniPlayer()" class="p-2 text-gray-400 hover:text-white rounded-full md:hidden">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
     </div>
 
     <!-- Mobile Bottom Navigation -->
@@ -357,7 +404,7 @@
         <!-- Main Content (Centered and responsive) -->
         <div class="relative z-10 flex-1 flex flex-col items-center justify-center w-full px-6 pb-8 overflow-hidden">
             
-            <!-- Art Container (Responsive sizing - shrinks if needed) -->
+            <!-- Art Container -->
             <div class="relative w-full max-w-sm md:max-w-md aspect-square shadow-2xl rounded-xl overflow-hidden mb-6 md:mb-10 flex-shrink min-h-0">
                 <img id="player-img" src="" class="w-full h-full object-cover">
             </div>
@@ -406,7 +453,7 @@
                     <button id="player-next" class="text-white hover:text-gray-300 transition active:scale-90"><span class="material-icons-round text-4xl md:text-5xl">skip_next</span></button>
                 </div>
                 
-                <button class="text-gray-400 hover:text-white transition"><span class="material-icons-round text-2xl">repeat</span></button>
+                <button class="text-gray-400 hover:text-white transition"><span class="material-icons-round text-2xl">share</span></button>
             </div>
         </div>
 
@@ -457,10 +504,8 @@
 
         // --- INIT ---
         function init() {
-            // Always seed the hardcoded data to ensure consistency "for everyone"
-            // We do NOT load from local storage for the core data structure to enforce the mandate.
-            // Local storage can be used for user preferences (like library), but here we force the state.
-            seedLucidPP(); 
+            seedData(); 
+            loadLibrary(); // Load only library pref from local storage
 
             renderHome();
             updateSidebar();
@@ -482,79 +527,112 @@
             });
         }
 
-        // --- CORE SEED LOGIC (HARDCODED FOR CONSISTENCY) ---
-        function seedLucidPP() {
-            const artistId = "lucidpp_id";
-            
-            // 1. Create Artist
-            const artist = {
-                id: artistId,
+        // --- CORE SEED LOGIC (UPDATED WITH C@SHXAN & LUCIDPP) ---
+        function seedData() {
+            // --- 1. LucidPP ---
+            const lucidId = "lucidpp_id";
+            const lucid = {
+                id: lucidId,
                 name: "LucidPP",
                 pfp: "https://ui-avatars.com/api/?name=LucidPP&background=000&color=fff&size=200", 
-                banner: "LucidPPMNM.JPG", // Hardcoded per request
+                banner: "LucidPPMNM.JPG", 
                 bio: "Official Verified Artist.",
                 subscribers: 2300,
-                monthlyListeners: 103000,
+                monthlyListeners: 246000, // Updated
                 totalViews: 0, 
                 pronouns: "He/Him",
-                isVerified: true
+                isVerified: true,
+                videos: [
+                    { title: "Want Me (Official Music Video)", views: 320000, thumb: "LucidPPMNM.JPG" }
+                ]
             };
 
-            // 2. Define Tracks with SPECIFIC HARDCODED VIEWS
-            // These numbers are fixed constants in the code, ensuring every user sees the same thing.
-            const trackDefs = [
-                { file: "Down_Bad.mp3", views: 1245678 },
-                { file: "All_By_Myself.mp3", views: 987654 },
-                { file: "Your_Gonna_See.mp3", views: 876543 },
-                { file: "Your_Gonna_See (1).mp3", views: 750000 },
-                { file: "Honestly (1).mp3", views: 1100000 },
-                { file: "Want_Me.mp3", views: 1350000 },
-                { file: "Want_Me (1).mp3", views: 800000 },
-                { file: "Want_Me (2).mp3", views: 790000 },
-                { file: "Want_Me (3).mp3", views: 780000 },
-                { file: "Want_Me (4).mp3", views: 770000 },
-                { file: "Bells_PT1.mp3", views: 1050000 },
-                { file: "To_Go_Back (1).mp3", views: 920000 },
-                { file: "Laugh (1).mp3", views: 850000 },
-                { file: "Demon_Girl (1).mp3", views: 1400000 },
-                { file: "I_Messed_Up.mp3", views: 1150000 },
-                { file: "Money_N_Money_Intro.mp3", views: 1200000 },
-                { file: "Money_N_Money_Intro (1).mp3", views: 728000 }
-            ];
+            // Defined view ranges for uniqueness
+            // Hits: 128k - 472k. Normal: 11.4k - 58k.
+            const lucidTracks = [
+                { file: "Down_Bad.mp3", views: 420000 }, // Hit
+                { file: "All_By_Myself.mp3", views: 52000 },
+                { file: "Your_Gonna_See.mp3", views: 38000 },
+                { file: "Your_Gonna_See (1).mp3", views: 12000 },
+                { file: "Honestly (1).mp3", views: 45000 },
+                { file: "Want_Me.mp3", views: 472000 }, // Hit
+                { file: "Want_Me (1).mp3", views: 25000 },
+                { file: "Want_Me (2).mp3", views: 18000 },
+                { file: "Want_Me (3).mp3", views: 15000 },
+                { file: "Want_Me (4).mp3", views: 14000 },
+                { file: "Bells_PT1.mp3", views: 58000 },
+                { file: "To_Go_Back (1).mp3", views: 22000 },
+                { file: "Laugh (1).mp3", views: 35000 },
+                { file: "Demon_Girl (1).mp3", views: 128000 }, // Hit
+                { file: "I_Messed_Up.mp3", views: 41000 },
+                { file: "Money_N_Money_Intro.mp3", views: 200000 }, // Hit
+                { file: "Money_N_Money_Intro (1).mp3", views: 11400 }
+            ].map(def => ({
+                title: def.file.replace(/_/g, " ").replace(/\(1\)/g, "").replace(".mp3", "").trim(),
+                filename: def.file, 
+                views: def.views,
+                duration: "3:30", 
+                weight: 1 
+            }));
 
-            const tracksData = trackDefs.map(def => {
-                return {
-                    title: def.file.replace(/_/g, " ").replace(".mp3", ""),
-                    filename: def.file, 
-                    views: def.views, // Use the hardcoded value
-                    duration: "3:30", 
-                    weight: 1 
-                };
-            });
+            lucid.totalViews = lucidTracks.reduce((acc, t) => acc + t.views, 0);
 
-            const totalViews = tracksData.reduce((acc, t) => acc + t.views, 0);
-            artist.totalViews = totalViews;
-
-            // 3. Create Release
-            const release = {
+            const lucidAlbum = {
                 id: "mnm_album_id",
-                artistId: artistId,
+                artistId: lucidId,
                 title: "Money N' Money",
                 type: "Album",
                 cover: "LucidPPMNM.JPG",
-                tracks: tracksData.length,
-                tracksData: tracksData,
-                totalViews: totalViews,
+                tracks: lucidTracks.length,
+                tracksData: lucidTracks,
+                totalViews: lucid.totalViews,
                 releaseTimestamp: Date.now()
             };
 
-            state.artists = [artist];
-            state.releases = [release];
-            
-            // Check for saved library state only
-            const savedData = localStorage.getItem('peyza_sim_save');
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
+            // --- 2. C@shxan ---
+            const cashId = "cashxan_id";
+            const cash = {
+                id: cashId,
+                name: "C@shxan",
+                pfp: "CashXan.PNG", 
+                banner: "CashXan.PNG",
+                bio: "New Wave.",
+                subscribers: 50,
+                monthlyListeners: 1200, 
+                totalViews: 4000, 
+                pronouns: "He/Him",
+                isVerified: false,
+                videos: []
+            };
+
+            const cashTracks = [{
+                title: "Down",
+                filename: "Down.mp3",
+                views: 4000,
+                duration: "2:15",
+                weight: 1
+            }];
+
+            const cashSingle = {
+                id: "down_single_id",
+                artistId: cashId,
+                title: "Down",
+                type: "Single",
+                cover: "CashXan.PNG",
+                tracks: 1,
+                tracksData: cashTracks,
+                totalViews: 4000,
+                releaseTimestamp: Date.now()
+            };
+
+            state.artists = [lucid, cash];
+            state.releases = [lucidAlbum, cashSingle];
+        }
+
+        function loadLibrary() {
+            const data = localStorage.getItem('peyza_sim_save');
+            if (data) {
+                const parsed = JSON.parse(data);
                 if(parsed.library) state.library = parsed.library;
             }
         }
@@ -571,10 +649,7 @@
         function trackClicked(releaseId, trackIndex) {
             const release = state.releases.find(r => r.id === releaseId);
             const track = release.tracksData[trackIndex];
-            
-            // Set audio source to the filename directly (relative path)
             const audioSrc = track.filename; 
-            
             loadAndPlay(releaseId, trackIndex, audioSrc);
         }
 
@@ -593,13 +668,12 @@
             
             const playPromise = audioElement.play();
             if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log("Auto-play prevented or file not found.");
-                });
+                playPromise.catch(error => console.log("Auto-play prevented"));
             }
 
             openPlayer();
             updatePlayerUI();
+            updateMiniPlayerUI();
         }
 
         function updatePlayerUI() {
@@ -613,13 +687,25 @@
             updatePlayerUIStats();
             updatePlayButton();
         }
+        
+        function updateMiniPlayerUI() {
+            if(!playerState.track) return;
+            const { release, track } = playerState;
+            const artist = state.artists.find(a => a.id === release.artistId);
+            
+            document.getElementById('mini-title').innerText = track.title;
+            document.getElementById('mini-artist').innerText = artist.name;
+            document.getElementById('mini-img').src = release.cover;
+            document.getElementById('mini-play-icon').innerText = playerState.isPlaying ? 'pause' : 'play_arrow';
+            
+            document.getElementById('mini-player').classList.remove('hidden');
+            document.getElementById('mini-player').classList.add('flex');
+        }
 
         function updatePlayerUIStats() {
             if(!playerState.track) return;
             const track = playerState.track;
-            // Fake likes based on views
             const likes = Math.floor(track.views * 0.04);
-            
             document.getElementById('player-views').innerText = formatNumber(track.views);
             document.getElementById('player-likes').innerText = formatNumber(likes);
         }
@@ -633,6 +719,7 @@
                 playerState.isPlaying = false;
             }
             updatePlayButton();
+            updateMiniPlayerUI(); // Update mini play icon
         }
 
         function updatePlayButton() {
@@ -645,6 +732,8 @@
             p.classList.remove('hidden');
             p.classList.add('animate-slide-up');
             p.classList.remove('animate-slide-down');
+            // Hide mini player when full player is open
+            document.getElementById('mini-player').classList.add('hidden');
         }
 
         function closePlayer() {
@@ -653,7 +742,17 @@
             p.classList.remove('animate-slide-up');
             setTimeout(() => {
                 p.classList.add('hidden');
+                // Show mini player if track is loaded
+                if(playerState.track) {
+                    document.getElementById('mini-player').classList.remove('hidden');
+                }
             }, 300);
+        }
+        
+        function closeMiniPlayer() {
+             document.getElementById('mini-player').classList.add('hidden');
+             audioElement.pause();
+             playerState.isPlaying = false;
         }
 
         function playNext() {
@@ -675,7 +774,7 @@
             main.dataset.viewId = '';
             updateNavState('home');
             
-            const release = state.releases[0];
+            const release = state.releases[0]; // LucidPP album
             const artist = state.artists[0];
 
             main.innerHTML = `
@@ -714,7 +813,7 @@
         
         function renderExplore() {
              const main = document.getElementById('main-content');
-             main.innerHTML = `<div class="p-8 text-center text-gray-500">Explore is curated for LucidPP.</div>`;
+             main.innerHTML = `<div class="p-8 text-center text-gray-500">Explore is curated for LucidPP & C@shxan.</div>`;
              updateNavState('explore');
         }
         
@@ -766,8 +865,6 @@
             const isSubscribed = state.library.includes(id);
             const artistReleases = state.releases.filter(r => r.artistId === id);
             
-            // Sort tracks by views for "Top Songs"
-            // Use spread syntax to avoid mutating original order in release
             let allTracks = [];
             artistReleases.forEach(r => {
                 r.tracksData.forEach((t, idx) => {
@@ -775,6 +872,30 @@
                 });
             });
             const topSongs = [...allTracks].sort((a,b) => b.views - a.views).slice(0, 5);
+            
+            // Video Section Generation
+            let videoSection = "";
+            if(artist.videos && artist.videos.length > 0) {
+                videoSection = `
+                    <section class="mt-8">
+                        <h2 class="text-2xl font-bold mb-4">Videos</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${artist.videos.map(v => `
+                                <div class="cursor-pointer group">
+                                    <div class="relative aspect-video bg-[#212121] rounded-lg overflow-hidden mb-2">
+                                        <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <span class="material-icons-round text-white text-4xl drop-shadow-lg">play_circle_filled</span>
+                                        </div>
+                                    </div>
+                                    <h3 class="font-medium text-white line-clamp-1">${v.title}</h3>
+                                    <p class="text-sm text-gray-400">${formatNumber(v.views)} views</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                `;
+            }
 
             main.innerHTML = `
                 <div class="pb-20 animate-fade-in">
@@ -786,11 +907,15 @@
                         <div class="absolute bottom-8 left-8">
                             <div class="flex items-center gap-2 mb-2">
                                 <h1 class="text-4xl md:text-7xl font-black tracking-tighter shadow-xl">${artist.name}</h1>
-                                <span class="material-icons-round text-blue-400 text-3xl" title="Verified">verified</span>
+                                ${artist.isVerified ? '<span class="material-icons-round text-blue-400 text-3xl" title="Verified">verified</span>' : ''}
                             </div>
                             
                             <div class="flex items-center gap-2 text-sm font-medium text-gray-200 mb-4">
-                                <span>${formatNumber(artist.monthlyListeners)} monthly listeners</span>
+                                <span>${formatNumber(artist.monthlyListeners)} monthly audience</span>
+                                <div class="tooltip cursor-pointer">
+                                    <span class="material-icons-round text-gray-400 text-sm">info</span>
+                                    <span class="tooltiptext">This is the audience based on engagement.</span>
+                                </div>
                                 <span class="w-1 h-1 bg-gray-400 rounded-full mx-1"></span>
                                 <span>${artist.pronouns}</span>
                             </div>
@@ -833,6 +958,8 @@
                                     ${artistReleases.map(r => getReleaseCard(r)).join('')}
                                 </div>
                             </section>
+
+                            ${videoSection}
                         </div>
 
                         <div class="lg:col-span-1 space-y-8">
@@ -967,10 +1094,9 @@
                 renderHome();
                 return;
             }
-            // Simple search for LucidPP
-            if("LucidPP".toLowerCase().includes(query.toLowerCase())) {
-                renderArtist(state.artists[0].id);
-            }
+            const lowerQ = query.toLowerCase();
+            const artist = state.artists.find(a => a.name.toLowerCase().includes(lowerQ));
+            if(artist) renderArtist(artist.id);
         }
 
         // --- UTILS ---
@@ -1035,15 +1161,10 @@
         function loadFromLocal() {
             const data = localStorage.getItem('peyza_sim_save');
             if (data) {
-                // We load saved data (like library/subscribers state)
-                // BUT we ensure the track view counts are reset to hardcoded values
                 const savedState = JSON.parse(data);
-                
-                // Keep library
                 if(savedState.library) state.library = savedState.library;
             }
-            // Always run seed to enforce track views
-            seedLucidPP();
+            seedData();
         }
 
         function downloadSave() {
