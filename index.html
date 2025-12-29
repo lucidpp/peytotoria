@@ -9,15 +9,9 @@
     <link rel="icon" type="image/png" href="siteicon.png">
 
     <!-- Metadata -->
-    <meta name="description" content="PeytoToria - The ultimate music streaming simulator. Stream exclusive tracks from verified artists like LucidPP and C@shxan. Experience the next generation of web-based music players.">
-    <meta name="keywords" content="music, streaming, simulator, LucidPP, C@shxan, audio, mp3, web player, PeytoToria">
+    <meta name="description" content="PeytoToria - The ultimate music streaming simulator. Stream exclusive tracks from verified artists like LucidPP, C@shxan, and JBONE!!. Experience the next generation of web-based music players.">
+    <meta name="keywords" content="music, streaming, simulator, LucidPP, C@shxan, JBONE!!, audio, mp3, web player, PeytoToria">
     <meta name="author" content="PeytoToria Music">
-    
-    <!-- Open Graph / Social Sharing -->
-    <meta property="og:title" content="PeytoToria Music">
-    <meta property="og:description" content="Stream exclusive tracks from LucidPP and C@shxan on PeytoToria.">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="siteicon.png">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -223,12 +217,10 @@
 
         /* Toast positioning classes */
         .toast-hidden {
-            transform: translateY(-150%); /* Move up for mobile */
+            transform: translateY(200%); /* Hidden state */
         }
-        @media (min-width: 768px) {
-            .toast-hidden {
-                transform: translateY(150%); /* Move down for desktop */
-            }
+        #general-toast {
+            z-index: 200;
         }
         
         /* Player Range Slider */
@@ -302,6 +294,15 @@
             visibility: visible;
             opacity: 1;
         }
+        
+        /* Filter Pills */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col bg-yt-base text-white">
@@ -327,8 +328,11 @@
         </div>
 
         <div class="flex items-center gap-4">
-             <button onclick="resetData()" class="bg-[#212121] border border-[#333] text-red-500 text-xs px-3 py-1 rounded hover:bg-[#333]">Reset</button>
-            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-lg">U</div>
+             <button onclick="resetData()" class="bg-[#212121] border border-[#333] text-red-500 text-xs px-3 py-1 rounded hover:bg-[#333] hidden md:block">Reset</button>
+             <!-- User Profile Area -->
+            <div class="relative cursor-pointer" onclick="openModal('user-settings-modal')">
+                <img id="top-nav-pfp" src="" class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 object-cover shadow-lg" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
+            </div>
         </div>
     </nav>
 
@@ -467,7 +471,7 @@
                     <button id="player-next" class="text-white hover:text-gray-300 transition active:scale-90"><span class="material-icons-round text-4xl md:text-5xl">skip_next</span></button>
                 </div>
                 
-                <button class="text-gray-400 hover:text-white transition"><span class="material-icons-round text-2xl">share</span></button>
+                <button onclick="shareTrack()" class="text-gray-400 hover:text-white transition"><span class="material-icons-round text-2xl">share</span></button>
             </div>
         </div>
 
@@ -494,6 +498,27 @@
         </div>
     </div>
 
+    <!-- General Toast (Notifications) -->
+    <div id="general-toast" class="fixed bottom-24 md:bottom-8 left-1/2 transform -translate-x-1/2 bg-white text-black px-6 py-3 rounded-full shadow-2xl transition-transform duration-300 toast-hidden flex items-center gap-2">
+        <span id="toast-icon" class="material-icons-round">info</span>
+        <span id="toast-msg" class="text-sm font-medium">Notification</span>
+    </div>
+
+    <!-- Welcome / User Setup Modal -->
+    <div id="welcome-modal" class="modal fixed inset-0 z-[300] bg-black/95 flex items-center justify-center p-4 hidden">
+        <div class="modal-content bg-[#212121] w-full max-w-sm rounded-xl shadow-2xl overflow-hidden border border-[#333] p-8 text-center">
+            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="material-icons-round text-black text-3xl">music_note</span>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Welcome to PeytoToria</h2>
+            <p class="text-gray-400 text-sm mb-6">Enter your name to get started.</p>
+            
+            <input type="text" id="username-input" placeholder="Username" class="w-full bg-[#121212] border border-[#333] rounded p-3 text-white focus:border-white outline-none mb-4 text-center">
+            
+            <button onclick="saveUserSetup()" class="w-full bg-white text-black font-bold py-3 rounded-full hover:bg-gray-200 transition">Start Listening</button>
+        </div>
+    </div>
+
     <!-- About Modal -->
     <div id="about-modal" class="modal fixed inset-0 z-[80] bg-black/80 flex items-center justify-center p-4">
         <div class="modal-content bg-[#212121] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden border border-[#333]">
@@ -513,6 +538,10 @@
             artists: [],
             releases: [],
             library: [],
+            user: {
+                username: null,
+                pfp: null
+            }
         };
 
         let playerState = {
@@ -535,12 +564,35 @@
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         };
 
+        // --- HELPER: IMAGE UPLOAD ---
+        const getImageUrl = async (fileInputId, urlInputId) => {
+            const fileInput = document.getElementById(fileInputId);
+            const urlInput = document.getElementById(urlInputId);
+
+            if (fileInput.files && fileInput.files[0]) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result); 
+                    reader.onerror = (e) => reject(e);
+                    reader.readAsDataURL(fileInput.files[0]);
+                });
+            }
+            return urlInput.value || ''; 
+        }
+
         // --- INIT ---
         function init() {
-            // Seed defaults first
+            // Seed defaults first (Important: Always seed first to ensure new updates like JBONE appear)
             seedData(); 
-            // Then overwrite with library preferences if any
-            loadLibrary(); 
+            // Then load saved data to overwrite user prefs, but be careful not to delete new seeded artists
+            loadFromLocal(); 
+
+            // Check User Login
+            if (!state.user || !state.user.username) {
+                openModal('welcome-modal');
+            } else {
+                updateUserUI();
+            }
 
             renderHome();
             updateSidebar();
@@ -562,6 +614,28 @@
             });
         }
 
+        // --- USER LOGIC ---
+        function saveUserSetup() {
+            const username = document.getElementById('username-input').value.trim();
+            if (!username) return alert("Please enter a username.");
+
+            state.user = {
+                username: username,
+                pfp: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random&color=fff`
+            };
+            
+            saveToLocal();
+            closeModal('welcome-modal');
+            updateUserUI();
+        }
+
+        function updateUserUI() {
+            const pfpImg = document.getElementById('top-nav-pfp');
+            if (pfpImg && state.user && state.user.pfp) {
+                pfpImg.src = state.user.pfp;
+            }
+        }
+
         // --- CORE SEED LOGIC ---
         function seedData() {
             // --- 1. LucidPP ---
@@ -569,9 +643,9 @@
             const lucid = {
                 id: lucidId,
                 name: "LucidPP",
-                pfp: "https://ui-avatars.com/api/?name=LucidPP&background=000&color=fff&size=200", 
+                pfp: "LucidPPMNM.JPG", 
                 banner: "LucidPPMNM.JPG", 
-                bio: "Official Verified Artist.",
+                bio: "Rising from the underground, LucidPP brings a unique sound with the debut album 'Money N' Money'. Known for hard-hitting beats and raw lyrics.",
                 subscribers: 2300,
                 monthlyListeners: 246000, 
                 totalViews: 0, 
@@ -582,31 +656,31 @@
                 ]
             };
 
-            // Defined view ranges for uniqueness
             const lucidTracks = [
-                { file: "Down_Bad.mp3", views: 420000 }, 
-                { file: "All_By_Myself.mp3", views: 52000 },
-                { file: "Your_Gonna_See.mp3", views: 38000 },
-                { file: "Your_Gonna_See (1).mp3", views: 12000 },
-                { file: "Honestly (1).mp3", views: 45000 },
-                { file: "Want_Me.mp3", views: 472000 }, 
-                { file: "Want_Me (1).mp3", views: 25000 },
-                { file: "Want_Me (2).mp3", views: 18000 },
-                { file: "Want_Me (3).mp3", views: 15000 },
-                { file: "Want_Me (4).mp3", views: 14000 },
-                { file: "Bells_PT1.mp3", views: 58000 },
-                { file: "To_Go_Back (1).mp3", views: 22000 },
-                { file: "Laugh (1).mp3", views: 35000 },
-                { file: "Demon_Girl (1).mp3", views: 128000 }, 
-                { file: "I_Messed_Up.mp3", views: 41000 },
-                { file: "Money_N_Money_Intro.mp3", views: 200000 }, 
-                { file: "Money_N_Money_Intro (1).mp3", views: 11400 }
+                { file: "Down_Bad.mp3", views: 420000, weight: 1.5 }, 
+                { file: "All_By_Myself.mp3", views: 52000, weight: 0.8 },
+                { file: "Your_Gonna_See.mp3", views: 38000, weight: 0.7 },
+                { file: "Your_Gonna_See (1).mp3", views: 12000, weight: 0.5 },
+                { file: "Honestly (1).mp3", views: 45000, weight: 0.8 },
+                { file: "Want_Me.mp3", views: 472000, weight: 1.6 }, 
+                { file: "Want_Me (1).mp3", views: 25000, weight: 0.6 },
+                { file: "Want_Me (2).mp3", views: 18000, weight: 0.5 },
+                { file: "Want_Me (3).mp3", views: 15000, weight: 0.4 },
+                { file: "Want_Me (4).mp3", views: 14000, weight: 0.4 },
+                { file: "Bells_PT1.mp3", views: 58000, weight: 0.9 },
+                { file: "To_Go_Back (1).mp3", views: 22000, weight: 0.6 },
+                { file: "Laugh (1).mp3", views: 35000, weight: 0.7 },
+                { file: "Demon_Girl (1).mp3", views: 128000, weight: 1.2 }, 
+                { file: "I_Messed_Up.mp3", views: 41000, weight: 0.7 },
+                { file: "Money_N_Money_Intro.mp3", views: 200000, weight: 1.3 }, 
+                { file: "Money_N_Money_Intro (1).mp3", views: 11400, weight: 0.4 }
             ].map(def => ({
                 title: def.file.replace(/_/g, " ").replace(/\(1\)/g, "").replace(".mp3", "").trim(),
                 filename: def.file, 
                 views: def.views,
                 duration: "3:30", 
-                weight: 1 
+                weight: def.weight,
+                weeklyViews: Math.floor(def.views * 0.1) // Seeding weekly views for charts
             }));
 
             lucid.totalViews = lucidTracks.reduce((acc, t) => acc + t.views, 0);
@@ -620,54 +694,100 @@
                 tracks: lucidTracks.length,
                 tracksData: lucidTracks,
                 totalViews: lucid.totalViews,
+                weeklyViews: lucid.totalViews * 0.1,
                 releaseTimestamp: Date.now()
             };
 
-            // --- 2. C@shxan ---
+            // --- 2. JBONE!! ---
+            const jboneId = "jbone_id";
+            const jbone = {
+                id: jboneId,
+                name: "JBONE!!",
+                pfp: "Down.PNG",
+                banner: "Down.PNG",
+                bio: "Featured artist on C@shxan's hit single.",
+                subscribers: 40,
+                monthlyListeners: 231,
+                totalViews: 0,
+                pronouns: "He/Him",
+                isVerified: false,
+                videos: [] // No videos
+            };
+
+            // --- 3. C@shxan ---
             const cashId = "cashxan_id";
             const cash = {
                 id: cashId,
                 name: "C@shxan",
-                pfp: "CashXan.PNG", 
-                banner: "CashXan.PNG",
-                bio: "New Wave.",
-                subscribers: 50,
-                monthlyListeners: 1200, 
-                totalViews: 4000, 
+                pfp: "Down.PNG", 
+                banner: "Down.PNG",
+                bio: "New wave artist bringing a fresh perspective. 'Down' is just the beginning.",
+                subscribers: 3100, // Updated
+                monthlyListeners: 11400, // Updated 
+                totalViews: 8200, 
                 pronouns: "He/Him",
                 isVerified: false,
-                videos: []
+                videos: [] 
             };
 
-            const cashTracks = [{
+            const cashTracksDown = [{
                 title: "Down",
                 filename: "Down.mp3",
-                views: 4000,
+                views: 7000, 
                 duration: "2:15",
-                weight: 1
+                weight: 1.5,
+                weeklyViews: 1200
             }];
 
-            const cashSingle = {
+            const cashSingleDown = {
                 id: "down_single_id",
                 artistId: cashId,
                 title: "Down",
                 type: "Single",
-                cover: "Down.PNG", // Updated
+                cover: "Down.PNG", 
                 tracks: 1,
-                tracksData: cashTracks,
-                totalViews: 4000,
+                tracksData: cashTracksDown,
+                totalViews: 7000,
+                weeklyViews: 1200,
+                releaseTimestamp: Date.now() - 1000000
+            };
+
+            // Release 2: Money Uhp (feat. JBONE!!)
+            const cashTracksMoney = [{
+                title: "Money Uhp",
+                filename: "moneyuhp.mp3",
+                views: 1200,
+                duration: "2:10",
+                weight: 1.2,
+                weeklyViews: 400
+            }];
+
+            const cashSingleMoney = {
+                id: "money_uhp_id",
+                artistId: cashId,
+                featuredArtistIds: [jboneId], // Added Feature
+                title: "Money Uhp",
+                type: "Single",
+                cover: "Down.PNG", 
+                tracks: 1,
+                tracksData: cashTracksMoney,
+                totalViews: 1200,
+                weeklyViews: 400,
                 releaseTimestamp: Date.now()
             };
 
-            state.artists = [lucid, cash];
-            state.releases = [lucidAlbum, cashSingle];
+            state.artists = [lucid, cash, jbone];
+            state.releases = [lucidAlbum, cashSingleDown, cashSingleMoney];
         }
 
-        function loadLibrary() {
+        function loadFromLocal() {
             const data = localStorage.getItem('peyza_sim_save');
             if (data) {
-                const parsed = JSON.parse(data);
-                if(parsed.library) state.library = parsed.library;
+                const savedState = JSON.parse(data);
+                // We keep the SEEDED artists/releases to ensure updates (like JBONE) appear.
+                // We only restore user-specific data like Library and User Profile.
+                if(savedState.library) state.library = savedState.library;
+                if(savedState.user) state.user = savedState.user;
             }
         }
 
@@ -713,9 +833,16 @@
         function updatePlayerUI() {
             const { release, track } = playerState;
             const artist = state.artists.find(a => a.id === release.artistId);
+            
+            // Feature Display
+            let featText = "";
+            if(release.featuredArtistIds && release.featuredArtistIds.length > 0) {
+                 const feats = state.artists.filter(a => release.featuredArtistIds.includes(a.id));
+                 featText = ` ft. ${feats.map(f => f.name).join(', ')}`;
+            }
 
             document.getElementById('player-title').innerText = track.title;
-            document.getElementById('player-artist').innerText = artist.name;
+            document.getElementById('player-artist').innerText = artist.name + featText;
             document.getElementById('player-img').src = release.cover;
             
             updatePlayerUIStats();
@@ -799,6 +926,31 @@
                 updatePlayButton();
             }
         }
+        
+        function shareTrack() {
+            if(!playerState.track) return;
+            const trackName = playerState.track.title;
+            const artistName = state.artists.find(a => a.id === playerState.release.artistId).name;
+            
+            // In a real app this would copy a URL. Here we copy text.
+            const text = `Check out "${trackName}" by ${artistName} on PeytoToria!`;
+            
+            // Modern clipboard API
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast("Link copied to clipboard", "content_copy");
+                });
+            } else {
+                // Fallback
+                const el = document.createElement('textarea');
+                el.value = text;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showToast("Link copied to clipboard", "content_copy");
+            }
+        }
 
         // --- VIDEO PLAYER LOGIC ---
 
@@ -832,6 +984,23 @@
              errorMsg.classList.remove('hidden');
         }
 
+        // --- NOTIFICATION SYSTEM ---
+        function showToast(message, icon = "info") {
+            const toast = document.getElementById('general-toast');
+            const msgEl = document.getElementById('toast-msg');
+            const iconEl = document.getElementById('toast-icon');
+            
+            msgEl.innerText = message;
+            iconEl.innerText = icon;
+            
+            toast.classList.remove('toast-hidden');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('toast-hidden');
+            }, 3000);
+        }
+
         // --- RENDERERS ---
 
         function renderHome() {
@@ -841,7 +1010,6 @@
             updateNavState('home');
             
             const release = state.releases[0]; // LucidPP album
-            const artist = state.artists[0];
 
             main.innerHTML = `
                 <div class="space-y-8 pb-20 animate-fade-in">
@@ -851,7 +1019,7 @@
                             <img src="${release.cover}" class="w-16 h-16 rounded object-cover">
                             <div>
                                 <h3 class="font-bold text-white">${release.title}</h3>
-                                <p class="text-sm text-yt-textSec">${artist.name} • Album</p>
+                                <p class="text-sm text-yt-textSec">LucidPP • Album</p>
                             </div>
                         </div>
                     </section>
@@ -879,14 +1047,96 @@
         
         function renderExplore() {
              const main = document.getElementById('main-content');
-             main.innerHTML = `<div class="p-8 text-center text-gray-500">Explore is curated for LucidPP & C@shxan.</div>`;
+             main.dataset.view = 'explore';
              updateNavState('explore');
+
+             // Filter out JBONE from main recommendations to simulate "discovery"
+             const featuredArtists = state.artists.filter(a => a.name !== "User");
+
+             main.innerHTML = `
+                <div class="space-y-8 pb-20 animate-fade-in">
+                    <h1 class="text-4xl font-bold mb-6">Explore</h1>
+
+                    <section>
+                        <h2 class="text-2xl font-bold mb-4">Recommended Artists</h2>
+                        <div class="artist-grid">
+                            ${featuredArtists.map(artist => `
+                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#1f1f1f] transition">
+                                    <img src="${artist.pfp}" class="w-full aspect-square object-cover rounded-full mb-4 shadow-lg">
+                                    <h3 class="font-bold text-white truncate">${artist.name}</h3>
+                                    <p class="text-sm text-yt-textSec">Artist</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                </div>
+             `;
         }
         
         function renderCharts() {
              const main = document.getElementById('main-content');
-             main.innerHTML = `<div class="p-8 text-center text-gray-500">LucidPP is #1 on all charts.</div>`;
+             main.dataset.view = 'charts';
              updateNavState('charts');
+             
+             // Gather all tracks with weighted ranking
+             let allTracks = [];
+             state.releases.forEach(r => {
+                 const artist = state.artists.find(a => a.id === r.artistId);
+                 r.tracksData.forEach((t, i) => {
+                     // Add weights to C@shxan and LucidPP
+                     let sortValue = t.weeklyViews || (t.views * 0.1); 
+                     if(artist.name === "C@shxan") sortValue *= 1.5; // Boost
+                     if(artist.name === "LucidPP") sortValue *= 1.2;
+
+                     allTracks.push({
+                         title: t.title,
+                         artist: artist.name,
+                         cover: r.cover,
+                         releaseId: r.id,
+                         trackIndex: i,
+                         sortValue: sortValue,
+                         views: t.views
+                     });
+                 });
+             });
+             
+             allTracks.sort((a,b) => b.sortValue - a.sortValue);
+
+             const filterClass = "px-3 py-1 rounded-full border border-gray-600 text-sm hover:border-white transition";
+
+             main.innerHTML = `
+                <div class="space-y-6 pb-20 animate-fade-in">
+                     <div class="flex flex-col gap-2">
+                        <h1 class="text-4xl font-black">Charts</h1>
+                        <p class="text-gray-400">The most played songs on PeytoToria this week.</p>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                        <button class="${filterClass} bg-white text-black border-white">Global</button>
+                        <button class="${filterClass}">United States</button>
+                        <button class="${filterClass}">United Kingdom</button>
+                        <button class="${filterClass}">China</button>
+                        <button class="${filterClass}">Japan</button>
+                        <button class="${filterClass}">Brazil</button>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <div class="text-xs font-bold text-gray-500 uppercase tracking-widest px-4 mb-2">Top 100</div>
+                        ${allTracks.map((track, i) => `
+                            <div onclick="trackClicked('${track.releaseId}', ${track.trackIndex})" class="flex items-center gap-4 p-3 rounded hover:bg-[#1f1f1f] group cursor-pointer transition">
+                                <div class="w-8 text-center font-bold text-lg ${i < 3 ? 'text-white' : 'text-gray-500'}">${i + 1}</div>
+                                <img src="${track.cover}" class="w-12 h-12 rounded object-cover shadow-sm">
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-white truncate">${track.title}</div>
+                                    <div class="text-sm text-gray-400 truncate">${track.artist}</div>
+                                </div>
+                                <div class="text-sm text-gray-500 font-medium">${formatNumber(track.views)} total</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+             `;
         }
 
         function renderLibrary() {
@@ -940,28 +1190,26 @@
             const topSongs = [...allTracks].sort((a,b) => b.views - a.views).slice(0, 5);
             
             // Video Section Generation
-            let videoSection = "";
+            let videoSection = `<section class="mt-8"><h2 class="text-2xl font-bold mb-4">Videos</h2>`;
             if(artist.videos && artist.videos.length > 0) {
-                videoSection = `
-                    <section class="mt-8">
-                        <h2 class="text-2xl font-bold mb-4">Videos</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            ${artist.videos.map(v => `
-                                <div class="cursor-pointer group" onclick="openVideoPlayer('${v.filename}')">
-                                    <div class="relative aspect-video bg-[#212121] rounded-lg overflow-hidden mb-2">
-                                        <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                                        <div class="absolute inset-0 flex items-center justify-center">
-                                            <span class="material-icons-round text-white text-4xl drop-shadow-lg">play_circle_filled</span>
-                                        </div>
-                                    </div>
-                                    <h3 class="font-medium text-white line-clamp-1">${v.title}</h3>
-                                    <p class="text-sm text-gray-400">${formatNumber(v.views)} views</p>
+                videoSection += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${artist.videos.map(v => `
+                        <div class="cursor-pointer group" onclick="openVideoPlayer('${v.filename}')">
+                            <div class="relative aspect-video bg-[#212121] rounded-lg overflow-hidden mb-2">
+                                <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="material-icons-round text-white text-4xl drop-shadow-lg">play_circle_filled</span>
                                 </div>
-                            `).join('')}
+                            </div>
+                            <h3 class="font-medium text-white line-clamp-1">${v.title}</h3>
+                            <p class="text-sm text-gray-400">${formatNumber(v.views)} views</p>
                         </div>
-                    </section>
-                `;
+                    `).join('')}
+                </div>`;
+            } else {
+                videoSection += `<div class="text-gray-500 italic">No Videos Currently</div>`;
             }
+            videoSection += `</section>`;
 
             main.innerHTML = `
                 <div class="pb-20 animate-fade-in">
@@ -1063,6 +1311,13 @@
 
             const artist = state.artists.find(a => a.id === release.artistId);
             
+            // Feature logic
+            let featText = "";
+            if(release.featuredArtistIds && release.featuredArtistIds.length > 0) {
+                 const feats = state.artists.filter(a => release.featuredArtistIds.includes(a.id));
+                 featText = ` & ${feats.map(f => f.name).join(', ')}`;
+            }
+
             main.innerHTML = `
                  <div class="pb-20 max-w-7xl mx-auto animate-fade-in">
                     <div class="flex flex-col md:flex-row gap-8 mb-8">
@@ -1073,7 +1328,7 @@
                             <h2 class="text-4xl md:text-5xl font-black mb-4">${release.title}</h2>
                             <div class="flex items-center gap-2 mb-4">
                                 <img src="${artist.pfp}" class="w-6 h-6 rounded-full">
-                                <span class="font-bold text-white hover:underline cursor-pointer" onclick="renderArtist('${artist.id}')">${artist.name}</span>
+                                <span class="font-bold text-white hover:underline cursor-pointer" onclick="renderArtist('${artist.id}')">${artist.name}${featText}</span>
                             </div>
                             <div class="text-gray-400 text-sm flex gap-4 items-center">
                                 <span>${release.type}</span>
@@ -1096,7 +1351,7 @@
                                     <div class="w-6 text-center hidden group-hover:block"><span class="material-icons-round text-white text-sm">play_arrow</span></div>
                                     <div class="flex flex-col">
                                         <span class="text-white font-medium">${track.title}</span>
-                                        <span class="text-gray-500 text-xs">${artist.name}</span>
+                                        <span class="text-gray-500 text-xs">${artist.name}${featText}</span>
                                     </div>
                                     <div class="text-gray-400 text-sm flex items-center gap-8">
                                         <span>${formatNumber(track.views)}</span>
@@ -1229,8 +1484,8 @@
             if (data) {
                 const savedState = JSON.parse(data);
                 if(savedState.library) state.library = savedState.library;
+                if(savedState.user) state.user = savedState.user;
             }
-            seedData();
         }
 
         function resetData() {
