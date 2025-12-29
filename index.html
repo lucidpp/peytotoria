@@ -9,9 +9,7 @@
     <link rel="icon" type="image/png" href="siteicon.png">
 
     <!-- Metadata -->
-    <meta name="description" content="PeytoToria - The ultimate music streaming simulator. Stream exclusive tracks from verified artists like LucidPP, C@shxan, and JBONE!!. Experience the next generation of web-based music players.">
-    <meta name="keywords" content="music, streaming, simulator, LucidPP, C@shxan, JBONE!!, audio, mp3, web player, PeytoToria">
-    <meta name="author" content="PeytoToria Music">
+    <meta name="description" content="PeytoToria - The ultimate music streaming simulator.">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -44,20 +42,14 @@
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.3s ease-out',
-                        'explode': 'explode 0.6s ease-out forwards',
                         'slide-up': 'slideUp 0.3s cubic-bezier(0.2, 0.0, 0, 1.0) forwards',
                         'slide-down': 'slideDown 0.3s cubic-bezier(0.2, 0.0, 0, 1.0) forwards',
-                        'thumb-pop': 'thumbPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                        'pop-wiggle': 'popWiggle 0.6s ease-out'
                     },
                     keyframes: {
                         fadeIn: {
                             '0%': { opacity: '0', transform: 'translateY(10px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        explode: {
-                            '0%': { transform: 'scale(1)', opacity: '1' },
-                            '50%': { transform: 'scale(1.5)', opacity: '0.8' },
-                            '100%': { transform: 'scale(2)', opacity: '0' },
                         },
                         slideUp: {
                             '0%': { transform: 'translateY(100%)', opacity: '0' },
@@ -67,10 +59,17 @@
                             '0%': { transform: 'translateY(0)', opacity: '1' },
                             '100%': { transform: 'translateY(100%)', opacity: '0' }
                         },
-                        thumbPop: {
+                        popWiggle: {
                             '0%': { transform: 'scale(1) rotate(0deg)' },
-                            '50%': { transform: 'scale(1.5) rotate(-15deg)' },
+                            '30%': { transform: 'scale(1.4) rotate(-15deg)' },
+                            '50%': { transform: 'scale(1.1) rotate(15deg)' },
+                            '70%': { transform: 'scale(1.2) rotate(-10deg)' },
                             '100%': { transform: 'scale(1) rotate(0deg)' }
+                        },
+                        explode: {
+                             '0%': { boxShadow: '0 0 0 0 rgba(255, 255, 255, 0.7)' },
+                             '70%': { boxShadow: '0 0 0 20px rgba(255, 255, 255, 0)' },
+                             '100%': { boxShadow: '0 0 0 0 rgba(255, 255, 255, 0)' }
                         }
                     }
                 }
@@ -162,7 +161,7 @@
             overflow: hidden;
         }
 
-        /* Button Explode Effect */
+        /* Button Explode Effect (General Click) */
         .icon-explode {
             position: relative;
         }
@@ -183,11 +182,21 @@
             animation: ripple 0.6s ease-out;
         }
 
+        /* Specific Thumbs Up Explosion */
+        .thumbs-up-explode {
+            animation: popWiggle 0.6s ease-out, explode 0.6s ease-out;
+        }
+
         @keyframes ripple {
             0% { transform: translate(-50%, -50%) scale(0); opacity: 0.5; }
             100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
         }
         
+        @keyframes explode {
+             0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+             100% { box-shadow: 0 0 0 30px rgba(255, 255, 255, 0); }
+        }
+
         /* Mobile Nav */
         .mobile-nav-item.active {
             color: white;
@@ -217,7 +226,8 @@
 
         /* Toast positioning classes */
         .toast-hidden {
-            transform: translateY(200%); /* Hidden state */
+            transform: translate(-50%, 200%) !important; /* Move down off screen */
+            opacity: 0;
         }
         #general-toast {
             z-index: 200;
@@ -263,11 +273,6 @@
             transition: width 0.3s ease;
         }
 
-        /* Subscribe Thumbs Up Animation */
-        .animate-thumb {
-            animation: thumbPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        
         /* Tooltip */
         .tooltip {
             position: relative;
@@ -338,7 +343,6 @@
         </div>
 
         <div class="flex items-center gap-4">
-             <button id="wrapped-btn" onclick="openModal('wrapped-modal')" class="hidden wrapped-gradient text-white text-xs font-bold px-4 py-1.5 rounded-full hover:scale-105 transition shadow-lg">Wrapped</button>
              <button onclick="resetData()" class="bg-[#212121] border border-[#333] text-red-500 text-xs px-3 py-1 rounded hover:bg-[#333] hidden md:block">Reset</button>
              <!-- User Profile Area -->
             <div class="relative cursor-pointer" onclick="openModal('user-settings-modal')">
@@ -449,7 +453,9 @@
                 <div class="flex items-center gap-4 flex-shrink-0">
                      <button onclick="toggleDislike()" class="text-gray-400 hover:text-white transition"><span id="player-dislike-icon" class="material-icons-round text-2xl">thumb_down</span></button>
                      <div class="flex flex-col items-center">
-                        <button onclick="toggleLike()" class="text-white hover:text-gray-200 transition"><span id="player-like-icon" class="material-icons-round text-2xl">thumb_up</span></button>
+                        <button onclick="toggleLike()" class="text-white hover:text-gray-200 transition group relative">
+                            <span id="player-like-icon" class="material-icons-round text-2xl">thumb_up</span>
+                        </button>
                         <span id="player-likes" class="text-[10px] text-gray-400 font-medium mt-0.5">0</span>
                     </div>
                 </div>
@@ -491,7 +497,7 @@
         <audio id="audio-element"></audio>
     </div>
 
-    <!-- Wrapped Modal -->
+    <!-- Wrapped Modal (Artist Specific) -->
     <div id="wrapped-modal" class="modal fixed inset-0 z-[300] bg-black/95 flex items-center justify-center p-4 hidden">
         <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-transparent wrapped-gradient p-1">
              <div class="bg-black/90 h-full w-full rounded-xl p-8 text-center relative">
@@ -502,7 +508,7 @@
                  
                  <div class="space-y-6">
                      <div class="bg-[#212121] p-4 rounded-xl">
-                         <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Your Top Artist</p>
+                         <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Your Artist</p>
                          <div class="flex items-center justify-center gap-3 mb-2">
                              <img id="wrapped-artist-img" src="" class="w-10 h-10 rounded-full">
                              <span id="wrapped-artist-name" class="text-xl font-bold text-white">Artist</span>
@@ -615,7 +621,6 @@
 
             renderHome();
             updateSidebar();
-            checkWrapped(); 
             
             // Audio Listeners
             audioElement.addEventListener('timeupdate', updateProgress);
@@ -647,23 +652,19 @@
             document.getElementById('player-time-total').innerText = formatTime(duration);
         }
         
-        function checkWrapped() {
-            const date = new Date();
-            // Show Wrapped Button if December (Month 11)
-            if (date.getMonth() === 11) {
-                document.getElementById('wrapped-btn').classList.remove('hidden');
-            }
-        }
-        
-        function generateWrappedData() {
-            const topArtist = state.artists.sort((a,b) => b.totalViews - a.totalViews)[0];
-            const totalStreams = state.artists.reduce((acc, a) => acc + a.totalViews, 0);
+        function openArtistWrapped(artistId) {
+            const artist = state.artists.find(a => a.id === artistId);
+            if(!artist) return;
+            
+            const totalStreams = artist.totalViews; // In a real app this would be user specific
             const earnings = totalStreams * 0.000001;
             
-            document.getElementById('wrapped-artist-img').src = topArtist.pfp;
-            document.getElementById('wrapped-artist-name').innerText = topArtist.name;
+            document.getElementById('wrapped-artist-img').src = artist.pfp;
+            document.getElementById('wrapped-artist-name').innerText = artist.name;
             document.getElementById('wrapped-streams').innerText = formatNumber(totalStreams);
             document.getElementById('wrapped-earnings').innerText = formatCurrency(earnings);
+            
+            openModal('wrapped-modal');
         }
         
         function shareWrapped() {
@@ -708,7 +709,7 @@
                 pronouns: "He/Him",
                 isVerified: true,
                 videos: [
-                    { title: "Want Me (Official Music Video)", views: 320000, thumb: "LucidPPMNM.JPG", filename: "WantMe.mp4" }
+                    { id: "vid_wantme", title: "Want Me (Official Music Video)", views: 320000, thumb: "LucidPPMNM.JPG", filename: "WantMe.mp4" }
                 ]
             };
 
@@ -731,7 +732,7 @@
                 { file: "Money_N_Money_Intro.mp3", views: 200000 }, 
                 { file: "Money_N_Money_Intro (1).mp3", views: 11400 }
             ].map(def => ({
-                id: def.file, // Unique ID for like tracking
+                id: def.file,
                 title: def.file.replace(/_/g, " ").replace(/\(1\)/g, "").replace(".mp3", "").trim(),
                 filename: def.file, 
                 views: def.views,
@@ -766,10 +767,26 @@
                 totalViews: 0,
                 pronouns: "He/Him",
                 isVerified: false,
-                videos: [] // No videos
+                videos: [] 
+            };
+            
+            // --- 3. Deno (New Feature) ---
+            const denoId = "deno_id";
+            const deno = {
+                id: denoId,
+                name: "Deno",
+                pfp: "FAVELA.png",
+                banner: "FAVELA.png",
+                bio: "Known for the feature on FAVELA.",
+                subscribers: 100,
+                monthlyListeners: 5000,
+                totalViews: 0,
+                pronouns: "He/Him",
+                isVerified: false,
+                videos: []
             };
 
-            // --- 3. C@shxan ---
+            // --- 4. C@shxan ---
             const cashId = "cashxan_id";
             const cash = {
                 id: cashId,
@@ -777,19 +794,65 @@
                 pfp: "Down.PNG", 
                 banner: "Down.PNG",
                 bio: "New wave artist bringing a fresh perspective. 'Down' is just the beginning.",
-                subscribers: 3100, // Updated
-                monthlyListeners: 102000, // Updated 102K
+                subscribers: 3100, 
+                monthlyListeners: 102000, 
                 totalViews: 8200, 
                 pronouns: "He/Him",
                 isVerified: false,
                 videos: [] 
             };
 
+            // --- 5. MXZI (New Artist) ---
+            const mxziId = "mxzi_id";
+            const mxzi = {
+                id: mxziId,
+                name: "MXZI",
+                pfp: "FAVELA.png",
+                banner: "FAVELA.png",
+                bio: "New artist on the block. Released the hit single FAVELA.",
+                subscribers: 1200,
+                monthlyListeners: 14000, // 14K Monthly Audience
+                totalViews: 102000,
+                pronouns: "He/Him",
+                isVerified: false,
+                videos: [
+                    { 
+                        id: "vid_favela", 
+                        title: "FAVELA (Official Music Video)", 
+                        views: 24000, 
+                        thumb: "FAVELA.png", 
+                        filename: "FAVELA.mp4" 
+                    }
+                ]
+            };
+
+            const mxziTracks = [{
+                id: "favela_track_id",
+                title: "FAVELA",
+                filename: "FAVELA.mp3",
+                views: 102000,
+                duration: "2:50",
+                weight: 2.5
+            }];
+
+            const mxziSingle = {
+                id: "favela_single_id",
+                artistId: mxziId,
+                featuredArtistIds: [denoId],
+                title: "FAVELA",
+                type: "Single",
+                cover: "FAVELA.png",
+                tracks: 1,
+                tracksData: mxziTracks,
+                totalViews: 102000,
+                releaseTimestamp: Date.now() + 1000
+            };
+
             const cashTracksDown = [{
                 id: "Down.mp3",
                 title: "Down",
                 filename: "Down.mp3",
-                views: 141000, // Updated 141K
+                views: 141000, 
                 duration: "2:15",
                 weight: 2.0
             }];
@@ -811,7 +874,7 @@
                 id: "moneyuhp.mp3",
                 title: "Money Uhp",
                 filename: "moneyuhp.mp3",
-                views: 34000, // Updated 34K
+                views: 34000, 
                 duration: "2:10",
                 weight: 1.2
             }];
@@ -834,7 +897,7 @@
                 id: "Rackz.mp3",
                 title: "Rackz kOmin U4",
                 filename: "Rackz.mp3",
-                views: 4000, // Updated 4K
+                views: 4000, 
                 duration: "2:30",
                 weight: 0.5
             }];
@@ -851,7 +914,7 @@
                 releaseTimestamp: Date.now() - 500000
             };
 
-            // Release 4: Sum To Lose (New)
+            // Release 4: Sum To Lose 
             const cashTracksSum = [{
                 id: "sumtolose.mp3",
                 title: "sum to lose",
@@ -873,19 +936,16 @@
                 releaseTimestamp: Date.now() 
             };
 
-            // Calc total views for C@shxan
             cash.totalViews = 141000 + 34000 + 4000 + 24000;
 
-            state.artists = [lucid, cash, jbone];
-            state.releases = [lucidAlbum, cashSingleSum, cashSingleDown, cashSingleMoney, cashSingleRackz];
+            state.artists = [lucid, cash, jbone, mxzi, deno];
+            state.releases = [lucidAlbum, mxziSingle, cashSingleSum, cashSingleDown, cashSingleMoney, cashSingleRackz];
         }
 
         function loadFromLocal() {
             const data = localStorage.getItem('peyza_sim_save');
             if (data) {
                 const savedState = JSON.parse(data);
-                // We keep the SEEDED artists/releases to ensure updates appear.
-                // We only restore user-specific data like Library and User Profile.
                 if(savedState.library) state.library = savedState.library;
                 if(savedState.user) state.user = savedState.user;
                 if(savedState.likedSongs) state.likedSongs = savedState.likedSongs;
@@ -906,23 +966,18 @@
             const track = release.tracksData[trackIndex];
             const audioSrc = track.filename; 
             
-            // Standard Audio Playback
             loadAndPlay(releaseId, trackIndex, audioSrc);
         }
 
-        // NEW: Play Video (Called from artist profile video card)
-        function playVideo(title, artistName, filename, thumb) {
-            // Find release/artist to populate state correctly
-            const artist = state.artists.find(a => a.name === "LucidPP"); // Hardcoded lookup for this video for simplicity
-            if (!artist) return;
-            
-            playerState.currentReleaseId = null; // Detached video
+        // UPDATED: Play Video with Views and ID
+        function playVideo(title, artistName, filename, thumb, views, id, artistId) {
+            playerState.currentReleaseId = null; 
             playerState.currentTrackIndex = -1;
-            playerState.release = { cover: thumb, artistId: artist.id }; // Mock release
-            playerState.track = { title: title, views: 0 }; // Mock track
+            playerState.release = { cover: thumb, artistId: artistId }; 
+            playerState.track = { id: id, title: title, views: views }; 
             playerState.audioUrl = null;
             playerState.isPlaying = true;
-            playerState.isVideo = true; // Flag for video mode
+            playerState.isVideo = true; 
 
             // Setup Video Element
             const vid = document.getElementById('player-video');
@@ -957,7 +1012,7 @@
             // Reset UI for Audio
             document.getElementById('player-video').classList.add('hidden');
             document.getElementById('player-img').classList.remove('hidden');
-            document.getElementById('player-video').pause(); // Stop video if playing
+            document.getElementById('player-video').pause(); 
 
             audioElement.src = url;
             const playPromise = audioElement.play();
@@ -986,7 +1041,7 @@
             if(artist) {
                  document.getElementById('player-artist').innerText = artist.name + featText;
             } else {
-                 document.getElementById('player-artist').innerText = "LucidPP"; // Fallback for video
+                 document.getElementById('player-artist').innerText = "Unknown Artist"; 
             }
             
             document.getElementById('player-img').src = release.cover;
@@ -1016,7 +1071,7 @@
             const artist = state.artists.find(a => a.id === release.artistId);
             
             document.getElementById('mini-title').innerText = track.title;
-            document.getElementById('mini-artist').innerText = artist ? artist.name : "LucidPP";
+            document.getElementById('mini-artist').innerText = artist ? artist.name : "";
             document.getElementById('mini-img').src = release.cover;
             document.getElementById('mini-play-icon').innerText = playerState.isPlaying ? 'pause' : 'play_arrow';
             
@@ -1046,9 +1101,9 @@
             const likeIcon = document.getElementById('player-like-icon');
             
             // Trigger Animation
-            likeIcon.classList.remove('animate-thumb');
+            likeIcon.classList.remove('thumbs-up-explode');
             void likeIcon.offsetWidth; 
-            likeIcon.classList.add('animate-thumb');
+            likeIcon.classList.add('thumbs-up-explode');
 
             if (index === -1) {
                 state.likedSongs.push(trackId);
@@ -1057,11 +1112,13 @@
             }
             
             saveToLocal();
-            updatePlayerUI(); // Updates icon and count
+            // Delay update slightly to let animation play
+            setTimeout(() => {
+                updatePlayerUI(); 
+            }, 100);
         }
 
         function toggleDislike() {
-             // Visual only, unlikes if liked
              if(!playerState.track) return;
              const trackId = playerState.track.id;
              if(state.likedSongs && state.likedSongs.includes(trackId)) {
@@ -1079,7 +1136,7 @@
                 playerState.isPlaying = false;
             }
             updatePlayButton();
-            updateMiniPlayerUI(); // Update mini play icon
+            updateMiniPlayerUI(); 
         }
 
         function updatePlayButton() {
@@ -1132,16 +1189,13 @@
             const trackName = playerState.track.title;
             const artistName = state.artists.find(a => a.id === playerState.release.artistId).name;
             
-            // In a real app this would copy a URL. Here we copy text.
             const text = `Check out "${trackName}" by ${artistName} on PeytoToria!`;
             
-            // Modern clipboard API
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(text).then(() => {
                     showToast("Link copied to clipboard", "content_copy");
                 });
             } else {
-                // Fallback
                 const el = document.createElement('textarea');
                 el.value = text;
                 document.body.appendChild(el);
@@ -1151,8 +1205,33 @@
                 showToast("Link copied to clipboard", "content_copy");
             }
         }
+        
+        // --- SUBSCRIBER LOGIC ---
+        function toggleSubscribe(artistId) {
+            const index = state.library.indexOf(artistId);
+            const btnIcon = document.getElementById(`sub-icon-${artistId}`);
+            
+            if (index === -1) {
+                // Subscribe
+                state.library.push(artistId);
+                if(btnIcon) {
+                    btnIcon.classList.remove('thumbs-up-explode');
+                    void btnIcon.offsetWidth; 
+                    btnIcon.classList.add('thumbs-up-explode'); // Add animation
+                }
+                showToast("Subscribed!", "check_circle");
+            } else {
+                // Unsubscribe
+                state.library.splice(index, 1);
+            }
+            
+            saveToLocal();
+            renderArtist(artistId); // Re-render to show updated state
+            updateSidebar();
+        }
 
         // --- NOTIFICATION SYSTEM ---
+        let toastTimeout;
         function showToast(message, icon = "info") {
             const toast = document.getElementById('general-toast');
             const msgEl = document.getElementById('toast-msg');
@@ -1163,8 +1242,11 @@
             
             toast.classList.remove('toast-hidden');
             
+            // Clear previous timeout to prevent early hiding if multiple toasts are triggered fast
+            if (toastTimeout) clearTimeout(toastTimeout);
+            
             // Hide after 3 seconds
-            setTimeout(() => {
+            toastTimeout = setTimeout(() => {
                 toast.classList.add('toast-hidden');
             }, 3000);
         }
@@ -1177,18 +1259,27 @@
             main.dataset.viewId = '';
             updateNavState('home');
             
-            const release = state.releases[0]; // LucidPP album
-            const artist = state.artists[0];
+            const release = state.releases[0]; 
+            const mxziRelease = state.releases.find(r => r.artistId === "mxzi_id");
 
             main.innerHTML = `
                 <div class="space-y-8 pb-20 animate-fade-in">
                     <section>
                         <h2 class="text-2xl font-bold mb-4">Quick Picks</h2>
-                        <div class="bg-[#212121] p-4 rounded-lg flex items-center gap-4 cursor-pointer hover:bg-[#333] transition" onclick="renderRelease('${release.id}')">
-                            <img src="${release.cover}" class="w-16 h-16 rounded object-cover">
-                            <div>
-                                <h3 class="font-bold text-white">${release.title}</h3>
-                                <p class="text-sm text-yt-textSec">LucidPP • Album</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-[#212121] p-4 rounded-lg flex items-center gap-4 cursor-pointer hover:bg-[#333] transition" onclick="renderRelease('${release.id}')">
+                                <img src="${release.cover}" class="w-16 h-16 rounded object-cover">
+                                <div>
+                                    <h3 class="font-bold text-white">${release.title}</h3>
+                                    <p class="text-sm text-yt-textSec">LucidPP • Album</p>
+                                </div>
+                            </div>
+                            <div class="bg-[#212121] p-4 rounded-lg flex items-center gap-4 cursor-pointer hover:bg-[#333] transition" onclick="renderRelease('${mxziRelease.id}')">
+                                <img src="${mxziRelease.cover}" class="w-16 h-16 rounded object-cover">
+                                <div>
+                                    <h3 class="font-bold text-white">${mxziRelease.title}</h3>
+                                    <p class="text-sm text-yt-textSec">MXZI • Single</p>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -1219,7 +1310,6 @@
              main.dataset.view = 'explore';
              updateNavState('explore');
 
-             // Filter out JBONE from main recommendations to simulate "discovery"
              const featuredArtists = state.artists.filter(a => a.name !== "User");
 
              main.innerHTML = `
@@ -1227,7 +1317,7 @@
                     <h1 class="text-4xl font-bold mb-6">Explore</h1>
 
                     <section>
-                        <h2 class="text-2xl font-bold mb-4">Recommended Artists</h2>
+                        <h2 class="text-2xl font-bold mb-4">Trending Artists</h2>
                         <div class="artist-grid">
                             ${featuredArtists.map(artist => `
                                 <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#1f1f1f] transition">
@@ -1252,10 +1342,11 @@
              state.releases.forEach(r => {
                  const artist = state.artists.find(a => a.id === r.artistId);
                  r.tracksData.forEach((t, i) => {
-                     // Add weights to C@shxan and LucidPP for chart dominance
+                     // Add weights
                      let sortValue = t.views; 
-                     if(artist.name === "C@shxan") sortValue *= 1.5; // Boost
+                     if(artist.name === "C@shxan") sortValue *= 1.5; 
                      if(artist.name === "LucidPP") sortValue *= 1.2;
+                     if(artist.name === "MXZI") sortValue *= 1.8; // New artist boost
 
                      allTracks.push({
                          title: t.title,
@@ -1269,13 +1360,25 @@
                  });
              });
              
+             // Global Sort (Deterministic)
              allTracks.sort((a,b) => b.sortValue - a.sortValue);
              
-             // Setup button click for filters (fake sort)
+             // Filter function now uses consistent sorting
              window.filterCharts = (region) => {
-                 if(region === 'Global') allTracks.sort((a,b) => b.sortValue - a.sortValue);
-                 else allTracks.sort((a,b) => Math.random() - 0.5); // Randomize for regions
-                 renderChartList(allTracks, region);
+                 let sortedTracks = [...allTracks];
+                 
+                 // Deterministic re-sort based on Region hash to be consistent for everyone
+                 // but different per region.
+                 if(region !== 'Global') {
+                    sortedTracks.sort((a, b) => {
+                        // Create a simple deterministic hash for A and B
+                        const hashA = (a.title.length + region.length) * a.views % 1000;
+                        const hashB = (b.title.length + region.length) * b.views % 1000;
+                        return hashB - hashA;
+                    });
+                 }
+                 
+                 renderChartList(sortedTracks, region);
              };
 
              const filterClass = "px-3 py-1 rounded-full border border-gray-600 text-sm hover:border-white transition cursor-pointer";
@@ -1377,7 +1480,7 @@
             if(artist.videos && artist.videos.length > 0) {
                 videoSection += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     ${artist.videos.map(v => `
-                        <div class="cursor-pointer group" onclick="playVideo('${v.title}', '${artist.name}', '${v.filename}', '${v.thumb}')">
+                        <div class="cursor-pointer group" onclick="playVideo('${v.title}', '${artist.name}', '${v.filename}', '${v.thumb}', ${v.views}, '${v.id}', '${artist.id}')">
                             <div class="relative aspect-video bg-[#212121] rounded-lg overflow-hidden mb-2">
                                 <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                 <div class="absolute inset-0 flex items-center justify-center">
@@ -1397,6 +1500,13 @@
             // Earnings Calculation
             const totalEarnings = artist.totalViews * 0.000001;
 
+            // Wrapped Button Logic (Show only in Dec, Month 11)
+            const date = new Date();
+            let wrappedBtn = '';
+            if (date.getMonth() === 11) {
+                wrappedBtn = `<button onclick="openArtistWrapped('${artist.id}')" class="wrapped-gradient text-white text-xs font-bold px-4 py-1.5 rounded-full hover:scale-105 transition shadow-lg flex items-center gap-1 animate-pulse"><span class="material-icons-round text-sm">auto_awesome</span> Wrapped</button>`;
+            }
+
             main.innerHTML = `
                 <div class="pb-20 animate-fade-in">
                     <!-- Banner -->
@@ -1404,6 +1514,10 @@
                         <img src="${artist.banner}" class="w-full h-full object-cover brightness-75">
                         <div class="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent"></div>
                         
+                        <div class="absolute top-4 right-4 z-20">
+                            ${wrappedBtn}
+                        </div>
+
                         <div class="absolute bottom-8 left-8">
                             <div class="flex items-center gap-2 mb-2">
                                 <h1 class="text-4xl md:text-7xl font-black tracking-tighter shadow-xl">${artist.name}</h1>
@@ -1421,8 +1535,8 @@
                             </div>
 
                             <div class="flex items-center gap-4 mt-6">
-                                <button onclick="toggleSubscribe('${artist.id}')" class="${isSubscribed ? 'bg-[#212121] text-white border border-[#333]' : 'bg-white text-black'} px-6 md:px-8 py-2 md:py-3 rounded-full font-bold uppercase tracking-wide hover:bg-gray-200 hover:text-black transition text-sm flex items-center gap-2">
-                                    <span id="sub-icon-${artist.id}" class="material-icons-round text-lg">${isSubscribed ? 'thumb_up' : 'thumb_up_off_alt'}</span>
+                                <button onclick="toggleSubscribe('${artist.id}')" class="${isSubscribed ? 'bg-[#212121] text-white border border-[#333]' : 'bg-white text-black'} px-6 md:px-8 py-2 md:py-3 rounded-full font-bold uppercase tracking-wide hover:bg-gray-200 hover:text-black transition text-sm flex items-center gap-2 group">
+                                    <span id="sub-icon-${artist.id}" class="material-icons-round text-lg transition-transform ${isSubscribed ? 'text-white' : ''}">${isSubscribed ? 'thumb_up' : 'thumb_up_off_alt'}</span>
                                     <span>${isSubscribed ? 'Subscribed' : 'Subscribe'}</span>
                                     <span class="opacity-70 text-xs">• ${formatNumber(artist.subscribers)}</span>
                                 </button>
@@ -1672,19 +1786,8 @@
             }
         }
 
-        function loadFromLocal() {
-            const data = localStorage.getItem('peyza_sim_save');
-            if (data) {
-                const savedState = JSON.parse(data);
-                if(savedState.library) state.library = savedState.library;
-                if(savedState.user) state.user = savedState.user;
-                if(savedState.likedSongs) state.likedSongs = savedState.likedSongs;
-            }
-            seedData();
-        }
-
         function resetData() {
-            if(confirm("Resetting will restore LucidPP defaults. Continue?")) {
+            if(confirm("Resetting will restore defaults. Continue?")) {
                 localStorage.removeItem('peyza_sim_save');
                 location.reload();
             }
