@@ -303,6 +303,11 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
+        
+        /* Filled icons */
+        .material-icons-round.filled {
+            font-variation-settings: 'FILL' 1;
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col bg-yt-base text-white">
@@ -435,9 +440,9 @@
                 </div>
                 <!-- Like/Dislike Actions -->
                 <div class="flex items-center gap-4 flex-shrink-0">
-                     <button class="text-gray-400 hover:text-white transition"><span class="material-icons-round text-2xl">thumb_down</span></button>
+                     <button onclick="toggleDislike()" class="text-gray-400 hover:text-white transition"><span id="player-dislike-icon" class="material-icons-round text-2xl">thumb_down</span></button>
                      <div class="flex flex-col items-center">
-                        <button class="text-white hover:text-gray-200 transition"><span class="material-icons-round text-2xl">thumb_up</span></button>
+                        <button onclick="toggleLike()" class="text-white hover:text-gray-200 transition"><span id="player-like-icon" class="material-icons-round text-2xl">thumb_up</span></button>
                         <span id="player-likes" class="text-[10px] text-gray-400 font-medium mt-0.5">0</span>
                     </div>
                 </div>
@@ -538,6 +543,7 @@
             artists: [],
             releases: [],
             library: [],
+            likedSongs: [], // Track IDs of liked songs
             user: {
                 username: null,
                 pfp: null
@@ -559,8 +565,9 @@
             if (num === undefined || num === null) return "0";
             if (!isFinite(num)) return "0";
             if (isNaN(num)) return "0";
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+            if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         };
 
@@ -582,9 +589,9 @@
 
         // --- INIT ---
         function init() {
-            // Seed defaults first (Important: Always seed first to ensure new updates like JBONE appear)
+            // Seed defaults first
             seedData(); 
-            // Then load saved data to overwrite user prefs, but be careful not to delete new seeded artists
+            // Then overwrite with library preferences if any
             loadFromLocal(); 
 
             // Check User Login
@@ -657,30 +664,30 @@
             };
 
             const lucidTracks = [
-                { file: "Down_Bad.mp3", views: 420000, weight: 1.5 }, 
-                { file: "All_By_Myself.mp3", views: 52000, weight: 0.8 },
-                { file: "Your_Gonna_See.mp3", views: 38000, weight: 0.7 },
-                { file: "Your_Gonna_See (1).mp3", views: 12000, weight: 0.5 },
-                { file: "Honestly (1).mp3", views: 45000, weight: 0.8 },
-                { file: "Want_Me.mp3", views: 472000, weight: 1.6 }, 
-                { file: "Want_Me (1).mp3", views: 25000, weight: 0.6 },
-                { file: "Want_Me (2).mp3", views: 18000, weight: 0.5 },
-                { file: "Want_Me (3).mp3", views: 15000, weight: 0.4 },
-                { file: "Want_Me (4).mp3", views: 14000, weight: 0.4 },
-                { file: "Bells_PT1.mp3", views: 58000, weight: 0.9 },
-                { file: "To_Go_Back (1).mp3", views: 22000, weight: 0.6 },
-                { file: "Laugh (1).mp3", views: 35000, weight: 0.7 },
-                { file: "Demon_Girl (1).mp3", views: 128000, weight: 1.2 }, 
-                { file: "I_Messed_Up.mp3", views: 41000, weight: 0.7 },
-                { file: "Money_N_Money_Intro.mp3", views: 200000, weight: 1.3 }, 
-                { file: "Money_N_Money_Intro (1).mp3", views: 11400, weight: 0.4 }
+                { file: "Down_Bad.mp3", views: 420000 }, 
+                { file: "All_By_Myself.mp3", views: 52000 },
+                { file: "Your_Gonna_See.mp3", views: 38000 },
+                { file: "Your_Gonna_See (1).mp3", views: 12000 },
+                { file: "Honestly (1).mp3", views: 45000 },
+                { file: "Want_Me.mp3", views: 472000 }, 
+                { file: "Want_Me (1).mp3", views: 25000 },
+                { file: "Want_Me (2).mp3", views: 18000 },
+                { file: "Want_Me (3).mp3", views: 15000 },
+                { file: "Want_Me (4).mp3", views: 14000 },
+                { file: "Bells_PT1.mp3", views: 58000 },
+                { file: "To_Go_Back (1).mp3", views: 22000 },
+                { file: "Laugh (1).mp3", views: 35000 },
+                { file: "Demon_Girl (1).mp3", views: 128000 }, 
+                { file: "I_Messed_Up.mp3", views: 41000 },
+                { file: "Money_N_Money_Intro.mp3", views: 200000 }, 
+                { file: "Money_N_Money_Intro (1).mp3", views: 11400 }
             ].map(def => ({
+                id: def.file, // Unique ID for like tracking
                 title: def.file.replace(/_/g, " ").replace(/\(1\)/g, "").replace(".mp3", "").trim(),
                 filename: def.file, 
                 views: def.views,
                 duration: "3:30", 
-                weight: def.weight,
-                weeklyViews: Math.floor(def.views * 0.1) // Seeding weekly views for charts
+                weight: 1 
             }));
 
             lucid.totalViews = lucidTracks.reduce((acc, t) => acc + t.views, 0);
@@ -694,7 +701,6 @@
                 tracks: lucidTracks.length,
                 tracksData: lucidTracks,
                 totalViews: lucid.totalViews,
-                weeklyViews: lucid.totalViews * 0.1,
                 releaseTimestamp: Date.now()
             };
 
@@ -731,12 +737,12 @@
             };
 
             const cashTracksDown = [{
+                id: "Down.mp3",
                 title: "Down",
                 filename: "Down.mp3",
                 views: 7000, 
                 duration: "2:15",
-                weight: 1.5,
-                weeklyViews: 1200
+                weight: 1
             }];
 
             const cashSingleDown = {
@@ -748,18 +754,17 @@
                 tracks: 1,
                 tracksData: cashTracksDown,
                 totalViews: 7000,
-                weeklyViews: 1200,
                 releaseTimestamp: Date.now() - 1000000
             };
 
             // Release 2: Money Uhp (feat. JBONE!!)
             const cashTracksMoney = [{
+                id: "moneyuhp.mp3",
                 title: "Money Uhp",
                 filename: "moneyuhp.mp3",
                 views: 1200,
                 duration: "2:10",
-                weight: 1.2,
-                weeklyViews: 400
+                weight: 1
             }];
 
             const cashSingleMoney = {
@@ -772,22 +777,44 @@
                 tracks: 1,
                 tracksData: cashTracksMoney,
                 totalViews: 1200,
-                weeklyViews: 400,
+                releaseTimestamp: Date.now()
+            };
+            
+            // Release 3: Rackz kOmin U4 (New)
+            const cashTracksRackz = [{
+                id: "Rackz.mp3",
+                title: "Rackz kOmin U4",
+                filename: "Rackz.mp3",
+                views: 482, // Hardcoded
+                duration: "2:30",
+                weight: 1
+            }];
+
+            const cashSingleRackz = {
+                id: "rackz_single_id",
+                artistId: cashId,
+                title: "Rackz kOmin U4",
+                type: "Single",
+                cover: "Down.PNG",
+                tracks: 1,
+                tracksData: cashTracksRackz,
+                totalViews: 482,
                 releaseTimestamp: Date.now()
             };
 
             state.artists = [lucid, cash, jbone];
-            state.releases = [lucidAlbum, cashSingleDown, cashSingleMoney];
+            state.releases = [lucidAlbum, cashSingleDown, cashSingleMoney, cashSingleRackz];
         }
 
         function loadFromLocal() {
             const data = localStorage.getItem('peyza_sim_save');
             if (data) {
                 const savedState = JSON.parse(data);
-                // We keep the SEEDED artists/releases to ensure updates (like JBONE) appear.
+                // We keep the SEEDED artists/releases to ensure updates appear.
                 // We only restore user-specific data like Library and User Profile.
                 if(savedState.library) state.library = savedState.library;
                 if(savedState.user) state.user = savedState.user;
+                if(savedState.likedSongs) state.likedSongs = savedState.likedSongs;
             }
         }
 
@@ -845,6 +872,21 @@
             document.getElementById('player-artist').innerText = artist.name + featText;
             document.getElementById('player-img').src = release.cover;
             
+            // Like Button State
+            const isLiked = state.likedSongs && state.likedSongs.includes(track.id);
+            const likeIcon = document.getElementById('player-like-icon');
+            const dislikeIcon = document.getElementById('player-dislike-icon');
+            
+            if(isLiked) {
+                likeIcon.innerText = "thumb_up";
+                likeIcon.classList.add("text-white", "filled"); 
+                dislikeIcon.innerText = "thumb_down_off_alt";
+            } else {
+                likeIcon.innerText = "thumb_up_off_alt";
+                likeIcon.classList.remove("text-white", "filled");
+                dislikeIcon.innerText = "thumb_down_off_alt";
+            }
+            
             updatePlayerUIStats();
             updatePlayButton();
         }
@@ -866,9 +908,46 @@
         function updatePlayerUIStats() {
             if(!playerState.track) return;
             const track = playerState.track;
-            const likes = Math.floor(track.views * 0.04);
+            // Determine likes (base + 1 if user liked)
+            let likes = Math.floor(track.views * 0.04);
+            if (state.likedSongs && state.likedSongs.includes(track.id)) {
+                likes += 1;
+            }
             document.getElementById('player-views').innerText = formatNumber(track.views);
             document.getElementById('player-likes').innerText = formatNumber(likes);
+        }
+        
+        function toggleLike() {
+            if(!playerState.track) return;
+            const trackId = playerState.track.id;
+            
+            if (!state.likedSongs) state.likedSongs = [];
+            
+            const index = state.likedSongs.indexOf(trackId);
+            const likeIcon = document.getElementById('player-like-icon');
+            
+            // Trigger Animation
+            likeIcon.classList.remove('animate-thumb');
+            void likeIcon.offsetWidth; 
+            likeIcon.classList.add('animate-thumb');
+
+            if (index === -1) {
+                state.likedSongs.push(trackId);
+            } else {
+                state.likedSongs.splice(index, 1);
+            }
+            
+            saveToLocal();
+            updatePlayerUI(); // Updates icon and count
+        }
+
+        function toggleDislike() {
+             // Visual only, unlikes if liked
+             if(!playerState.track) return;
+             const trackId = playerState.track.id;
+             if(state.likedSongs && state.likedSongs.includes(trackId)) {
+                 toggleLike();
+             }
         }
 
         function togglePlay() {
@@ -1010,6 +1089,7 @@
             updateNavState('home');
             
             const release = state.releases[0]; // LucidPP album
+            const artist = state.artists[0];
 
             main.innerHTML = `
                 <div class="space-y-8 pb-20 animate-fade-in">
@@ -1019,7 +1099,7 @@
                             <img src="${release.cover}" class="w-16 h-16 rounded object-cover">
                             <div>
                                 <h3 class="font-bold text-white">${release.title}</h3>
-                                <p class="text-sm text-yt-textSec">LucidPP • Album</p>
+                                <p class="text-sm text-yt-textSec">${artist.name} • Album</p>
                             </div>
                         </div>
                     </section>
@@ -1084,7 +1164,7 @@
                  const artist = state.artists.find(a => a.id === r.artistId);
                  r.tracksData.forEach((t, i) => {
                      // Add weights to C@shxan and LucidPP
-                     let sortValue = t.weeklyViews || (t.views * 0.1); 
+                     let sortValue = t.views; 
                      if(artist.name === "C@shxan") sortValue *= 1.5; // Boost
                      if(artist.name === "LucidPP") sortValue *= 1.2;
 
@@ -1101,8 +1181,15 @@
              });
              
              allTracks.sort((a,b) => b.sortValue - a.sortValue);
+             
+             // Setup button click for filters (fake sort)
+             window.filterCharts = (region) => {
+                 if(region === 'Global') allTracks.sort((a,b) => b.sortValue - a.sortValue);
+                 else allTracks.sort((a,b) => Math.random() - 0.5); // Randomize for regions
+                 renderChartList(allTracks, region);
+             };
 
-             const filterClass = "px-3 py-1 rounded-full border border-gray-600 text-sm hover:border-white transition";
+             const filterClass = "px-3 py-1 rounded-full border border-gray-600 text-sm hover:border-white transition cursor-pointer";
 
              main.innerHTML = `
                 <div class="space-y-6 pb-20 animate-fade-in">
@@ -1113,30 +1200,37 @@
                     
                     <!-- Filters -->
                     <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                        <button class="${filterClass} bg-white text-black border-white">Global</button>
-                        <button class="${filterClass}">United States</button>
-                        <button class="${filterClass}">United Kingdom</button>
-                        <button class="${filterClass}">China</button>
-                        <button class="${filterClass}">Japan</button>
-                        <button class="${filterClass}">Brazil</button>
+                        <button onclick="filterCharts('Global')" class="${filterClass} bg-white text-black border-white">Global</button>
+                        <button onclick="filterCharts('USA')" class="${filterClass}">United States</button>
+                        <button onclick="filterCharts('UK')" class="${filterClass}">United Kingdom</button>
+                        <button onclick="filterCharts('China')" class="${filterClass}">China</button>
+                        <button onclick="filterCharts('Japan')" class="${filterClass}">Japan</button>
+                        <button onclick="filterCharts('Brazil')" class="${filterClass}">Brazil</button>
                     </div>
 
-                    <div class="flex flex-col gap-1">
-                        <div class="text-xs font-bold text-gray-500 uppercase tracking-widest px-4 mb-2">Top 100</div>
-                        ${allTracks.map((track, i) => `
-                            <div onclick="trackClicked('${track.releaseId}', ${track.trackIndex})" class="flex items-center gap-4 p-3 rounded hover:bg-[#1f1f1f] group cursor-pointer transition">
-                                <div class="w-8 text-center font-bold text-lg ${i < 3 ? 'text-white' : 'text-gray-500'}">${i + 1}</div>
-                                <img src="${track.cover}" class="w-12 h-12 rounded object-cover shadow-sm">
-                                <div class="flex-1 min-w-0">
-                                    <div class="font-medium text-white truncate">${track.title}</div>
-                                    <div class="text-sm text-gray-400 truncate">${track.artist}</div>
-                                </div>
-                                <div class="text-sm text-gray-500 font-medium">${formatNumber(track.views)} total</div>
-                            </div>
-                        `).join('')}
+                    <div id="chart-list" class="flex flex-col gap-1">
+                        <!-- Populated via JS -->
                     </div>
                 </div>
              `;
+             
+             renderChartList(allTracks, 'Global');
+        }
+        
+        function renderChartList(tracks, region) {
+            const list = document.getElementById('chart-list');
+            list.innerHTML = `<div class="text-xs font-bold text-gray-500 uppercase tracking-widest px-4 mb-2">Top 100 • ${region}</div>` + 
+            tracks.slice(0, 100).map((track, i) => `
+                <div onclick="trackClicked('${track.releaseId}', ${track.trackIndex})" class="flex items-center gap-4 p-3 rounded hover:bg-[#1f1f1f] group cursor-pointer transition">
+                    <div class="w-8 text-center font-bold text-lg ${i < 3 ? 'text-white' : 'text-gray-500'}">${i + 1}</div>
+                    <img src="${track.cover}" class="w-12 h-12 rounded object-cover shadow-sm">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-white truncate">${track.title}</div>
+                        <div class="text-sm text-gray-400 truncate">${track.artist}</div>
+                    </div>
+                    <div class="text-sm text-gray-500 font-medium">${formatNumber(track.views)} total</div>
+                </div>
+            `).join('');
         }
 
         function renderLibrary() {
@@ -1335,6 +1429,15 @@
                                 <span>•</span>
                                 <span class="flex items-center gap-1"><span class="material-icons-round text-sm">visibility</span> ${formatNumber(release.totalViews)}</span>
                             </div>
+                            <div class="flex gap-4 mt-6">
+                                <!-- Big Play Button on Release Page -->
+                                <button onclick="trackClicked('${release.id}', 0)" class="w-12 h-12 md:w-14 md:h-14 bg-white rounded-full flex items-center justify-center hover:scale-105 transition shadow-xl text-black">
+                                    <span class="material-icons-round text-3xl">play_arrow</span>
+                                </button>
+                                <button class="w-12 h-12 md:w-14 md:h-14 bg-[#212121] rounded-full flex items-center justify-center hover:bg-[#333] transition">
+                                    <span class="material-icons-round text-white text-2xl">library_add</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -1351,7 +1454,7 @@
                                     <div class="w-6 text-center hidden group-hover:block"><span class="material-icons-round text-white text-sm">play_arrow</span></div>
                                     <div class="flex flex-col">
                                         <span class="text-white font-medium">${track.title}</span>
-                                        <span class="text-gray-500 text-xs">${artist.name}${featText}</span>
+                                        <span class="text-gray-500 text-xs">${artist.name}</span>
                                     </div>
                                     <div class="text-gray-400 text-sm flex items-center gap-8">
                                         <span>${formatNumber(track.views)}</span>
@@ -1485,6 +1588,7 @@
                 const savedState = JSON.parse(data);
                 if(savedState.library) state.library = savedState.library;
                 if(savedState.user) state.user = savedState.user;
+                if(savedState.likedSongs) state.likedSongs = savedState.likedSongs;
             }
         }
 
