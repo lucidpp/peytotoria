@@ -434,8 +434,9 @@
         <div class="relative z-10 flex-1 flex flex-col items-center justify-center w-full px-6 pb-8 overflow-hidden">
             
             <!-- Art Container -->
-            <div class="relative w-full max-w-sm md:max-w-md aspect-square shadow-2xl rounded-xl overflow-hidden mb-6 md:mb-10 flex-shrink min-h-0">
+            <div class="relative w-full max-w-sm md:max-w-md aspect-square shadow-2xl rounded-xl overflow-hidden mb-6 md:mb-10 flex-shrink min-h-0 bg-black">
                 <img id="player-img" src="" class="w-full h-full object-cover">
+                <video id="player-video" class="w-full h-full object-contain hidden" playsinline webkit-playsinline></video>
             </div>
 
             <!-- Metadata & Actions Row -->
@@ -488,25 +489,6 @@
 
         <!-- Hidden Audio Element -->
         <audio id="audio-element"></audio>
-    </div>
-
-    <!-- Video Player Modal -->
-    <div id="video-player-modal" class="modal fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-4 hidden">
-        <div class="relative w-full max-w-5xl aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
-            <button onclick="closeVideoPlayer()" class="absolute top-4 right-4 z-50 text-white hover:text-gray-300 bg-black/50 rounded-full p-2 backdrop-blur-sm"><span class="material-icons-round text-3xl">close</span></button>
-            <video id="main-video-element" controls class="w-full h-full" onerror="handleVideoError()">
-                <source src="" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <!-- Error State -->
-            <div id="video-error-msg" class="absolute inset-0 flex items-center justify-center text-white hidden bg-black">
-                <div class="text-center">
-                    <span class="material-icons-round text-6xl text-red-500 mb-4">error_outline</span>
-                    <p class="text-xl font-bold">Error: Video file not found</p>
-                    <p class="text-gray-400 text-sm mt-2">Ensure 'wantme.mp4' is in the same folder.</p>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Wrapped Modal -->
@@ -597,7 +579,8 @@
             currentTrackIndex: 0,
             audioUrl: null,
             release: null,
-            track: null
+            track: null,
+            isVideo: false
         };
 
         const audioElement = document.getElementById('audio-element');
@@ -616,22 +599,6 @@
             return "$" + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
         }
 
-        // --- HELPER: IMAGE UPLOAD ---
-        const getImageUrl = async (fileInputId, urlInputId) => {
-            const fileInput = document.getElementById(fileInputId);
-            const urlInput = document.getElementById(urlInputId);
-
-            if (fileInput.files && fileInput.files[0]) {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result); 
-                    reader.onerror = (e) => reject(e);
-                    reader.readAsDataURL(fileInput.files[0]);
-                });
-            }
-            return urlInput.value || ''; 
-        }
-
         // --- INIT ---
         function init() {
             // Seed defaults first
@@ -648,23 +615,36 @@
 
             renderHome();
             updateSidebar();
-            checkWrapped(); // Check if wrapped should be shown
+            checkWrapped(); 
             
             // Audio Listeners
-            audioElement.addEventListener('timeupdate', () => {
-                const current = audioElement.currentTime;
-                const duration = audioElement.duration || 0;
-                document.getElementById('player-seek').value = (current / duration) * 100 || 0;
-                document.getElementById('player-time-current').innerText = formatTime(current);
-                document.getElementById('player-time-total').innerText = formatTime(duration);
-            });
+            audioElement.addEventListener('timeupdate', updateProgress);
             audioElement.addEventListener('ended', playNext);
             
+            // Video Listeners
+            const videoElement = document.getElementById('player-video');
+            videoElement.addEventListener('timeupdate', updateProgress);
+            videoElement.addEventListener('ended', playNext);
+
             document.getElementById('player-seek').addEventListener('input', (e) => {
                 const percent = e.target.value;
-                const duration = audioElement.duration;
-                if(duration) audioElement.currentTime = (percent / 100) * duration;
+                const media = getActiveMedia();
+                const duration = media.duration;
+                if(duration) media.currentTime = (percent / 100) * duration;
             });
+        }
+        
+        function getActiveMedia() {
+            return playerState.isVideo ? document.getElementById('player-video') : audioElement;
+        }
+        
+        function updateProgress() {
+            const media = getActiveMedia();
+            const current = media.currentTime;
+            const duration = media.duration || 0;
+            document.getElementById('player-seek').value = (current / duration) * 100 || 0;
+            document.getElementById('player-time-current').innerText = formatTime(current);
+            document.getElementById('player-time-total').innerText = formatTime(duration);
         }
         
         function checkWrapped() {
@@ -728,7 +708,7 @@
                 pronouns: "He/Him",
                 isVerified: true,
                 videos: [
-                    { title: "Want Me (Official Music Video)", views: 320000, thumb: "LucidPPMNM.JPG", filename: "wantme.mp4" }
+                    { title: "Want Me (Official Music Video)", views: 320000, thumb: "LucidPPMNM.JPG", filename: "WantMe.mp4" }
                 ]
             };
 
@@ -805,7 +785,6 @@
                 videos: [] 
             };
 
-            // Release 1: Down
             const cashTracksDown = [{
                 id: "Down.mp3",
                 title: "Down",
@@ -926,7 +905,41 @@
             const release = state.releases.find(r => r.id === releaseId);
             const track = release.tracksData[trackIndex];
             const audioSrc = track.filename; 
+            
+            // Standard Audio Playback
             loadAndPlay(releaseId, trackIndex, audioSrc);
+        }
+
+        // NEW: Play Video (Called from artist profile video card)
+        function playVideo(title, artistName, filename, thumb) {
+            // Find release/artist to populate state correctly
+            const artist = state.artists.find(a => a.name === "LucidPP"); // Hardcoded lookup for this video for simplicity
+            if (!artist) return;
+            
+            playerState.currentReleaseId = null; // Detached video
+            playerState.currentTrackIndex = -1;
+            playerState.release = { cover: thumb, artistId: artist.id }; // Mock release
+            playerState.track = { title: title, views: 0 }; // Mock track
+            playerState.audioUrl = null;
+            playerState.isPlaying = true;
+            playerState.isVideo = true; // Flag for video mode
+
+            // Setup Video Element
+            const vid = document.getElementById('player-video');
+            const img = document.getElementById('player-img');
+            
+            vid.src = filename;
+            vid.classList.remove('hidden');
+            img.classList.add('hidden');
+            
+            // Stop Audio
+            audioElement.pause();
+            
+            vid.play().catch(e => console.log("Video Play Error:", e));
+
+            openPlayer();
+            updatePlayerUI();
+            updateMiniPlayerUI();
         }
 
         function loadAndPlay(releaseId, trackIndex, url) {
@@ -939,9 +952,14 @@
             playerState.track = release.tracksData[trackIndex];
             playerState.audioUrl = url;
             playerState.isPlaying = true;
+            playerState.isVideo = false;
+
+            // Reset UI for Audio
+            document.getElementById('player-video').classList.add('hidden');
+            document.getElementById('player-img').classList.remove('hidden');
+            document.getElementById('player-video').pause(); // Stop video if playing
 
             audioElement.src = url;
-            
             const playPromise = audioElement.play();
             if (playPromise !== undefined) {
                 playPromise.catch(error => console.log("Auto-play prevented"));
@@ -964,7 +982,13 @@
             }
 
             document.getElementById('player-title').innerText = track.title;
-            document.getElementById('player-artist').innerText = artist.name + featText;
+            // Handle mock object from video play
+            if(artist) {
+                 document.getElementById('player-artist').innerText = artist.name + featText;
+            } else {
+                 document.getElementById('player-artist').innerText = "LucidPP"; // Fallback for video
+            }
+            
             document.getElementById('player-img').src = release.cover;
             
             // Like Button State
@@ -992,7 +1016,7 @@
             const artist = state.artists.find(a => a.id === release.artistId);
             
             document.getElementById('mini-title').innerText = track.title;
-            document.getElementById('mini-artist').innerText = artist.name;
+            document.getElementById('mini-artist').innerText = artist ? artist.name : "LucidPP";
             document.getElementById('mini-img').src = release.cover;
             document.getElementById('mini-play-icon').innerText = playerState.isPlaying ? 'pause' : 'play_arrow';
             
@@ -1046,11 +1070,12 @@
         }
 
         function togglePlay() {
-            if (audioElement.paused) {
-                audioElement.play();
+            const media = getActiveMedia();
+            if (media.paused) {
+                media.play();
                 playerState.isPlaying = true;
             } else {
-                audioElement.pause();
+                media.pause();
                 playerState.isPlaying = false;
             }
             updatePlayButton();
@@ -1086,7 +1111,8 @@
         
         function closeMiniPlayer() {
              document.getElementById('mini-player').classList.add('hidden');
-             audioElement.pause();
+             const media = getActiveMedia();
+             media.pause();
              playerState.isPlaying = false;
         }
 
@@ -1126,38 +1152,6 @@
             }
         }
 
-        // --- VIDEO PLAYER LOGIC ---
-
-        function openVideoPlayer(filename) {
-             const modal = document.getElementById('video-player-modal');
-             const video = document.getElementById('main-video-element');
-             const errorMsg = document.getElementById('video-error-msg');
-             
-             // Reset state
-             video.src = filename;
-             video.style.display = 'block';
-             errorMsg.classList.add('hidden');
-             
-             modal.classList.remove('hidden');
-             video.play().catch(e => console.log('Video autoplay blocked'));
-        }
-
-        function closeVideoPlayer() {
-             const modal = document.getElementById('video-player-modal');
-             const video = document.getElementById('main-video-element');
-             video.pause();
-             video.src = "";
-             modal.classList.add('hidden');
-        }
-
-        function handleVideoError() {
-             const video = document.getElementById('main-video-element');
-             const errorMsg = document.getElementById('video-error-msg');
-             
-             video.style.display = 'none';
-             errorMsg.classList.remove('hidden');
-        }
-
         // --- NOTIFICATION SYSTEM ---
         function showToast(message, icon = "info") {
             const toast = document.getElementById('general-toast');
@@ -1184,6 +1178,7 @@
             updateNavState('home');
             
             const release = state.releases[0]; // LucidPP album
+            const artist = state.artists[0];
 
             main.innerHTML = `
                 <div class="space-y-8 pb-20 animate-fade-in">
@@ -1382,7 +1377,7 @@
             if(artist.videos && artist.videos.length > 0) {
                 videoSection += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     ${artist.videos.map(v => `
-                        <div class="cursor-pointer group" onclick="openVideoPlayer('${v.filename}')">
+                        <div class="cursor-pointer group" onclick="playVideo('${v.title}', '${artist.name}', '${v.filename}', '${v.thumb}')">
                             <div class="relative aspect-video bg-[#212121] rounded-lg overflow-hidden mb-2">
                                 <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                 <div class="absolute inset-0 flex items-center justify-center">
