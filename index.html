@@ -308,6 +308,11 @@
         .material-icons-round.filled {
             font-variation-settings: 'FILL' 1;
         }
+
+        /* Wrapped Gradient */
+        .wrapped-gradient {
+            background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%);
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col bg-yt-base text-white">
@@ -333,6 +338,7 @@
         </div>
 
         <div class="flex items-center gap-4">
+             <button id="wrapped-btn" onclick="openModal('wrapped-modal')" class="hidden wrapped-gradient text-white text-xs font-bold px-4 py-1.5 rounded-full hover:scale-105 transition shadow-lg">Wrapped</button>
              <button onclick="resetData()" class="bg-[#212121] border border-[#333] text-red-500 text-xs px-3 py-1 rounded hover:bg-[#333] hidden md:block">Reset</button>
              <!-- User Profile Area -->
             <div class="relative cursor-pointer" onclick="openModal('user-settings-modal')">
@@ -503,8 +509,43 @@
         </div>
     </div>
 
+    <!-- Wrapped Modal -->
+    <div id="wrapped-modal" class="modal fixed inset-0 z-[300] bg-black/95 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-transparent wrapped-gradient p-1">
+             <div class="bg-black/90 h-full w-full rounded-xl p-8 text-center relative">
+                 <button onclick="closeModal('wrapped-modal')" class="absolute top-4 right-4 text-white/50 hover:text-white"><span class="material-icons-round">close</span></button>
+                 
+                 <h2 class="text-3xl font-black mb-1 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-500">PEYTOTORIA</h2>
+                 <h3 class="text-xl font-bold mb-6 text-white tracking-widest uppercase">Wrapped 2025</h3>
+                 
+                 <div class="space-y-6">
+                     <div class="bg-[#212121] p-4 rounded-xl">
+                         <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Your Top Artist</p>
+                         <div class="flex items-center justify-center gap-3 mb-2">
+                             <img id="wrapped-artist-img" src="" class="w-10 h-10 rounded-full">
+                             <span id="wrapped-artist-name" class="text-xl font-bold text-white">Artist</span>
+                         </div>
+                     </div>
+                     
+                     <div class="grid grid-cols-2 gap-4">
+                         <div class="bg-[#212121] p-4 rounded-xl">
+                            <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Total Streams</p>
+                            <p id="wrapped-streams" class="text-2xl font-bold text-white">0</p>
+                         </div>
+                         <div class="bg-[#212121] p-4 rounded-xl">
+                            <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Total Earned</p>
+                            <p id="wrapped-earnings" class="text-2xl font-bold text-green-400">$0.00</p>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <button onclick="shareWrapped()" class="mt-8 bg-white text-black font-bold py-3 px-8 rounded-full hover:scale-105 transition shadow-lg">Share Your 2025</button>
+             </div>
+        </div>
+    </div>
+
     <!-- General Toast (Notifications) -->
-    <div id="general-toast" class="fixed bottom-24 md:bottom-8 left-1/2 transform -translate-x-1/2 bg-white text-black px-6 py-3 rounded-full shadow-2xl transition-transform duration-300 toast-hidden flex items-center gap-2">
+    <div id="general-toast" class="fixed bottom-24 md:bottom-8 left-1/2 transform -translate-x-1/2 bg-white text-black px-6 py-3 rounded-full shadow-2xl transition-transform duration-300 toast-hidden flex items-center gap-2 z-[400]">
         <span id="toast-icon" class="material-icons-round">info</span>
         <span id="toast-msg" class="text-sm font-medium">Notification</span>
     </div>
@@ -543,7 +584,7 @@
             artists: [],
             releases: [],
             library: [],
-            likedSongs: [], // Track IDs of liked songs
+            likedSongs: [], 
             user: {
                 username: null,
                 pfp: null
@@ -570,6 +611,10 @@
             if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         };
+
+        const formatCurrency = (amount) => {
+            return "$" + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
 
         // --- HELPER: IMAGE UPLOAD ---
         const getImageUrl = async (fileInputId, urlInputId) => {
@@ -603,6 +648,7 @@
 
             renderHome();
             updateSidebar();
+            checkWrapped(); // Check if wrapped should be shown
             
             // Audio Listeners
             audioElement.addEventListener('timeupdate', () => {
@@ -619,6 +665,29 @@
                 const duration = audioElement.duration;
                 if(duration) audioElement.currentTime = (percent / 100) * duration;
             });
+        }
+        
+        function checkWrapped() {
+            const date = new Date();
+            // Show Wrapped Button if December (Month 11)
+            if (date.getMonth() === 11) {
+                document.getElementById('wrapped-btn').classList.remove('hidden');
+            }
+        }
+        
+        function generateWrappedData() {
+            const topArtist = state.artists.sort((a,b) => b.totalViews - a.totalViews)[0];
+            const totalStreams = state.artists.reduce((acc, a) => acc + a.totalViews, 0);
+            const earnings = totalStreams * 0.000001;
+            
+            document.getElementById('wrapped-artist-img').src = topArtist.pfp;
+            document.getElementById('wrapped-artist-name').innerText = topArtist.name;
+            document.getElementById('wrapped-streams').innerText = formatNumber(totalStreams);
+            document.getElementById('wrapped-earnings').innerText = formatCurrency(earnings);
+        }
+        
+        function shareWrapped() {
+             showToast("Wrapped Stats Copied!", "share");
         }
 
         // --- USER LOGIC ---
@@ -729,20 +798,21 @@
                 banner: "Down.PNG",
                 bio: "New wave artist bringing a fresh perspective. 'Down' is just the beginning.",
                 subscribers: 3100, // Updated
-                monthlyListeners: 11400, // Updated 
+                monthlyListeners: 102000, // Updated 102K
                 totalViews: 8200, 
                 pronouns: "He/Him",
                 isVerified: false,
                 videos: [] 
             };
 
+            // Release 1: Down
             const cashTracksDown = [{
                 id: "Down.mp3",
                 title: "Down",
                 filename: "Down.mp3",
-                views: 7000, 
+                views: 141000, // Updated 141K
                 duration: "2:15",
-                weight: 1
+                weight: 2.0
             }];
 
             const cashSingleDown = {
@@ -753,8 +823,8 @@
                 cover: "Down.PNG", 
                 tracks: 1,
                 tracksData: cashTracksDown,
-                totalViews: 7000,
-                releaseTimestamp: Date.now() - 1000000
+                totalViews: 141000,
+                releaseTimestamp: Date.now() - 2000000
             };
 
             // Release 2: Money Uhp (feat. JBONE!!)
@@ -762,32 +832,32 @@
                 id: "moneyuhp.mp3",
                 title: "Money Uhp",
                 filename: "moneyuhp.mp3",
-                views: 1200,
+                views: 34000, // Updated 34K
                 duration: "2:10",
-                weight: 1
+                weight: 1.2
             }];
 
             const cashSingleMoney = {
                 id: "money_uhp_id",
                 artistId: cashId,
-                featuredArtistIds: [jboneId], // Added Feature
+                featuredArtistIds: [jboneId], 
                 title: "Money Uhp",
                 type: "Single",
                 cover: "Down.PNG", 
                 tracks: 1,
                 tracksData: cashTracksMoney,
-                totalViews: 1200,
-                releaseTimestamp: Date.now()
+                totalViews: 34000,
+                releaseTimestamp: Date.now() - 1000000
             };
             
-            // Release 3: Rackz kOmin U4 (New)
+            // Release 3: Rackz kOmin U4
             const cashTracksRackz = [{
                 id: "Rackz.mp3",
                 title: "Rackz kOmin U4",
                 filename: "Rackz.mp3",
-                views: 482, // Hardcoded
+                views: 4000, // Updated 4K
                 duration: "2:30",
-                weight: 1
+                weight: 0.5
             }];
 
             const cashSingleRackz = {
@@ -798,12 +868,37 @@
                 cover: "Down.PNG",
                 tracks: 1,
                 tracksData: cashTracksRackz,
-                totalViews: 482,
-                releaseTimestamp: Date.now()
+                totalViews: 4000,
+                releaseTimestamp: Date.now() - 500000
             };
 
+            // Release 4: Sum To Lose (New)
+            const cashTracksSum = [{
+                id: "sumtolose.mp3",
+                title: "sum to lose",
+                filename: "sumtolose.mp3",
+                views: 24000, 
+                duration: "2:45",
+                weight: 1.5
+            }];
+
+            const cashSingleSum = {
+                id: "sum_single_id",
+                artistId: cashId,
+                title: "sum to lose",
+                type: "Single",
+                cover: "Down.PNG",
+                tracks: 1,
+                tracksData: cashTracksSum,
+                totalViews: 24000,
+                releaseTimestamp: Date.now() 
+            };
+
+            // Calc total views for C@shxan
+            cash.totalViews = 141000 + 34000 + 4000 + 24000;
+
             state.artists = [lucid, cash, jbone];
-            state.releases = [lucidAlbum, cashSingleDown, cashSingleMoney, cashSingleRackz];
+            state.releases = [lucidAlbum, cashSingleSum, cashSingleDown, cashSingleMoney, cashSingleRackz];
         }
 
         function loadFromLocal() {
@@ -1089,7 +1184,6 @@
             updateNavState('home');
             
             const release = state.releases[0]; // LucidPP album
-            const artist = state.artists[0];
 
             main.innerHTML = `
                 <div class="space-y-8 pb-20 animate-fade-in">
@@ -1099,7 +1193,7 @@
                             <img src="${release.cover}" class="w-16 h-16 rounded object-cover">
                             <div>
                                 <h3 class="font-bold text-white">${release.title}</h3>
-                                <p class="text-sm text-yt-textSec">${artist.name} • Album</p>
+                                <p class="text-sm text-yt-textSec">LucidPP • Album</p>
                             </div>
                         </div>
                     </section>
@@ -1163,7 +1257,7 @@
              state.releases.forEach(r => {
                  const artist = state.artists.find(a => a.id === r.artistId);
                  r.tracksData.forEach((t, i) => {
-                     // Add weights to C@shxan and LucidPP
+                     // Add weights to C@shxan and LucidPP for chart dominance
                      let sortValue = t.views; 
                      if(artist.name === "C@shxan") sortValue *= 1.5; // Boost
                      if(artist.name === "LucidPP") sortValue *= 1.2;
@@ -1305,6 +1399,9 @@
             }
             videoSection += `</section>`;
 
+            // Earnings Calculation
+            const totalEarnings = artist.totalViews * 0.000001;
+
             main.innerHTML = `
                 <div class="pb-20 animate-fade-in">
                     <!-- Banner -->
@@ -1352,7 +1449,10 @@
                                             <img src="${song.release.cover}" class="w-12 h-12 rounded object-cover">
                                             <div class="flex-1 min-w-0">
                                                 <div class="font-medium text-white truncate">${song.title}</div>
-                                                <div class="text-sm text-gray-400">${formatNumber(song.views)} views • ${song.release.title}</div>
+                                                <div class="text-sm text-gray-400">
+                                                    <span class="text-green-400 mr-2 font-medium">${formatCurrency(song.views * 0.000001)}</span>
+                                                    ${formatNumber(song.views)} views • ${song.release.title}
+                                                </div>
                                             </div>
                                             <div class="text-sm text-gray-400 mr-4">Play</div>
                                         </div>
@@ -1376,12 +1476,16 @@
                                 <div onclick="openAboutModal('${artist.id}')" class="relative rounded-lg overflow-hidden group cursor-pointer hover:ring-2 ring-white/20 transition">
                                     <div class="bg-[#1f1f1f] p-6 min-h-[200px] flex flex-col justify-end">
                                         <p class="text-white line-clamp-3 mb-4 font-serif italic">"${artist.bio}"</p>
-                                        <div class="text-sm text-gray-400 flex justify-between items-end">
-                                             <div>
-                                                <div class="text-white font-bold text-lg">${formatNumber(artist.totalViews)}</div>
-                                                <div>Total Career Views</div>
+                                        <div class="text-sm text-gray-400 space-y-2">
+                                             <div class="flex justify-between border-b border-gray-800 pb-2">
+                                                <span>Total Career Views</span>
+                                                <span class="text-white font-bold">${formatNumber(artist.totalViews)}</span>
                                              </div>
-                                             <div class="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition">
+                                             <div class="flex justify-between border-b border-gray-800 pb-2">
+                                                <span>Total Earned</span>
+                                                <span class="text-green-400 font-bold">${formatCurrency(totalEarnings)}</span>
+                                             </div>
+                                             <div class="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition w-fit ml-auto mt-2">
                                                 <span class="material-icons-round text-white">arrow_forward</span>
                                              </div>
                                         </div>
@@ -1428,15 +1532,6 @@
                                 <span>${release.type}</span>
                                 <span>•</span>
                                 <span class="flex items-center gap-1"><span class="material-icons-round text-sm">visibility</span> ${formatNumber(release.totalViews)}</span>
-                            </div>
-                            <div class="flex gap-4 mt-6">
-                                <!-- Big Play Button on Release Page -->
-                                <button onclick="trackClicked('${release.id}', 0)" class="w-12 h-12 md:w-14 md:h-14 bg-white rounded-full flex items-center justify-center hover:scale-105 transition shadow-xl text-black">
-                                    <span class="material-icons-round text-3xl">play_arrow</span>
-                                </button>
-                                <button class="w-12 h-12 md:w-14 md:h-14 bg-[#212121] rounded-full flex items-center justify-center hover:bg-[#333] transition">
-                                    <span class="material-icons-round text-white text-2xl">library_add</span>
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -1590,6 +1685,7 @@
                 if(savedState.user) state.user = savedState.user;
                 if(savedState.likedSongs) state.likedSongs = savedState.likedSongs;
             }
+            seedData();
         }
 
         function resetData() {
