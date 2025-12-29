@@ -461,6 +461,25 @@
         <audio id="audio-element"></audio>
     </div>
 
+    <!-- Video Player Modal -->
+    <div id="video-player-modal" class="modal fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-4 hidden">
+        <div class="relative w-full max-w-5xl aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
+            <button onclick="closeVideoPlayer()" class="absolute top-4 right-4 z-50 text-white hover:text-gray-300 bg-black/50 rounded-full p-2 backdrop-blur-sm"><span class="material-icons-round text-3xl">close</span></button>
+            <video id="main-video-element" controls class="w-full h-full" onerror="handleVideoError()">
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <!-- Error State -->
+            <div id="video-error-msg" class="absolute inset-0 flex items-center justify-center text-white hidden bg-black">
+                <div class="text-center">
+                    <span class="material-icons-round text-6xl text-red-500 mb-4">error_outline</span>
+                    <p class="text-xl font-bold">Error: Video file not found</p>
+                    <p class="text-gray-400 text-sm mt-2">Ensure 'wantme.mp4' is in the same folder.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- About Modal -->
     <div id="about-modal" class="modal fixed inset-0 z-[80] bg-black/80 flex items-center justify-center p-4">
         <div class="modal-content bg-[#212121] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden border border-[#333]">
@@ -504,8 +523,10 @@
 
         // --- INIT ---
         function init() {
+            // Seed defaults first
             seedData(); 
-            loadLibrary(); // Load only library pref from local storage
+            // Then overwrite with library preferences if any
+            loadLibrary(); 
 
             renderHome();
             updateSidebar();
@@ -527,7 +548,7 @@
             });
         }
 
-        // --- CORE SEED LOGIC (UPDATED WITH C@SHXAN & LUCIDPP) ---
+        // --- CORE SEED LOGIC ---
         function seedData() {
             // --- 1. LucidPP ---
             const lucidId = "lucidpp_id";
@@ -538,24 +559,23 @@
                 banner: "LucidPPMNM.JPG", 
                 bio: "Official Verified Artist.",
                 subscribers: 2300,
-                monthlyListeners: 246000, // Updated
+                monthlyListeners: 246000, 
                 totalViews: 0, 
                 pronouns: "He/Him",
                 isVerified: true,
                 videos: [
-                    { title: "Want Me (Official Music Video)", views: 320000, thumb: "LucidPPMNM.JPG" }
+                    { title: "Want Me (Official Music Video)", views: 320000, thumb: "LucidPPMNM.JPG", filename: "wantme.mp4" }
                 ]
             };
 
             // Defined view ranges for uniqueness
-            // Hits: 128k - 472k. Normal: 11.4k - 58k.
             const lucidTracks = [
-                { file: "Down_Bad.mp3", views: 420000 }, // Hit
+                { file: "Down_Bad.mp3", views: 420000 }, 
                 { file: "All_By_Myself.mp3", views: 52000 },
                 { file: "Your_Gonna_See.mp3", views: 38000 },
                 { file: "Your_Gonna_See (1).mp3", views: 12000 },
                 { file: "Honestly (1).mp3", views: 45000 },
-                { file: "Want_Me.mp3", views: 472000 }, // Hit
+                { file: "Want_Me.mp3", views: 472000 }, 
                 { file: "Want_Me (1).mp3", views: 25000 },
                 { file: "Want_Me (2).mp3", views: 18000 },
                 { file: "Want_Me (3).mp3", views: 15000 },
@@ -563,9 +583,9 @@
                 { file: "Bells_PT1.mp3", views: 58000 },
                 { file: "To_Go_Back (1).mp3", views: 22000 },
                 { file: "Laugh (1).mp3", views: 35000 },
-                { file: "Demon_Girl (1).mp3", views: 128000 }, // Hit
+                { file: "Demon_Girl (1).mp3", views: 128000 }, 
                 { file: "I_Messed_Up.mp3", views: 41000 },
-                { file: "Money_N_Money_Intro.mp3", views: 200000 }, // Hit
+                { file: "Money_N_Money_Intro.mp3", views: 200000 }, 
                 { file: "Money_N_Money_Intro (1).mp3", views: 11400 }
             ].map(def => ({
                 title: def.file.replace(/_/g, " ").replace(/\(1\)/g, "").replace(".mp3", "").trim(),
@@ -618,7 +638,7 @@
                 artistId: cashId,
                 title: "Down",
                 type: "Single",
-                cover: "CashXan.PNG",
+                cover: "Down.PNG", // Updated
                 tracks: 1,
                 tracksData: cashTracks,
                 totalViews: 4000,
@@ -766,6 +786,38 @@
             }
         }
 
+        // --- VIDEO PLAYER LOGIC ---
+
+        function openVideoPlayer(filename) {
+             const modal = document.getElementById('video-player-modal');
+             const video = document.getElementById('main-video-element');
+             const errorMsg = document.getElementById('video-error-msg');
+             
+             // Reset state
+             video.src = filename;
+             video.style.display = 'block';
+             errorMsg.classList.add('hidden');
+             
+             modal.classList.remove('hidden');
+             video.play().catch(e => console.log('Video autoplay blocked'));
+        }
+
+        function closeVideoPlayer() {
+             const modal = document.getElementById('video-player-modal');
+             const video = document.getElementById('main-video-element');
+             video.pause();
+             video.src = "";
+             modal.classList.add('hidden');
+        }
+
+        function handleVideoError() {
+             const video = document.getElementById('main-video-element');
+             const errorMsg = document.getElementById('video-error-msg');
+             
+             video.style.display = 'none';
+             errorMsg.classList.remove('hidden');
+        }
+
         // --- RENDERERS ---
 
         function renderHome() {
@@ -881,7 +933,7 @@
                         <h2 class="text-2xl font-bold mb-4">Videos</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             ${artist.videos.map(v => `
-                                <div class="cursor-pointer group">
+                                <div class="cursor-pointer group" onclick="openVideoPlayer('${v.filename}')">
                                     <div class="relative aspect-video bg-[#212121] rounded-lg overflow-hidden mb-2">
                                         <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                         <div class="absolute inset-0 flex items-center justify-center">
@@ -1165,32 +1217,6 @@
                 if(savedState.library) state.library = savedState.library;
             }
             seedData();
-        }
-
-        function downloadSave() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "peyza_save.json");
-            document.body.appendChild(downloadAnchorNode); 
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        }
-
-        function uploadSave(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    state = JSON.parse(e.target.result);
-                    saveToLocal();
-                    location.reload(); 
-                } catch (err) {
-                    alert("Invalid Save File");
-                }
-            };
-            reader.readAsText(file);
         }
 
         function resetData() {
