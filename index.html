@@ -6,73 +6,86 @@
     <title>PeytoToria Records | Global Distribution</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #8b5cf6; /* Violet */
-            --secondary: #ec4899; /* Pink */
-            --dark: #0f172a;
+            --primary: #8b5cf6;
+            --dark: #0a0a0a; /* Darker, flatter background for minimalism */
+            --surface: #171717;
         }
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--dark);
-            color: white;
+            color: #e5e5e5;
             overflow-x: hidden;
         }
         .font-display {
             font-family: 'Montserrat', sans-serif;
         }
+        /* Minimalist Gradient Text - Subtle */
         .gradient-text {
-            background: linear-gradient(to right, #c084fc, #f472b6);
+            background: linear-gradient(to right, #a78bfa, #f472b6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        /* Refined Glass Panel - Less blur, cleaner borders */
         .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(23, 23, 23, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
+        /* Scroll Reveal Animation Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
         }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
-        ::-webkit-scrollbar-thumb {
-            background: #4b5563;
-            border-radius: 4px;
+        .reveal-delay-100 { transition-delay: 0.1s; }
+        .reveal-delay-200 { transition-delay: 0.2s; }
+        .reveal-delay-300 { transition-delay: 0.3s; }
+
+        /* Loader Animation */
+        .loader-text span {
+            opacity: 0;
+            display: inline-block;
+            animation: fadeInOut 2s ease-in-out forwards;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #8b5cf6;
-        }
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
-        }
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); }
+            40% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
         }
     </style>
 </head>
-<body class="antialiased bg-slate-900 selection:bg-violet-500 selection:text-white">
+<body class="antialiased selection:bg-violet-500/30 selection:text-white">
+
+    <!-- Loading Screen -->
+    <div id="loader" class="fixed inset-0 z-[100] bg-[#0a0a0a] flex items-center justify-center transition-opacity duration-700 pointer-events-none">
+        <div class="font-display text-3xl md:text-5xl font-black tracking-tighter loader-text">
+            <span style="animation-delay: 0.1s">PEYTO</span><span style="animation-delay: 0.3s" class="text-violet-500">TORIA</span>
+        </div>
+    </div>
 
     <!-- Navigation -->
     <nav class="fixed w-full z-50 top-0 transition-all duration-300" id="navbar">
-        <div class="glass-panel border-b border-white/5">
+        <div class="glass-panel border-b-0">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-20">
                     <div class="flex-shrink-0 cursor-pointer" onclick="window.scrollTo(0,0)">
-                        <h1 class="font-display text-2xl font-black tracking-tighter">
-                            PEYTO<span class="text-violet-400">TORIA</span>
+                        <h1 class="font-display text-xl font-bold tracking-widest text-white">
+                            PEYTO<span class="text-violet-500">TORIA</span>
                         </h1>
                     </div>
                     <div class="hidden md:block">
-                        <div class="ml-10 flex items-baseline space-x-8">
-                            <a href="#stats" class="hover:text-violet-400 transition px-3 py-2 rounded-md text-sm font-medium">Why Us</a>
-                            <a href="#artists" class="hover:text-violet-400 transition px-3 py-2 rounded-md text-sm font-medium">Roster</a>
-                            <a href="#release" class="bg-violet-600 hover:bg-violet-700 transition px-4 py-2 rounded-full text-sm font-bold shadow-lg shadow-violet-500/30">Submit Release</a>
+                        <div class="ml-10 flex items-baseline space-x-10">
+                            <a href="#stats" class="text-gray-400 hover:text-white transition text-sm font-medium tracking-wide">WHY US</a>
+                            <a href="#artists" class="text-gray-400 hover:text-white transition text-sm font-medium tracking-wide">ROSTER</a>
+                            <a href="#release" class="border border-white/20 hover:bg-white hover:text-black transition px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest">Submit Release</a>
                         </div>
                     </div>
                     <div class="-mr-2 flex md:hidden">
@@ -84,132 +97,142 @@
             </div>
         </div>
         <!-- Mobile Menu -->
-        <div class="md:hidden hidden glass-panel border-b border-white/10" id="mobile-menu">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#stats" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Why Us</a>
-                <a href="#artists" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Roster</a>
-                <a href="#release" class="text-violet-400 font-bold block px-3 py-2 rounded-md text-base">Submit Release</a>
+        <div class="md:hidden hidden bg-neutral-900 border-b border-white/10" id="mobile-menu">
+            <div class="px-4 pt-4 pb-6 space-y-2">
+                <a href="#stats" class="text-gray-300 hover:text-white block py-2 text-sm font-medium uppercase tracking-wider">Why Us</a>
+                <a href="#artists" class="text-gray-300 hover:text-white block py-2 text-sm font-medium uppercase tracking-wider">Roster</a>
+                <a href="#release" class="text-violet-400 font-bold block py-2 text-sm uppercase tracking-wider">Submit Release</a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        <!-- Background Elements -->
-        <div class="absolute top-0 left-1/2 w-full -translate-x-1/2 h-full z-0 pointer-events-none opacity-30">
-            <div class="absolute top-20 left-10 w-72 h-72 bg-violet-600 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
-            <div class="absolute top-40 right-10 w-72 h-72 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl animate-float" style="animation-delay: 2s;"></div>
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden min-h-screen flex items-center">
+        <!-- Minimalist Background Gradient -->
+        <div class="absolute top-0 left-1/2 w-full -translate-x-1/2 h-full z-0 pointer-events-none opacity-20">
+            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-900/40 rounded-full blur-[100px]"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-fuchsia-900/30 rounded-full blur-[100px]"></div>
         </div>
 
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="font-display text-5xl md:text-7xl font-black tracking-tight mb-6">
-                Amplify Your <br>
-                <span class="gradient-text">Global Sound.</span>
-            </h1>
-            <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-400">
-                Join the label that puts artists first. Keep 100% of your earnings. 
-                Distributed to 200+ platforms worldwide.
-            </p>
-            <div class="mt-10 flex justify-center gap-4">
+            <div class="reveal">
+                <h1 class="font-display text-5xl md:text-8xl font-black tracking-tighter mb-8 leading-tight">
+                    AMPLIFY YOUR <br>
+                    <span class="gradient-text">GLOBAL SOUND.</span>
+                </h1>
+            </div>
+            <div class="reveal reveal-delay-100">
+                <p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-gray-500 font-light leading-relaxed">
+                    A record label built for the modern era. Keep 100% of your earnings.<br class="hidden md:block"> 
+                    Distributed to over 200+ platforms worldwide.
+                </p>
+            </div>
+            <div class="reveal reveal-delay-200 mt-12 flex flex-col sm:flex-row justify-center gap-6">
                 <a href="mailto:PeytoToria@Gmail.com?subject=Artist Application" 
-                   class="px-8 py-4 bg-white text-slate-900 font-bold rounded-full hover:bg-gray-100 transition shadow-[0_0_20px_rgba(255,255,255,0.3)] flex items-center gap-2">
-                    <i class="fas fa-envelope"></i> Email to Get Signed
+                   class="group px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition flex items-center justify-center gap-3">
+                    <i class="fas fa-envelope group-hover:scale-110 transition-transform"></i> 
+                    Email to Get Signed
                 </a>
-                <a href="#stats" class="px-8 py-4 glass-panel text-white font-semibold rounded-full hover:bg-white/10 transition border border-white/20">
+                <a href="#stats" class="px-8 py-4 border border-white/20 text-white font-medium rounded-full hover:bg-white/5 transition">
                     Learn More
                 </a>
             </div>
-            <p class="mt-4 text-sm text-gray-500 uppercase tracking-widest">Free to join. Fair for everyone.</p>
+            <div class="reveal reveal-delay-300 mt-8">
+                 <p class="text-xs text-gray-600 uppercase tracking-[0.2em]">Free to join • Fair for everyone</p>
+            </div>
         </div>
     </section>
 
     <!-- Stats Section -->
-    <section id="stats" class="py-20 bg-slate-900/50">
+    <section id="stats" class="py-24 bg-neutral-900/30 border-y border-white/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/5 border border-white/5 overflow-hidden rounded-2xl">
                 <!-- Stat Card 1 -->
-                <div class="glass-panel p-8 rounded-2xl text-center hover:transform hover:-translate-y-2 transition duration-300">
-                    <div class="text-violet-400 text-4xl mb-4"><i class="fas fa-globe"></i></div>
-                    <h3 class="text-3xl font-display font-bold text-white mb-2">200+</h3>
-                    <p class="text-gray-400">Global Platforms</p>
+                <div class="reveal bg-[#0a0a0a] p-10 text-center group hover:bg-[#111] transition duration-500">
+                    <div class="text-violet-500 text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"><i class="fas fa-globe"></i></div>
+                    <h3 class="text-4xl font-display font-black text-white mb-2">200+</h3>
+                    <p class="text-gray-500 text-sm uppercase tracking-widest">Global Platforms</p>
                 </div>
                 <!-- Stat Card 2 -->
-                <div class="glass-panel p-8 rounded-2xl text-center hover:transform hover:-translate-y-2 transition duration-300">
-                    <div class="text-pink-400 text-4xl mb-4"><i class="fas fa-users"></i></div>
-                    <h3 class="text-3xl font-display font-bold text-white mb-2">4</h3>
-                    <p class="text-gray-400">Artists Signed</p>
+                <div class="reveal reveal-delay-100 bg-[#0a0a0a] p-10 text-center group hover:bg-[#111] transition duration-500">
+                    <div class="text-pink-500 text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"><i class="fas fa-users"></i></div>
+                    <h3 class="text-4xl font-display font-black text-white mb-2">4</h3>
+                    <p class="text-gray-500 text-sm uppercase tracking-widest">Artists Signed</p>
                 </div>
                 <!-- Stat Card 3 -->
-                <div class="glass-panel p-8 rounded-2xl text-center hover:transform hover:-translate-y-2 transition duration-300">
-                    <div class="text-emerald-400 text-4xl mb-4"><i class="fas fa-money-bill-wave"></i></div>
-                    <h3 class="text-3xl font-display font-bold text-white mb-2">$20+</h3>
-                    <p class="text-gray-400">Yearly Revenue</p>
+                <div class="reveal reveal-delay-200 bg-[#0a0a0a] p-10 text-center group hover:bg-[#111] transition duration-500">
+                    <div class="text-emerald-500 text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"><i class="fas fa-money-bill-wave"></i></div>
+                    <h3 class="text-4xl font-display font-black text-white mb-2">$20+</h3>
+                    <p class="text-gray-500 text-sm uppercase tracking-widest">Yearly Revenue</p>
                 </div>
                 <!-- Stat Card 4 -->
-                <div class="glass-panel p-8 rounded-2xl text-center hover:transform hover:-translate-y-2 transition duration-300">
-                    <div class="text-blue-400 text-4xl mb-4"><i class="fas fa-percentage"></i></div>
-                    <h3 class="text-3xl font-display font-bold text-white mb-2">100%</h3>
-                    <p class="text-gray-400">Earnings to Artist</p>
+                <div class="reveal reveal-delay-300 bg-[#0a0a0a] p-10 text-center group hover:bg-[#111] transition duration-500">
+                    <div class="text-blue-500 text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"><i class="fas fa-percentage"></i></div>
+                    <h3 class="text-4xl font-display font-black text-white mb-2">100%</h3>
+                    <p class="text-gray-500 text-sm uppercase tracking-widest">Artist Earnings</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Artists Section -->
-    <section id="artists" class="py-20 relative">
+    <section id="artists" class="py-32 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="font-display text-4xl font-bold mb-4">Our <span class="text-violet-500">Roster</span></h2>
-                <p class="text-gray-400">The talent defining our sound.</p>
+            <div class="reveal text-center mb-20">
+                <h2 class="font-display text-4xl font-bold mb-4 tracking-tight">THE <span class="text-violet-500">ROSTER</span></h2>
+                <div class="h-1 w-20 bg-violet-500 mx-auto rounded-full"></div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- Artist 1 -->
-                <div class="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-800">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 z-10"></div>
-                    <!-- Placeholder SVG for Artist Image -->
-                    <div class="w-full h-full bg-slate-700 flex items-center justify-center text-slate-600">
-                        <i class="fas fa-user-astronaut text-6xl"></i>
+                <div class="reveal group relative">
+                    <div class="aspect-[3/4] overflow-hidden bg-neutral-900 rounded-lg grayscale group-hover:grayscale-0 transition duration-700 ease-out">
+                         <div class="w-full h-full flex items-center justify-center text-neutral-700 bg-neutral-800">
+                            <i class="fas fa-user-astronaut text-5xl"></i>
+                        </div>
                     </div>
-                    <div class="absolute bottom-0 left-0 w-full p-6 z-20 transform translate-y-2 group-hover:translate-y-0 transition">
-                        <h3 class="text-2xl font-bold font-display text-white">Lil Wyatt</h3>
-                        <p class="text-violet-400 text-sm font-medium uppercase tracking-wider">Signed Artist</p>
+                    <div class="mt-6 text-center">
+                        <h3 class="text-xl font-bold font-display text-white">Lil Wyatt</h3>
+                        <p class="text-violet-500 text-xs font-bold uppercase tracking-widest mt-1">Global Artist</p>
                     </div>
                 </div>
 
                 <!-- Artist 2 -->
-                <div class="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-800">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 z-10"></div>
-                    <div class="w-full h-full bg-slate-700 flex items-center justify-center text-slate-600">
-                        <i class="fas fa-headphones-simple text-6xl"></i>
+                <div class="reveal reveal-delay-100 group relative">
+                    <div class="aspect-[3/4] overflow-hidden bg-neutral-900 rounded-lg grayscale group-hover:grayscale-0 transition duration-700 ease-out">
+                        <div class="w-full h-full flex items-center justify-center text-neutral-700 bg-neutral-800">
+                            <i class="fas fa-headphones-simple text-5xl"></i>
+                        </div>
                     </div>
-                    <div class="absolute bottom-0 left-0 w-full p-6 z-20 transform translate-y-2 group-hover:translate-y-0 transition">
-                        <h3 class="text-2xl font-bold font-display text-white">LucidPP</h3>
-                        <p class="text-violet-400 text-sm font-medium uppercase tracking-wider">Signed Artist</p>
+                    <div class="mt-6 text-center">
+                        <h3 class="text-xl font-bold font-display text-white">LucidPP</h3>
+                        <p class="text-violet-500 text-xs font-bold uppercase tracking-widest mt-1">Global Artist</p>
                     </div>
                 </div>
 
                 <!-- Artist 3 -->
-                <div class="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-800">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 z-10"></div>
-                    <div class="w-full h-full bg-slate-700 flex items-center justify-center text-slate-600">
-                        <i class="fas fa-music text-6xl"></i>
+                <div class="reveal reveal-delay-200 group relative">
+                    <div class="aspect-[3/4] overflow-hidden bg-neutral-900 rounded-lg grayscale group-hover:grayscale-0 transition duration-700 ease-out">
+                        <div class="w-full h-full flex items-center justify-center text-neutral-700 bg-neutral-800">
+                            <i class="fas fa-music text-5xl"></i>
+                        </div>
                     </div>
-                    <div class="absolute bottom-0 left-0 w-full p-6 z-20 transform translate-y-2 group-hover:translate-y-0 transition">
-                        <h3 class="text-2xl font-bold font-display text-white">C@shxan</h3>
-                        <p class="text-violet-400 text-sm font-medium uppercase tracking-wider">Signed Artist</p>
+                    <div class="mt-6 text-center">
+                        <h3 class="text-xl font-bold font-display text-white">C@shxan</h3>
+                        <p class="text-violet-500 text-xs font-bold uppercase tracking-widest mt-1">Global Artist</p>
                     </div>
                 </div>
 
                 <!-- Artist 4 -->
-                <div class="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-800">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 z-10"></div>
-                    <div class="w-full h-full bg-slate-700 flex items-center justify-center text-slate-600">
-                        <i class="fas fa-record-vinyl text-6xl"></i>
+                <div class="reveal reveal-delay-300 group relative">
+                    <div class="aspect-[3/4] overflow-hidden bg-neutral-900 rounded-lg grayscale group-hover:grayscale-0 transition duration-700 ease-out">
+                        <div class="w-full h-full flex items-center justify-center text-neutral-700 bg-neutral-800">
+                            <i class="fas fa-record-vinyl text-5xl"></i>
+                        </div>
                     </div>
-                    <div class="absolute bottom-0 left-0 w-full p-6 z-20 transform translate-y-2 group-hover:translate-y-0 transition">
-                        <h3 class="text-2xl font-bold font-display text-white">C@shJ</h3>
-                        <p class="text-violet-400 text-sm font-medium uppercase tracking-wider">Signed Artist</p>
+                    <div class="mt-6 text-center">
+                        <h3 class="text-xl font-bold font-display text-white">C@shJ</h3>
+                        <p class="text-violet-500 text-xs font-bold uppercase tracking-widest mt-1">Global Artist</p>
                     </div>
                 </div>
             </div>
@@ -217,58 +240,56 @@
     </section>
 
     <!-- Release Submission Section -->
-    <section id="release" class="py-20 bg-gradient-to-b from-slate-900 to-black">
+    <section id="release" class="py-32 bg-[#050505]">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="glass-panel rounded-3xl p-8 md:p-12 border border-violet-500/20 shadow-2xl shadow-violet-900/20">
-                <div class="text-center mb-10">
-                    <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">Submit Your <span class="gradient-text">Release</span></h2>
-                    <p class="text-gray-400">Ready to go live on 200+ stores? Fill out the details below.</p>
+            <div class="reveal glass-panel rounded-2xl p-8 md:p-16 border border-white/5">
+                <div class="text-center mb-12">
+                    <h2 class="font-display text-3xl font-bold mb-4">SUBMIT <span class="gradient-text">RELEASE</span></h2>
+                    <p class="text-gray-500 font-light">Fill out the details. We handle the rest.</p>
                 </div>
 
-                <form id="releaseForm" class="space-y-6" onsubmit="handleReleaseSubmit(event)">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form id="releaseForm" class="space-y-8" onsubmit="handleReleaseSubmit(event)">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <!-- Release Name -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-2">Release Name</label>
+                        <div class="group">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 group-focus-within:text-violet-400 transition">Release Name</label>
                             <input type="text" id="releaseName" required 
-                                class="w-full bg-slate-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition"
-                                placeholder="e.g. Midnight City">
+                                class="w-full bg-transparent border-b border-gray-700 px-0 py-3 text-white text-lg placeholder-gray-600 focus:outline-none focus:border-violet-500 transition-colors"
+                                placeholder="Midnight City">
                         </div>
                         
                         <!-- Artist Name -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-2">Primary Artist(s)</label>
+                        <div class="group">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 group-focus-within:text-violet-400 transition">Primary Artist</label>
                             <input type="text" id="artistName" required 
-                                class="w-full bg-slate-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition"
-                                placeholder="e.g. Lil Wyatt">
+                                class="w-full bg-transparent border-b border-gray-700 px-0 py-3 text-white text-lg placeholder-gray-600 focus:outline-none focus:border-violet-500 transition-colors"
+                                placeholder="Lil Wyatt">
                         </div>
                     </div>
 
                     <!-- Cover Art Upload -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Cover Art</label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-700 border-dashed rounded-xl hover:border-violet-500 transition cursor-pointer relative bg-slate-800/30 group">
+                    <div class="pt-4">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Cover Art</label>
+                        <div class="relative group">
                             <input id="coverArt" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="updateFileName()">
-                            <div class="space-y-1 text-center">
-                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-500 group-hover:text-violet-400 transition mb-3"></i>
-                                <div class="flex text-sm text-gray-400 justify-center">
-                                    <span class="font-medium text-violet-400">Upload a file</span>
-                                    <p class="pl-1">or drag and drop</p>
+                            <div class="border border-dashed border-gray-700 rounded-lg p-10 text-center group-hover:border-violet-500 group-hover:bg-violet-500/5 transition duration-300">
+                                <i class="fas fa-image text-3xl text-gray-600 mb-4 group-hover:text-violet-400 transition"></i>
+                                <div class="text-sm text-gray-400 font-light">
+                                    <span class="text-white font-medium underline decoration-violet-500 underline-offset-4">Click to upload</span> or drag and drop
                                 </div>
-                                <p class="text-xs text-gray-500">PNG, JPG up to 10MB (3000x3000px)</p>
-                                <p id="fileNameDisplay" class="text-sm text-green-400 font-semibold mt-2 hidden"></p>
+                                <p id="fileNameDisplay" class="text-sm text-emerald-400 font-medium mt-4 hidden"></p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="pt-4">
+                    <div class="pt-8">
                         <button type="submit" 
-                            class="w-full bg-gradient-to-r from-violet-600 to-pink-600 hover:from-violet-500 hover:to-pink-500 text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2">
-                            <span>Submit Release via Email</span>
-                            <i class="fas fa-paper-plane"></i>
+                            class="w-full bg-white text-black font-bold py-5 rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm">
+                            <span>Proceed to Email</span>
+                            <i class="fas fa-arrow-right"></i>
                         </button>
-                        <p class="text-xs text-center text-gray-500 mt-4">
-                            By clicking submit, you will be redirected to your email client to attach files and send to PeytoToria@Gmail.com.
+                        <p class="text-[10px] text-center text-gray-600 mt-6 uppercase tracking-widest">
+                            Your email client will open to finalize the submission
                         </p>
                     </div>
                 </form>
@@ -277,59 +298,89 @@
     </section>
 
     <!-- Footer -->
-    <footer class="border-t border-white/5 bg-slate-900 pt-16 pb-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-                <div class="mb-4 md:mb-0">
-                    <h2 class="font-display text-2xl font-black">PEYTO<span class="text-violet-500">TORIA</span></h2>
-                    <p class="text-gray-500 text-sm mt-1">Empowering independent artists globally.</p>
+    <footer class="border-t border-white/5 bg-[#050505] pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-12">
+                <div class="mb-8 md:mb-0">
+                    <h2 class="font-display text-2xl font-black tracking-widest">PEYTO<span class="text-violet-500">TORIA</span></h2>
                 </div>
-                <div class="flex space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram text-xl"></i></a>
-                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter text-xl"></i></a>
-                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-spotify text-xl"></i></a>
+                <div class="flex space-x-8">
+                    <a href="#" class="text-gray-500 hover:text-white transition transform hover:-translate-y-1"><i class="fab fa-instagram text-2xl"></i></a>
+                    <a href="#" class="text-gray-500 hover:text-white transition transform hover:-translate-y-1"><i class="fab fa-twitter text-2xl"></i></a>
+                    <a href="#" class="text-gray-500 hover:text-white transition transform hover:-translate-y-1"><i class="fab fa-spotify text-2xl"></i></a>
                 </div>
             </div>
-            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-                <p>&copy; 2024 PeytoToria Records. All rights reserved.</p>
-                <div class="flex space-x-6 mt-4 md:mt-0">
-                    <a href="#" class="hover:text-gray-400">Privacy Policy</a>
-                    <a href="#" class="hover:text-gray-400">Terms of Service</a>
+            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600 uppercase tracking-widest">
+                <p>&copy; 2024 PeytoToria Records.</p>
+                <div class="flex space-x-8 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-gray-400 transition">Privacy</a>
+                    <a href="#" class="hover:text-gray-400 transition">Terms</a>
                 </div>
             </div>
         </div>
     </footer>
 
     <!-- Custom Modal for Success/Instructions -->
-    <div id="modalBackdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-violet-500/30 rounded-2xl max-w-md w-full p-6 shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="modalContent">
+    <div id="modalBackdrop" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-[#111] border border-white/10 rounded-2xl max-w-md w-full p-8 shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="modalContent">
             <div class="text-center">
-                <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-check text-green-500 text-2xl"></i>
+                <div class="w-16 h-16 border-2 border-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-check text-2xl"></i>
                 </div>
-                <h3 class="text-2xl font-bold text-white mb-2">Almost Done!</h3>
-                <p class="text-gray-300 mb-6 text-sm">
-                    We've prepared your submission. To finalize your release, please complete the email draft we just opened.
+                <h3 class="text-2xl font-display font-bold text-white mb-2">Check Your Email</h3>
+                <p class="text-gray-400 mb-8 text-sm font-light leading-relaxed">
+                    We've generated a draft for you. Complete these final steps to submit your release.
                 </p>
                 
-                <div class="bg-slate-800/50 rounded-lg p-4 text-left mb-6 border border-white/5">
-                    <p class="text-xs text-gray-400 uppercase font-bold mb-2">Next Steps:</p>
-                    <ol class="list-decimal list-inside text-sm text-gray-300 space-y-2">
-                        <li>Check your email app (draft created).</li>
-                        <li><strong>Attach your Cover Art file manually.</strong></li>
-                        <li>Attach your Audio Files (WAV/MP3).</li>
-                        <li>Click Send to <strong>PeytoToria@Gmail.com</strong>.</li>
+                <div class="bg-white/5 rounded-lg p-6 text-left mb-8">
+                    <ol class="list-decimal list-inside text-sm text-gray-300 space-y-3 font-light">
+                        <li>Open the drafted email.</li>
+                        <li><span class="text-white font-medium">Attach Cover Art</span> manually.</li>
+                        <li><span class="text-white font-medium">Attach Audio Files</span> (WAV/MP3).</li>
+                        <li>Click Send.</li>
                     </ol>
                 </div>
 
-                <button onclick="closeModal()" class="w-full bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-gray-200 transition">
-                    Got it, I sent the email!
+                <button onclick="closeModal()" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition uppercase text-xs tracking-widest">
+                    I Sent It
                 </button>
             </div>
         </div>
     </div>
 
     <script>
+        // Loader Logic
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            // Allow animation to play for at least 2.5s total before removing
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 700);
+            }, 2500); 
+        });
+
+        // Scroll Reveal Logic
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target); // Only animate once
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            observer.observe(el);
+        });
+
         // Mobile Menu Toggle
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
@@ -339,10 +390,10 @@
         // Navbar Scroll Effect
         window.addEventListener('scroll', () => {
             const navbar = document.getElementById('navbar');
-            if (window.scrollY > 20) {
-                navbar.classList.add('shadow-lg');
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-[#0a0a0a]/90', 'backdrop-blur-md', 'shadow-lg');
             } else {
-                navbar.classList.remove('shadow-lg');
+                navbar.classList.remove('bg-[#0a0a0a]/90', 'backdrop-blur-md', 'shadow-lg');
             }
         });
 
@@ -370,17 +421,15 @@
             const body = encodeURIComponent(
 `Hello PeytoToria Team,
 
-I would like to submit a new release for distribution.
+I would like to submit a new release.
 
 --- RELEASE DETAILS ---
-Release Title: ${releaseName}
-Artist Name(s): ${artistName}
+Title: ${releaseName}
+Artist: ${artistName}
 
---- ATTACHMENTS REQUIRED ---
-[ ] I have attached the Cover Art to this email.
-[ ] I have attached the Audio Files to this email.
-
-Please review for release.
+--- CHECKLIST ---
+[ ] Cover Art Attached
+[ ] Audio Files Attached
 
 Best,
 ${artistName}`
@@ -394,7 +443,6 @@ ${artistName}`
             const modalContent = document.getElementById('modalContent');
             
             modalBackdrop.classList.remove('hidden');
-            // Small delay to allow display change to render before adding transition classes
             setTimeout(() => {
                 modalContent.classList.remove('scale-95', 'opacity-0');
                 modalContent.classList.add('scale-100', 'opacity-100');
