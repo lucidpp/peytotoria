@@ -1,1996 +1,419 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PeytoToria</title>
-    
-    <!-- Site Icon (Favicon) -->
-    <link rel="icon" type="image/png" href="siteicon.png">
-
-    <!-- Metadata -->
-    <meta name="description" content="PeytoToria - The ultimate music streaming simulator.">
-    
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeytoToria Records | Global Distribution</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts & Material Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        yt: {
-                            base: '#030303',
-                            sidebar: '#030303',
-                            hover: '#1f1f1f',
-                            text: '#ffffff',
-                            textSec: '#aaaaaa',
-                            red: '#ff0000',
-                            accent: '#ffffff',
-                            player: '#212121' 
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Roboto', 'sans-serif'],
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.3s ease-out',
-                        'slide-up': 'slideUp 0.3s cubic-bezier(0.2, 0.0, 0, 1.0) forwards',
-                        'slide-down': 'slideDown 0.3s cubic-bezier(0.2, 0.0, 0, 1.0) forwards',
-                        'pop-wiggle': 'popWiggle 0.6s ease-out'
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(100%)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' }
-                        },
-                        slideDown: {
-                            '0%': { transform: 'translateY(0)', opacity: '1' },
-                            '100%': { transform: 'translateY(100%)', opacity: '0' }
-                        },
-                        popWiggle: {
-                            '0%': { transform: 'scale(1) rotate(0deg)' },
-                            '30%': { transform: 'scale(1.4) rotate(-15deg)' },
-                            '50%': { transform: 'scale(1.1) rotate(15deg)' },
-                            '70%': { transform: 'scale(1.2) rotate(-10deg)' },
-                            '100%': { transform: 'scale(1) rotate(0deg)' }
-                        },
-                        explode: {
-                             '0%': { boxShadow: '0 0 0 0 rgba(255, 255, 255, 0.7)' },
-                             '70%': { boxShadow: '0 0 0 20px rgba(255, 255, 255, 0)' },
-                             '100%': { boxShadow: '0 0 0 0 rgba(255, 255, 255, 0)' }
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #030303;
-            color: white;
-            font-family: 'Roboto', sans-serif;
-            overflow: hidden;
-            -webkit-tap-highlight-color: transparent;
+        :root {
+            --primary: #8b5cf6; /* Violet */
+            --secondary: #ec4899; /* Pink */
+            --dark: #0f172a;
         }
-
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark);
+            color: white;
+            overflow-x: hidden;
+        }
+        .font-display {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #c084fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #030303; 
+            background: #0f172a;
         }
         ::-webkit-scrollbar-thumb {
-            background: #4d4d4d; 
+            background: #4b5563;
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #717171; 
+            background: #8b5cf6;
         }
-
-        .yt-btn {
-            background: rgba(255,255,255,0.1);
-            transition: all 0.2s;
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
         }
-        .yt-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        .artist-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 24px;
-        }
-        
-        @media (max-width: 768px) {
-            .artist-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 16px;
-            }
-        }
-
-        .discography-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 24px;
-        }
-
-        @media (max-width: 768px) {
-            .discography-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 16px;
-            }
-        }
-
-        /* Modal Animation */
-        .modal {
-            transition: opacity 0.25s ease;
-            pointer-events: none;
-            opacity: 0;
-            backdrop-filter: blur(5px);
-        }
-        .modal.active {
-            pointer-events: auto;
-            opacity: 1;
-        }
-        .modal-content {
-            transform: scale(0.95) translateY(20px);
-            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .modal.active .modal-content {
-            transform: scale(1) translateY(0);
-        }
-
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* Button Explode Effect (General Click) */
-        .icon-explode {
-            position: relative;
-        }
-        .icon-explode::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
-            border-radius: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            opacity: 0;
-            pointer-events: none;
-        }
-        .icon-explode.animating::after {
-            animation: ripple 0.6s ease-out;
-        }
-
-        /* Specific Thumbs Up Explosion */
-        .thumbs-up-explode {
-            animation: popWiggle 0.6s ease-out, explode 0.6s ease-out;
-        }
-
-        @keyframes ripple {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0.5; }
-            100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
-        }
-        
-        @keyframes explode {
-             0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
-             100% { box-shadow: 0 0 0 30px rgba(255, 255, 255, 0); }
-        }
-
-        /* Mobile Nav */
-        .mobile-nav-item.active {
-            color: white;
-        }
-        .mobile-nav-item.active span {
-            color: white;
-        }
-        .mobile-nav-item {
-            color: #aaaaaa;
-        }
-
-        /* Sidebar Transition */
-        aside {
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        aside.collapsed {
-            width: 72px;
-        }
-        aside.collapsed .nav-text {
-            display: none;
-        }
-        aside.collapsed .nav-btn {
-            justify-content: center;
-            padding-left: 0;
-            padding-right: 0;
-        }
-
-        /* Toast positioning classes */
-        .toast-hidden {
-            transform: translate(-50%, 200%) !important; /* Move down off screen */
-            opacity: 0;
-        }
-        #general-toast {
-            z-index: 200;
-        }
-        
-        /* Player Range Slider */
-        input[type=range] {
-            -webkit-appearance: none;
-            background: transparent;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 12px;
-            width: 12px;
-            border-radius: 50%;
-            background: #ffffff;
-            cursor: pointer;
-            margin-top: -4px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: #4d4d4d;
-            border-radius: 2px;
-        }
-        input[type=range]:hover::-webkit-slider-thumb {
-            transform: scale(1.2);
-        }
-
-        /* Search Bar Animation */
-        .search-container {
-            transition: all 0.3s ease;
-        }
-        .search-container:focus-within {
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-            background-color: #121212;
-            border-color: #444;
-            flex-grow: 1.5;
-        }
-        .search-input {
-            transition: width 0.3s ease;
-        }
-
-        /* Tooltip */
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 200px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 10px;
-        }
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        /* Filter Pills */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        
-        /* Filled icons */
-        .material-icons-round.filled {
-            font-variation-settings: 'FILL' 1;
-        }
-
-        /* Wrapped Gradient */
-        .wrapped-gradient {
-            background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%);
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
         }
     </style>
 </head>
-<body class="h-screen flex flex-col bg-yt-base text-white">
+<body class="antialiased bg-slate-900 selection:bg-violet-500 selection:text-white">
 
-    <!-- Desktop Top Navigation -->
-    <nav class="h-16 flex items-center px-4 justify-between border-b border-[#1f1f1f] bg-[#030303] z-50 shrink-0">
-        <div class="flex items-center gap-4">
-            <button onclick="toggleSidebar()" class="p-2 rounded-full hover:bg-yt-hover hidden md:block icon-explode"><span class="material-icons-round text-white">menu</span></button>
-            <div class="flex items-center gap-1 cursor-pointer" onclick="renderHome()">
-                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                    <span class="material-icons-round text-yt-base text-xl">play_circle_filled</span>
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 top-0 transition-all duration-300" id="navbar">
+        <div class="glass-panel border-b border-white/5">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <div class="flex-shrink-0 cursor-pointer" onclick="window.scrollTo(0,0)">
+                        <h1 class="font-display text-2xl font-black tracking-tighter">
+                            PEYTO<span class="text-violet-400">TORIA</span>
+                        </h1>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-8">
+                            <a href="#stats" class="hover:text-violet-400 transition px-3 py-2 rounded-md text-sm font-medium">Why Us</a>
+                            <a href="#artists" class="hover:text-violet-400 transition px-3 py-2 rounded-md text-sm font-medium">Roster</a>
+                            <a href="#release" class="bg-violet-600 hover:bg-violet-700 transition px-4 py-2 rounded-full text-sm font-bold shadow-lg shadow-violet-500/30">Submit Release</a>
+                        </div>
+                    </div>
+                    <div class="-mr-2 flex md:hidden">
+                        <button onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white inline-flex items-center justify-center p-2 rounded-md focus:outline-none">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                    </div>
                 </div>
-                <span class="text-xl font-bold tracking-tight hidden md:block">PeytoToria</span>
             </div>
         </div>
-
-        <!-- Search Bar -->
-        <div class="flex flex-1 max-w-xl mx-4 transition-all duration-300 ease-in-out">
-            <div class="search-container bg-[#212121] flex items-center w-full px-4 py-2 rounded-lg border border-[#303030] transition-all duration-300">
-                <span class="material-icons-round text-yt-textSec">search</span>
-                <input type="text" id="search-input" placeholder="Search artists, songs, albums..." class="bg-transparent border-none outline-none text-white ml-2 w-full placeholder-gray-500" oninput="handleSearch(this.value)">
-            </div>
-        </div>
-
-        <div class="flex items-center gap-4">
-             <button onclick="resetData()" class="bg-[#212121] border border-[#333] text-red-500 text-xs px-3 py-1 rounded hover:bg-[#333] hidden md:block">Reset</button>
-             <!-- User Profile Area -->
-            <div class="relative cursor-pointer" onclick="openModal('user-settings-modal')">
-                <img id="top-nav-pfp" src="" class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 object-cover shadow-lg" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
+        <!-- Mobile Menu -->
+        <div class="md:hidden hidden glass-panel border-b border-white/10" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#stats" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Why Us</a>
+                <a href="#artists" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Roster</a>
+                <a href="#release" class="text-violet-400 font-bold block px-3 py-2 rounded-md text-base">Submit Release</a>
             </div>
         </div>
     </nav>
 
-    <div class="flex flex-1 overflow-hidden relative">
-        <!-- Sidebar (Desktop) -->
-        <aside id="sidebar" class="w-64 bg-[#030303] hidden md:flex flex-col p-2 overflow-y-auto border-r border-[#1f1f1f] shrink-0">
-            <div class="flex flex-col gap-1">
-                <button onclick="animateNav('nav-home', renderHome)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-[#1f1f1f] text-white font-medium transition icon-explode" id="nav-home">
-                    <span class="material-icons-round">home</span> <span class="nav-text">Home</span>
-                </button>
-                <button onclick="animateNav('nav-explore', renderExplore)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-[#1f1f1f] font-medium transition icon-explode" id="nav-explore">
-                    <span class="material-icons-round">explore</span> <span class="nav-text">Explore</span>
-                </button>
-                <button onclick="animateNav('nav-charts', renderCharts)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-[#1f1f1f] font-medium transition icon-explode" id="nav-charts">
-                    <span class="material-icons-round">leaderboard</span> <span class="nav-text">Charts</span>
-                </button>
-                <button onclick="animateNav('nav-library', renderLibrary)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-[#1f1f1f] font-medium transition icon-explode" id="nav-library">
-                    <span class="material-icons-round">library_music</span> <span class="nav-text">Library</span>
-                </button>
-                <!-- Withdraw Button Desktop -->
-                <button onclick="openModal('withdraw-modal')" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-green-400 hover:text-green-300 hover:bg-[#1f1f1f] font-medium transition icon-explode">
-                    <span class="material-icons-round">payments</span> <span class="nav-text">Withdraw</span>
-                </button>
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <!-- Background Elements -->
+        <div class="absolute top-0 left-1/2 w-full -translate-x-1/2 h-full z-0 pointer-events-none opacity-30">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-violet-600 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
+            <div class="absolute top-40 right-10 w-72 h-72 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl animate-float" style="animation-delay: 2s;"></div>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="font-display text-5xl md:text-7xl font-black tracking-tight mb-6">
+                Amplify Your <br>
+                <span class="gradient-text">Global Sound.</span>
+            </h1>
+            <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-400">
+                Join the label that puts artists first. Keep 100% of your earnings. 
+                Distributed to 200+ platforms worldwide.
+            </p>
+            <div class="mt-10 flex justify-center gap-4">
+                <a href="mailto:PeytoToria@Gmail.com?subject=Artist Application" 
+                   class="px-8 py-4 bg-white text-slate-900 font-bold rounded-full hover:bg-gray-100 transition shadow-[0_0_20px_rgba(255,255,255,0.3)] flex items-center gap-2">
+                    <i class="fas fa-envelope"></i> Email to Get Signed
+                </a>
+                <a href="#stats" class="px-8 py-4 glass-panel text-white font-semibold rounded-full hover:bg-white/10 transition border border-white/20">
+                    Learn More
+                </a>
             </div>
-            
-            <div class="mt-6 px-4 nav-text">
-                <h3 class="text-xs uppercase font-bold text-yt-textSec mb-3">Your Artists</h3>
-                <div id="sidebar-artist-list" class="flex flex-col gap-1">
-                    <!-- Populated by JS -->
+            <p class="mt-4 text-sm text-gray-500 uppercase tracking-widest">Free to join. Fair for everyone.</p>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats" class="py-20 bg-slate-900/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Stat Card 1 -->
+                <div class="glass-panel p-8 rounded-2xl text-center hover:transform hover:-translate-y-2 transition duration-300">
+                    <div class="text-violet-400 text-4xl mb-4"><i class="fas fa-globe"></i></div>
+                    <h3 class="text-3xl font-display font-bold text-white mb-2">200+</h3>
+                    <p class="text-gray-400">Global Platforms</p>
+                </div>
+                <!-- Stat Card 2 -->
+                <div class="glass-panel p-8 rounded-2xl text-center hover:transform hover:-translate-y-2 transition duration-300">
+                    <div class="text-pink-400 text-4xl mb-4"><i class="fas fa-users"></i></div>
+                    <h3 class="text-3xl font-display font-bold text-white mb-2">4</h3>
+                    <p class="text-gray-400">Artists Signed</p>
+                </div>
+                <!-- Stat Card 3 -->
+                <div class="glass-panel p-8 rounded-2xl text-center hover:transform hover:-translate-y-2 transition duration-300">
+                    <div class="text-emerald-400 text-4xl mb-4"><i class="fas fa-money-bill-wave"></i></div>
+                    <h3 class="text-3xl font-display font-bold text-white mb-2">$20+</h3>
+                    <p class="text-gray-400">Yearly Revenue</p>
+                </div>
+                <!-- Stat Card 4 -->
+                <div class="glass-panel p-8 rounded-2xl text-center hover:transform hover:-translate-y-2 transition duration-300">
+                    <div class="text-blue-400 text-4xl mb-4"><i class="fas fa-percentage"></i></div>
+                    <h3 class="text-3xl font-display font-bold text-white mb-2">100%</h3>
+                    <p class="text-gray-400">Earnings to Artist</p>
                 </div>
             </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main id="main-content" class="flex-1 overflow-y-auto p-4 md:p-8 relative pb-32 md:pb-8">
-            <!-- Content Injected Here -->
-        </main>
-    </div>
-
-    <!-- Mini Player -->
-    <div id="mini-player" class="fixed bottom-16 md:bottom-0 left-0 right-0 h-16 bg-[#212121] border-t border-[#333] flex items-center justify-between px-4 z-40 hidden cursor-pointer" onclick="openPlayer()">
-        <div class="flex items-center gap-3">
-            <img id="mini-img" src="" class="w-10 h-10 rounded object-cover">
-            <div class="flex flex-col">
-                <span id="mini-title" class="text-sm font-medium text-white truncate max-w-[150px]">Song</span>
-                <span id="mini-artist" class="text-xs text-gray-400 truncate max-w-[150px]">Artist</span>
-            </div>
         </div>
-        <div class="flex items-center gap-4">
-            <button onclick="event.stopPropagation(); togglePlay()" class="p-2 text-white hover:bg-white/10 rounded-full">
-                <span id="mini-play-icon" class="material-icons-round">play_arrow</span>
-            </button>
-            <button onclick="event.stopPropagation(); closeMiniPlayer()" class="p-2 text-gray-400 hover:text-white rounded-full md:hidden">
-                <span class="material-icons-round">close</span>
-            </button>
-        </div>
-    </div>
+    </section>
 
-    <!-- Mobile Bottom Navigation -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#212121] border-t border-[#333] flex justify-around items-center z-50 pb-safe">
-        <button onclick="animateNav('mob-nav-home', renderHome)" class="mobile-nav-item flex flex-col items-center gap-1 p-2 active icon-explode" id="mob-nav-home">
-            <span class="material-icons-round">home</span>
-            <span class="text-[10px]">Home</span>
-        </button>
-        <button onclick="animateNav('mob-nav-explore', renderExplore)" class="mobile-nav-item flex flex-col items-center gap-1 p-2 icon-explode" id="mob-nav-explore">
-            <span class="material-icons-round">explore</span>
-            <span class="text-[10px]">Explore</span>
-        </button>
-        <button onclick="animateNav('mob-nav-charts', renderCharts)" class="mobile-nav-item flex flex-col items-center gap-1 p-2 icon-explode" id="mob-nav-charts">
-            <span class="material-icons-round">leaderboard</span>
-            <span class="text-[10px]">Charts</span>
-        </button>
-        <button onclick="animateNav('mob-nav-library', renderLibrary)" class="mobile-nav-item flex flex-col items-center gap-1 p-2 icon-explode" id="mob-nav-library">
-            <span class="material-icons-round">library_music</span>
-            <span class="text-[10px]">Library</span>
-        </button>
-        <!-- Withdraw Mobile -->
-        <button onclick="openModal('withdraw-modal')" class="mobile-nav-item flex flex-col items-center gap-1 p-2 text-green-400 icon-explode">
-            <span class="material-icons-round">payments</span>
-            <span class="text-[10px]">Withdraw</span>
-        </button>
-    </div>
-
-    <!-- FULL SCREEN PLAYER -->
-    <div id="music-player" class="fixed inset-0 z-[100] bg-[#030303] hidden flex flex-col h-[100dvh]">
-        <!-- Background Gradient -->
-        <div id="player-bg-gradient" class="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] to-black opacity-95 pointer-events-none"></div>
-        
-        <!-- Top Bar -->
-        <div class="relative z-10 flex items-center justify-between p-4 shrink-0">
-            <button onclick="closePlayer()" class="p-2 text-white hover:bg-white/10 rounded-full transition"><span class="material-icons-round text-3xl">keyboard_arrow_down</span></button>
-            <div class="text-xs uppercase tracking-widest text-gray-400 font-bold">Now Playing</div>
-            <button class="p-2 text-white hover:bg-white/10 rounded-full transition"><span class="material-icons-round text-2xl">more_vert</span></button>
-        </div>
-
-        <!-- Main Content (Centered and responsive) -->
-        <div class="relative z-10 flex-1 flex flex-col items-center justify-center w-full px-6 pb-8 overflow-hidden">
-            
-            <!-- Art Container -->
-            <div class="relative w-full max-w-sm md:max-w-md aspect-square shadow-2xl rounded-xl overflow-hidden mb-6 md:mb-10 flex-shrink min-h-0 bg-black">
-                <img id="player-img" src="" class="w-full h-full object-cover">
-                <video id="player-video" class="w-full h-full object-contain hidden" playsinline webkit-playsinline></video>
+    <!-- Artists Section -->
+    <section id="artists" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl font-bold mb-4">Our <span class="text-violet-500">Roster</span></h2>
+                <p class="text-gray-400">The talent defining our sound.</p>
             </div>
 
-            <!-- Metadata & Actions Row -->
-            <div class="w-full max-w-2xl flex items-center justify-between mb-2 shrink-0">
-                <div class="flex flex-col min-w-0 pr-4">
-                    <h2 id="player-title" class="text-2xl md:text-3xl font-bold text-white truncate leading-tight">Song Title</h2>
-                    <p id="player-artist" class="text-lg text-gray-400 truncate">Artist Name</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Artist 1 -->
+                <div class="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-800">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 z-10"></div>
+                    <!-- Placeholder SVG for Artist Image -->
+                    <div class="w-full h-full bg-slate-700 flex items-center justify-center text-slate-600">
+                        <i class="fas fa-user-astronaut text-6xl"></i>
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full p-6 z-20 transform translate-y-2 group-hover:translate-y-0 transition">
+                        <h3 class="text-2xl font-bold font-display text-white">Lil Wyatt</h3>
+                        <p class="text-violet-400 text-sm font-medium uppercase tracking-wider">Signed Artist</p>
+                    </div>
                 </div>
-                <!-- Like/Dislike Actions -->
-                <div class="flex items-center gap-4 flex-shrink-0">
-                     <button onclick="toggleDislike()" class="text-gray-400 hover:text-white transition"><span id="player-dislike-icon" class="material-icons-round text-2xl">thumb_down</span></button>
-                     <div class="flex flex-col items-center">
-                        <button onclick="toggleLike()" class="text-white hover:text-gray-200 transition group relative">
-                            <span id="player-like-icon" class="material-icons-round text-2xl">thumb_up</span>
-                        </button>
-                        <span id="player-likes" class="text-[10px] text-gray-400 font-medium mt-0.5">0</span>
+
+                <!-- Artist 2 -->
+                <div class="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-800">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 z-10"></div>
+                    <div class="w-full h-full bg-slate-700 flex items-center justify-center text-slate-600">
+                        <i class="fas fa-headphones-simple text-6xl"></i>
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full p-6 z-20 transform translate-y-2 group-hover:translate-y-0 transition">
+                        <h3 class="text-2xl font-bold font-display text-white">LucidPP</h3>
+                        <p class="text-violet-400 text-sm font-medium uppercase tracking-wider">Signed Artist</p>
+                    </div>
+                </div>
+
+                <!-- Artist 3 -->
+                <div class="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-800">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 z-10"></div>
+                    <div class="w-full h-full bg-slate-700 flex items-center justify-center text-slate-600">
+                        <i class="fas fa-music text-6xl"></i>
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full p-6 z-20 transform translate-y-2 group-hover:translate-y-0 transition">
+                        <h3 class="text-2xl font-bold font-display text-white">C@shxan</h3>
+                        <p class="text-violet-400 text-sm font-medium uppercase tracking-wider">Signed Artist</p>
+                    </div>
+                </div>
+
+                <!-- Artist 4 -->
+                <div class="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-800">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 z-10"></div>
+                    <div class="w-full h-full bg-slate-700 flex items-center justify-center text-slate-600">
+                        <i class="fas fa-record-vinyl text-6xl"></i>
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full p-6 z-20 transform translate-y-2 group-hover:translate-y-0 transition">
+                        <h3 class="text-2xl font-bold font-display text-white">C@shJ</h3>
+                        <p class="text-violet-400 text-sm font-medium uppercase tracking-wider">Signed Artist</p>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
 
-             <!-- View Count (Subtle) -->
-             <div class="w-full max-w-2xl text-xs text-gray-500 mb-6 flex items-center gap-1 shrink-0">
-                <span id="player-views">0</span> views
-             </div>
+    <!-- Release Submission Section -->
+    <section id="release" class="py-20 bg-gradient-to-b from-slate-900 to-black">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass-panel rounded-3xl p-8 md:p-12 border border-violet-500/20 shadow-2xl shadow-violet-900/20">
+                <div class="text-center mb-10">
+                    <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">Submit Your <span class="gradient-text">Release</span></h2>
+                    <p class="text-gray-400">Ready to go live on 200+ stores? Fill out the details below.</p>
+                </div>
 
-            <!-- Progress Bar -->
-            <div class="w-full max-w-2xl mb-4 shrink-0 group">
-                <input type="range" id="player-seek" value="0" min="0" max="100" class="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer hover:h-1.5 transition-all accent-white">
-                <div class="flex justify-between text-xs text-gray-400 mt-2 font-medium">
-                    <span id="player-time-current">0:00</span>
-                    <span id="player-time-total">0:00</span>
+                <form id="releaseForm" class="space-y-6" onsubmit="handleReleaseSubmit(event)">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Release Name -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Release Name</label>
+                            <input type="text" id="releaseName" required 
+                                class="w-full bg-slate-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition"
+                                placeholder="e.g. Midnight City">
+                        </div>
+                        
+                        <!-- Artist Name -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Primary Artist(s)</label>
+                            <input type="text" id="artistName" required 
+                                class="w-full bg-slate-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition"
+                                placeholder="e.g. Lil Wyatt">
+                        </div>
+                    </div>
+
+                    <!-- Cover Art Upload -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Cover Art</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-700 border-dashed rounded-xl hover:border-violet-500 transition cursor-pointer relative bg-slate-800/30 group">
+                            <input id="coverArt" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="updateFileName()">
+                            <div class="space-y-1 text-center">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-500 group-hover:text-violet-400 transition mb-3"></i>
+                                <div class="flex text-sm text-gray-400 justify-center">
+                                    <span class="font-medium text-violet-400">Upload a file</span>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG up to 10MB (3000x3000px)</p>
+                                <p id="fileNameDisplay" class="text-sm text-green-400 font-semibold mt-2 hidden"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" 
+                            class="w-full bg-gradient-to-r from-violet-600 to-pink-600 hover:from-violet-500 hover:to-pink-500 text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2">
+                            <span>Submit Release via Email</span>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                        <p class="text-xs text-center text-gray-500 mt-4">
+                            By clicking submit, you will be redirected to your email client to attach files and send to PeytoToria@Gmail.com.
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 bg-slate-900 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="font-display text-2xl font-black">PEYTO<span class="text-violet-500">TORIA</span></h2>
+                    <p class="text-gray-500 text-sm mt-1">Empowering independent artists globally.</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram text-xl"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter text-xl"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-spotify text-xl"></i></a>
                 </div>
             </div>
-
-            <!-- Main Controls -->
-            <div class="w-full max-w-2xl flex items-center justify-between shrink-0 px-2 md:px-8">
-                <button class="text-gray-400 hover:text-white transition"><span class="material-icons-round text-2xl">shuffle</span></button>
-                
-                <div class="flex items-center gap-6 md:gap-10">
-                    <button id="player-prev" class="text-white hover:text-gray-300 transition active:scale-90"><span class="material-icons-round text-4xl md:text-5xl">skip_previous</span></button>
-                    
-                    <button id="player-play-btn" onclick="togglePlay()" class="w-16 h-16 md:w-20 md:h-20 bg-white text-black rounded-full flex items-center justify-center hover:scale-105 transition shadow-lg active:scale-95">
-                        <span class="material-icons-round text-4xl md:text-5xl" id="player-play-icon">play_arrow</span>
-                    </button>
-                    
-                    <button id="player-next" class="text-white hover:text-gray-300 transition active:scale-90"><span class="material-icons-round text-4xl md:text-5xl">skip_next</span></button>
+            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+                <p>&copy; 2024 PeytoToria Records. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-gray-400">Privacy Policy</a>
+                    <a href="#" class="hover:text-gray-400">Terms of Service</a>
                 </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Modal for Success/Instructions -->
+    <div id="modalBackdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-violet-500/30 rounded-2xl max-w-md w-full p-6 shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="modalContent">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-500 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Almost Done!</h3>
+                <p class="text-gray-300 mb-6 text-sm">
+                    We've prepared your submission. To finalize your release, please complete the email draft we just opened.
+                </p>
                 
-                <button onclick="shareTrack()" class="text-gray-400 hover:text-white transition"><span class="material-icons-round text-2xl">share</span></button>
-            </div>
-        </div>
+                <div class="bg-slate-800/50 rounded-lg p-4 text-left mb-6 border border-white/5">
+                    <p class="text-xs text-gray-400 uppercase font-bold mb-2">Next Steps:</p>
+                    <ol class="list-decimal list-inside text-sm text-gray-300 space-y-2">
+                        <li>Check your email app (draft created).</li>
+                        <li><strong>Attach your Cover Art file manually.</strong></li>
+                        <li>Attach your Audio Files (WAV/MP3).</li>
+                        <li>Click Send to <strong>PeytoToria@Gmail.com</strong>.</li>
+                    </ol>
+                </div>
 
-        <!-- Hidden Audio Element -->
-        <audio id="audio-element"></audio>
-    </div>
-
-    <!-- Wrapped Modal (Artist Specific) -->
-    <div id="wrapped-modal" class="modal fixed inset-0 z-[300] bg-black/95 flex items-center justify-center p-4 hidden">
-        <div class="modal-content w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-transparent wrapped-gradient p-1">
-             <div class="bg-black/90 h-full w-full rounded-xl p-8 text-center relative">
-                 <button onclick="closeModal('wrapped-modal')" class="absolute top-4 right-4 text-white/50 hover:text-white"><span class="material-icons-round">close</span></button>
-                 
-                 <h2 class="text-3xl font-black mb-1 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-500">PEYTOTORIA</h2>
-                 <h3 class="text-xl font-bold mb-6 text-white tracking-widest uppercase">Wrapped 2025</h3>
-                 
-                 <div class="space-y-6">
-                     <div class="bg-[#212121] p-4 rounded-xl">
-                         <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Your Artist</p>
-                         <div class="flex items-center justify-center gap-3 mb-2">
-                             <img id="wrapped-artist-img" src="" class="w-10 h-10 rounded-full">
-                             <span id="wrapped-artist-name" class="text-xl font-bold text-white">Artist</span>
-                         </div>
-                     </div>
-                     
-                     <div class="grid grid-cols-2 gap-4">
-                         <div class="bg-[#212121] p-4 rounded-xl">
-                            <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Total Streams</p>
-                            <p id="wrapped-streams" class="text-2xl font-bold text-white">0</p>
-                         </div>
-                         <div class="bg-[#212121] p-4 rounded-xl">
-                            <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Total Earned</p>
-                            <p id="wrapped-earnings" class="text-2xl font-bold text-green-400">$0.00</p>
-                         </div>
-                     </div>
-                 </div>
-                 
-                 <button onclick="shareWrapped()" class="mt-8 bg-white text-black font-bold py-3 px-8 rounded-full hover:scale-105 transition shadow-lg">Share Your 2025</button>
-             </div>
-        </div>
-    </div>
-
-    <!-- General Toast (Notifications) -->
-    <div id="general-toast" class="fixed bottom-24 md:bottom-8 left-1/2 transform -translate-x-1/2 bg-white text-black px-6 py-3 rounded-full shadow-2xl transition-transform duration-300 toast-hidden flex items-center gap-2 z-[400]">
-        <span id="toast-icon" class="material-icons-round">info</span>
-        <span id="toast-msg" class="text-sm font-medium">Notification</span>
-    </div>
-
-    <!-- Welcome / User Setup Modal -->
-    <div id="welcome-modal" class="modal fixed inset-0 z-[300] bg-black/95 flex items-center justify-center p-4 hidden">
-        <div class="modal-content bg-[#212121] w-full max-w-sm rounded-xl shadow-2xl overflow-hidden border border-[#333] p-8 text-center">
-            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
-                <span class="material-icons-round text-black text-3xl">music_note</span>
-            </div>
-            <h2 class="text-2xl font-bold mb-2">Welcome to PeytoToria</h2>
-            <p class="text-gray-400 text-sm mb-6">Enter your name to get started.</p>
-            
-            <input type="text" id="username-input" placeholder="Username" class="w-full bg-[#121212] border border-[#333] rounded p-3 text-white focus:border-white outline-none mb-4 text-center">
-            
-            <button onclick="saveUserSetup()" class="w-full bg-white text-black font-bold py-3 rounded-full hover:bg-gray-200 transition">Start Listening</button>
-        </div>
-    </div>
-    
-    <!-- Withdraw Modal -->
-    <div id="withdraw-modal" class="modal fixed inset-0 z-[300] bg-black/95 flex items-center justify-center p-4 hidden">
-        <div class="modal-content bg-[#212121] w-full max-w-md rounded-xl shadow-2xl overflow-hidden border border-[#333] p-8 text-center relative">
-            <button onclick="closeModal('withdraw-modal')" class="absolute top-4 right-4 text-white/50 hover:text-white"><span class="material-icons-round">close</span></button>
-            <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/20">
-                <span class="material-icons-round text-black text-3xl">payments</span>
-            </div>
-            <h2 class="text-2xl font-bold mb-4">Withdraw Earnings</h2>
-            <p class="text-gray-300 mb-6 leading-relaxed">To withdraw money for your views, please email:</p>
-            <div class="bg-[#121212] p-4 rounded-lg border border-[#333] mb-6">
-                <span class="font-mono text-green-400 select-all">pricepeyton987@gmail.com</span>
-            </div>
-            <p class="text-xs text-gray-500">Include your artist ID and proof of account ownership.</p>
-        </div>
-    </div>
-
-    <!-- About Modal -->
-    <div id="about-modal" class="modal fixed inset-0 z-[80] bg-black/80 flex items-center justify-center p-4 hidden">
-        <div class="modal-content bg-[#212121] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden border border-[#333]">
-            <div class="p-4 border-b border-[#333] flex justify-between items-center">
-                <h2 class="text-xl font-bold">About Artist</h2>
-                <button onclick="closeModal('about-modal')" class="text-gray-400 hover:text-white"><span class="material-icons-round">close</span></button>
-            </div>
-            <div class="p-8" id="about-modal-content">
-                <!-- Injected via JS -->
+                <button onclick="closeModal()" class="w-full bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-gray-200 transition">
+                    Got it, I sent the email!
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- STATE & STORAGE ---
-        let state = {
-            artists: [],
-            releases: [],
-            library: [],
-            likedSongs: [], 
-            user: {
-                username: null,
-                pfp: null
-            }
-        };
-
-        let playerState = {
-            isPlaying: false,
-            currentReleaseId: null,
-            currentTrackIndex: 0,
-            audioUrl: null,
-            release: null,
-            track: null,
-            isVideo: false
-        };
-
-        const audioElement = document.getElementById('audio-element');
-
-        const formatNumber = (num) => {
-            if (num === undefined || num === null) return "0";
-            if (!isFinite(num)) return "0";
-            if (isNaN(num)) return "0";
-            if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
-            if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        };
-
-        const formatCurrency = (amount) => {
-            return "$" + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
         }
 
-        // --- INIT ---
-        function init() {
-            // Seed defaults first
-            seedData(); 
-            // Then overwrite with library preferences if any
-            loadFromLocal(); 
-
-            // Check User Login
-            if (!state.user || !state.user.username) {
-                openModal('welcome-modal');
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                navbar.classList.add('shadow-lg');
             } else {
-                updateUserUI();
+                navbar.classList.remove('shadow-lg');
             }
+        });
 
-            renderHome();
-            updateSidebar();
-            
-            // Audio Listeners
-            audioElement.addEventListener('timeupdate', updateProgress);
-            audioElement.addEventListener('ended', playNext);
-            
-            // Video Listeners
-            const videoElement = document.getElementById('player-video');
-            videoElement.addEventListener('timeupdate', updateProgress);
-            videoElement.addEventListener('ended', playNext);
-
-            document.getElementById('player-seek').addEventListener('input', (e) => {
-                const percent = e.target.value;
-                const media = getActiveMedia();
-                const duration = media.duration;
-                if(duration) media.currentTime = (percent / 100) * duration;
-            });
-        }
-        
-        function getActiveMedia() {
-            return playerState.isVideo ? document.getElementById('player-video') : audioElement;
-        }
-        
-        function updateProgress() {
-            const media = getActiveMedia();
-            const current = media.currentTime;
-            const duration = media.duration || 0;
-            document.getElementById('player-seek').value = (current / duration) * 100 || 0;
-            document.getElementById('player-time-current').innerText = formatTime(current);
-            document.getElementById('player-time-total').innerText = formatTime(duration);
-        }
-        
-        function openArtistWrapped(artistId) {
-            const artist = state.artists.find(a => a.id === artistId);
-            if(!artist) return;
-            
-            const totalStreams = artist.totalViews; // In a real app this would be user specific
-            const earnings = totalStreams * 0.000001;
-            
-            document.getElementById('wrapped-artist-img').src = artist.pfp;
-            document.getElementById('wrapped-artist-name').innerText = artist.name;
-            document.getElementById('wrapped-streams').innerText = formatNumber(totalStreams);
-            document.getElementById('wrapped-earnings').innerText = formatCurrency(earnings);
-            
-            openModal('wrapped-modal');
-        }
-        
-        function shareWrapped() {
-             showToast("Wrapped Stats Copied!", "share");
-        }
-
-        // --- USER LOGIC ---
-        function saveUserSetup() {
-            const username = document.getElementById('username-input').value.trim();
-            if (!username) return alert("Please enter a username.");
-
-            state.user = {
-                username: username,
-                pfp: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random&color=fff`
-            };
-            
-            saveToLocal();
-            closeModal('welcome-modal');
-            updateUserUI();
-        }
-
-        function updateUserUI() {
-            const pfpImg = document.getElementById('top-nav-pfp');
-            if (pfpImg && state.user && state.user.pfp) {
-                pfpImg.src = state.user.pfp;
-            }
-        }
-
-        // --- CORE SEED LOGIC ---
-        function seedData() {
-            // --- 1. LucidPP ---
-            const lucidId = "lucidpp_id";
-            const lucid = {
-                id: lucidId,
-                name: "LucidPP",
-                pfp: "LucidPPMNM.JPG", 
-                banner: "LucidPPMNM.JPG", 
-                bio: "Rising from the underground, LucidPP brings a unique sound with the debut album 'Money N' Money'. Known for hard-hitting beats and raw lyrics.",
-                subscribers: 2300,
-                monthlyListeners: 246000, 
-                totalViews: 0, 
-                pronouns: "He/Him",
-                isVerified: true,
-                videos: [
-                    { id: "vid_wantme", title: "Want Me (Official Music Video)", views: 320000, thumb: "LucidPPMNM.JPG", filename: "WantMe.mp4" },
-                    // Added Scars here to show on profile
-                    { id: "vid_scars_lucid", title: "Scars (ft. LucidPP)", views: 2100000, thumb: "scars.png", filename: "scars.mp4" }
-                ]
-            };
-
-            const lucidTracks = [
-                { file: "Down_Bad.mp3", views: 420000 }, 
-                { file: "All_By_Myself.mp3", views: 52000 },
-                { file: "Your_Gonna_See.mp3", views: 38000 },
-                { file: "Your_Gonna_See (1).mp3", views: 12000 },
-                { file: "Honestly (1).mp3", views: 45000 },
-                { file: "Want_Me.mp3", views: 472000 }, 
-                { file: "Want_Me (1).mp3", views: 25000 },
-                { file: "Want_Me (2).mp3", views: 18000 },
-                { file: "Want_Me (3).mp3", views: 15000 },
-                { file: "Want_Me (4).mp3", views: 14000 },
-                { file: "Bells_PT1.mp3", views: 58000 },
-                { file: "To_Go_Back (1).mp3", views: 22000 },
-                { file: "Laugh (1).mp3", views: 35000 },
-                { file: "Demon_Girl (1).mp3", views: 128000 }, 
-                { file: "I_Messed_Up.mp3", views: 41000 },
-                { file: "Money_N_Money_Intro.mp3", views: 200000 }, 
-                { file: "Money_N_Money_Intro (1).mp3", views: 11400 }
-            ].map(def => ({
-                id: def.file,
-                title: def.file.replace(/_/g, " ").replace(/\(1\)/g, "").replace(".mp3", "").trim(),
-                filename: def.file, 
-                views: def.views,
-                duration: "3:30", 
-                weight: 1 
-            }));
-
-            lucid.totalViews = lucidTracks.reduce((acc, t) => acc + t.views, 0);
-
-            const lucidAlbum = {
-                id: "mnm_album_id",
-                artistId: lucidId,
-                title: "Money N' Money",
-                type: "Album",
-                cover: "LucidPPMNM.JPG",
-                tracks: lucidTracks.length,
-                tracksData: lucidTracks,
-                totalViews: lucid.totalViews,
-                releaseTimestamp: Date.now()
-            };
-
-            // --- 2. JBONE!! ---
-            const jboneId = "jbone_id";
-            const jbone = {
-                id: jboneId,
-                name: "JBONE!!",
-                pfp: "Down.PNG",
-                banner: "Down.PNG",
-                bio: "Featured artist on C@shxan's hit single.",
-                subscribers: 40,
-                monthlyListeners: 231,
-                totalViews: 0,
-                pronouns: "He/Him",
-                isVerified: false,
-                videos: [] 
-            };
-            
-            // --- 3. Deno (New Feature) ---
-            const denoId = "deno_id";
-            const deno = {
-                id: denoId,
-                name: "Deno",
-                pfp: "FAVELA.png",
-                banner: "FAVELA.png",
-                bio: "Known for the feature on FAVELA.",
-                subscribers: 100,
-                monthlyListeners: 5000,
-                totalViews: 0,
-                pronouns: "He/Him",
-                isVerified: false,
-                videos: []
-            };
-
-            // --- 4. C@shxan ---
-            const cashId = "cashxan_id";
-            const cash = {
-                id: cashId,
-                name: "C@shxan",
-                pfp: "Down.PNG", 
-                banner: "Down.PNG",
-                bio: "New wave artist bringing a fresh perspective. 'Down' is just the beginning.",
-                subscribers: 281000, // Updated to 281K
-                monthlyListeners: 1000000, // Updated to 1M
-                totalViews: 8200, 
-                pronouns: "He/Him",
-                isVerified: true, // Updated to true
-                videos: [] 
-            };
-
-            // --- 5. MXZI (New Artist) ---
-            const mxziId = "mxzi_id";
-            const mxzi = {
-                id: mxziId,
-                name: "MXZI",
-                pfp: "FAVELA.png",
-                banner: "FAVELA.png",
-                bio: "New artist on the block. Released the hit single FAVELA.",
-                subscribers: 1200,
-                monthlyListeners: 14000, 
-                totalViews: 102000,
-                pronouns: "He/Him",
-                isVerified: false,
-                videos: [
-                    { 
-                        id: "vid_favela", 
-                        title: "FAVELA (Official Music Video)", 
-                        views: 24000, 
-                        thumb: "FAVELA.png", 
-                        filename: "FAVELA.mp4" 
-                    }
-                ]
-            };
-            
-            // --- 6. weloveyouspydee (NEW) ---
-            const spydeeId = "spydee_id";
-            const spydee = {
-                id: spydeeId,
-                name: "weloveyouspydee",
-                pfp: "seethesun.png",
-                banner: "seethesun.png",
-                bio: "The sensation behind 'See The Sun' and 'Scars'. Taking the charts by storm.",
-                subscribers: 54000,
-                monthlyListeners: 604000, 
-                totalViews: 0,
-                pronouns: "He/Him",
-                isVerified: true,
-                videos: [
-                    {
-                        id: "vid_seethesun",
-                        title: "See The Sun (Offical Music Video)",
-                        views: 2200000, 
-                        thumb: "seethesun.png",
-                        filename: "seethesun.mp4"
-                    },
-                    // Added Scars
-                    {
-                        id: "vid_scars",
-                        title: "Scars (ft. LucidPP) Official Video",
-                        views: 2100000,
-                        thumb: "scars.png",
-                        filename: "scars.mp4"
-                    }
-                ]
-            };
-
-            const mxziTracks = [{
-                id: "favela_track_id",
-                title: "FAVELA",
-                filename: "FAVELA.mp3",
-                views: 102000,
-                duration: "2:50",
-                weight: 2.5
-            }];
-
-            const mxziSingle = {
-                id: "favela_single_id",
-                artistId: mxziId,
-                featuredArtistIds: [denoId],
-                title: "FAVELA",
-                type: "Single",
-                cover: "FAVELA.png",
-                tracks: 1,
-                tracksData: mxziTracks,
-                totalViews: 102000,
-                releaseTimestamp: Date.now() + 1000
-            };
-
-            const cashTracksDown = [{
-                id: "Down.mp3",
-                title: "Down",
-                filename: "Down.mp3",
-                views: 1000000, // Updated to 1M
-                duration: "2:15",
-                weight: 2.0
-            }];
-
-            const cashSingleDown = {
-                id: "down_single_id",
-                artistId: cashId,
-                title: "Down",
-                type: "Single",
-                cover: "Down.PNG", 
-                tracks: 1,
-                tracksData: cashTracksDown,
-                totalViews: 1000000,
-                releaseTimestamp: Date.now() - 2000000
-            };
-
-            // Release 2: Money Uhp (feat. JBONE!!)
-            const cashTracksMoney = [{
-                id: "moneyuhp.mp3",
-                title: "Money Uhp",
-                filename: "moneyuhp.mp3",
-                views: 728000, // Updated to 728K
-                duration: "2:10",
-                weight: 1.2
-            }];
-
-            const cashSingleMoney = {
-                id: "money_uhp_id",
-                artistId: cashId,
-                featuredArtistIds: [jboneId], 
-                title: "Money Uhp",
-                type: "Single",
-                cover: "Down.PNG", 
-                tracks: 1,
-                tracksData: cashTracksMoney,
-                totalViews: 728000,
-                releaseTimestamp: Date.now() - 1000000
-            };
-            
-            // Release 3: Rackz kOmin U4
-            const cashTracksRackz = [{
-                id: "Rackz.mp3",
-                title: "Rackz kOmin U4",
-                filename: "Rackz.mp3",
-                views: 201000, // Updated to 201K
-                duration: "2:30",
-                weight: 0.5
-            }];
-
-            const cashSingleRackz = {
-                id: "rackz_single_id",
-                artistId: cashId,
-                title: "Rackz kOmin U4",
-                type: "Single",
-                cover: "Down.PNG",
-                tracks: 1,
-                tracksData: cashTracksRackz,
-                totalViews: 201000,
-                releaseTimestamp: Date.now() - 500000
-            };
-
-            // Release 4: Sum To Lose 
-            const cashTracksSum = [{
-                id: "sumtolose.mp3",
-                title: "sum to lose",
-                filename: "sumtolose.mp3",
-                views: 24000, 
-                duration: "2:45",
-                weight: 1.5
-            }];
-
-            const cashSingleSum = {
-                id: "sum_single_id",
-                artistId: cashId,
-                title: "sum to lose",
-                type: "Single",
-                cover: "Down.PNG",
-                tracks: 1,
-                tracksData: cashTracksSum,
-                totalViews: 24000,
-                releaseTimestamp: Date.now() 
-            };
-            
-            // Spydee Release 1
-            const spydeeTracks = [{
-                id: "seethesun_track_id",
-                title: "See The Sun",
-                filename: "seethesun.mp3",
-                views: 1100000, // 1.1M Views
-                duration: "3:05",
-                weight: 5.0
-            }];
-            
-            const spydeeSingle = {
-                id: "seethesun_single_id",
-                artistId: spydeeId,
-                title: "See The Sun",
-                type: "Single",
-                cover: "seethesun.png",
-                tracks: 1,
-                tracksData: spydeeTracks,
-                totalViews: 1100000,
-                releaseTimestamp: Date.now() + 5000
-            };
-
-            // Spydee Release 2: Scars (ft. LucidPP)
-            const scarsTracks = [{
-                id: "scars_track_id",
-                title: "Scars",
-                filename: "Scars.mp3",
-                views: 2100000, // 2.1M Views
-                duration: "3:15",
-                weight: 10.0 // Super high weight to appear first
-            }];
-
-            const scarsSingle = {
-                id: "scars_single_id",
-                artistId: spydeeId,
-                featuredArtistIds: [lucidId], // Feature LucidPP
-                title: "Scars (ft. LucidPP)",
-                type: "Single",
-                cover: "scars.png",
-                tracks: 1,
-                tracksData: scarsTracks,
-                totalViews: 2100000,
-                releaseTimestamp: Date.now() + 10000
-            };
-            
-            spydee.totalViews = 1100000 + 2100000;
-            cash.totalViews = 1000000 + 728000 + 201000 + 24000;
-
-            state.artists = [spydee, lucid, cash, jbone, mxzi, deno];
-            state.releases = [scarsSingle, spydeeSingle, lucidAlbum, mxziSingle, cashSingleSum, cashSingleDown, cashSingleMoney, cashSingleRackz];
-        }
-
-        function loadFromLocal() {
-            const data = localStorage.getItem('peyza_sim_save');
-            if (data) {
-                const savedState = JSON.parse(data);
-                if(savedState.library) state.library = savedState.library;
-                if(savedState.user) state.user = savedState.user;
-                if(savedState.likedSongs) state.likedSongs = savedState.likedSongs;
-            }
-        }
-
-        function formatTime(seconds) {
-            if(isNaN(seconds)) return "0:00";
-            const min = Math.floor(seconds / 60);
-            const sec = Math.floor(seconds % 60);
-            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
-        }
-
-        // --- PLAYER LOGIC ---
-
-        function trackClicked(releaseId, trackIndex) {
-            const release = state.releases.find(r => r.id === releaseId);
-            const track = release.tracksData[trackIndex];
-            const audioSrc = track.filename; 
-            
-            loadAndPlay(releaseId, trackIndex, audioSrc);
-        }
-
-        // UPDATED: Play Video with Views and ID
-        function playVideo(title, artistName, filename, thumb, views, id, artistId) {
-            playerState.currentReleaseId = null; 
-            playerState.currentTrackIndex = -1;
-            playerState.release = { cover: thumb, artistId: artistId }; 
-            playerState.track = { id: id, title: title, views: views }; 
-            playerState.audioUrl = null;
-            playerState.isPlaying = true;
-            playerState.isVideo = true; 
-
-            // Setup Video Element
-            const vid = document.getElementById('player-video');
-            const img = document.getElementById('player-img');
-            
-            vid.src = filename;
-            vid.classList.remove('hidden');
-            img.classList.add('hidden');
-            
-            // Stop Audio
-            audioElement.pause();
-            
-            vid.play().catch(e => console.log("Video Play Error:", e));
-
-            openPlayer();
-            updatePlayerUI();
-            updateMiniPlayerUI();
-        }
-
-        function loadAndPlay(releaseId, trackIndex, url) {
-            const release = state.releases.find(r => r.id === releaseId);
-            if (!release) return;
-
-            playerState.currentReleaseId = releaseId;
-            playerState.currentTrackIndex = trackIndex;
-            playerState.release = release;
-            playerState.track = release.tracksData[trackIndex];
-            playerState.audioUrl = url;
-            playerState.isPlaying = true;
-            playerState.isVideo = false;
-
-            // Reset UI for Audio
-            document.getElementById('player-video').classList.add('hidden');
-            document.getElementById('player-img').classList.remove('hidden');
-            document.getElementById('player-video').pause(); 
-
-            audioElement.src = url;
-            const playPromise = audioElement.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(error => console.log("Auto-play prevented"));
-            }
-
-            openPlayer();
-            updatePlayerUI();
-            updateMiniPlayerUI();
-        }
-
-        function updatePlayerUI() {
-            const { release, track } = playerState;
-            const artist = state.artists.find(a => a.id === release.artistId);
-            
-            // Feature Display
-            let featText = "";
-            if(release.featuredArtistIds && release.featuredArtistIds.length > 0) {
-                 const feats = state.artists.filter(a => release.featuredArtistIds.includes(a.id));
-                 featText = ` ft. ${feats.map(f => f.name).join(', ')}`;
-            }
-
-            document.getElementById('player-title').innerText = track.title;
-            // Handle mock object from video play
-            if(artist) {
-                 document.getElementById('player-artist').innerText = artist.name + featText;
+        // File Name Display
+        function updateFileName() {
+            const input = document.getElementById('coverArt');
+            const display = document.getElementById('fileNameDisplay');
+            if (input.files.length > 0) {
+                display.textContent = `Selected: ${input.files[0].name}`;
+                display.classList.remove('hidden');
             } else {
-                 document.getElementById('player-artist').innerText = "Unknown Artist"; 
+                display.classList.add('hidden');
             }
-            
-            document.getElementById('player-img').src = release.cover;
-            
-            // Like Button State
-            const isLiked = state.likedSongs && state.likedSongs.includes(track.id);
-            const likeIcon = document.getElementById('player-like-icon');
-            const dislikeIcon = document.getElementById('player-dislike-icon');
-            
-            if(isLiked) {
-                likeIcon.innerText = "thumb_up";
-                likeIcon.classList.add("text-white", "filled"); 
-                dislikeIcon.innerText = "thumb_down_off_alt";
-            } else {
-                likeIcon.innerText = "thumb_up_off_alt";
-                likeIcon.classList.remove("text-white", "filled");
-                dislikeIcon.innerText = "thumb_down_off_alt";
-            }
-            
-            updatePlayerUIStats();
-            updatePlayButton();
-        }
-        
-        function updateMiniPlayerUI() {
-            if(!playerState.track) return;
-            const { release, track } = playerState;
-            const artist = state.artists.find(a => a.id === release.artistId);
-            
-            document.getElementById('mini-title').innerText = track.title;
-            document.getElementById('mini-artist').innerText = artist ? artist.name : "";
-            document.getElementById('mini-img').src = release.cover;
-            document.getElementById('mini-play-icon').innerText = playerState.isPlaying ? 'pause' : 'play_arrow';
-            
-            document.getElementById('mini-player').classList.remove('hidden');
-            document.getElementById('mini-player').classList.add('flex');
         }
 
-        function updatePlayerUIStats() {
-            if(!playerState.track) return;
-            const track = playerState.track;
-            // Determine likes (base + 1 if user liked)
-            let likes = Math.floor(track.views * 0.04);
-            if (state.likedSongs && state.likedSongs.includes(track.id)) {
-                likes += 1;
-            }
-            document.getElementById('player-views').innerText = formatNumber(track.views);
-            document.getElementById('player-likes').innerText = formatNumber(likes);
-        }
-        
-        function toggleLike() {
-            if(!playerState.track) return;
-            const trackId = playerState.track.id;
+        // Handle Form Submission
+        function handleReleaseSubmit(e) {
+            e.preventDefault();
             
-            if (!state.likedSongs) state.likedSongs = [];
+            const releaseName = document.getElementById('releaseName').value;
+            const artistName = document.getElementById('artistName').value;
             
-            const index = state.likedSongs.indexOf(trackId);
-            const likeIcon = document.getElementById('player-like-icon');
-            
-            // Trigger Animation
-            likeIcon.classList.remove('thumbs-up-explode');
-            void likeIcon.offsetWidth; 
-            likeIcon.classList.add('thumbs-up-explode');
+            // Construct Email Body
+            const subject = encodeURIComponent(`New Release Submission: ${releaseName} - ${artistName}`);
+            const body = encodeURIComponent(
+`Hello PeytoToria Team,
 
-            if (index === -1) {
-                state.likedSongs.push(trackId);
-            } else {
-                state.likedSongs.splice(index, 1);
-            }
+I would like to submit a new release for distribution.
+
+--- RELEASE DETAILS ---
+Release Title: ${releaseName}
+Artist Name(s): ${artistName}
+
+--- ATTACHMENTS REQUIRED ---
+[ ] I have attached the Cover Art to this email.
+[ ] I have attached the Audio Files to this email.
+
+Please review for release.
+
+Best,
+${artistName}`
+            );
+
+            // Open Mail Client
+            window.location.href = `mailto:PeytoToria@Gmail.com?subject=${subject}&body=${body}`;
+
+            // Show Success Modal
+            const modalBackdrop = document.getElementById('modalBackdrop');
+            const modalContent = document.getElementById('modalContent');
             
-            saveToLocal();
-            // Delay update slightly to let animation play
+            modalBackdrop.classList.remove('hidden');
+            // Small delay to allow display change to render before adding transition classes
             setTimeout(() => {
-                updatePlayerUI(); 
-            }, 100);
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
         }
 
-        function toggleDislike() {
-             if(!playerState.track) return;
-             const trackId = playerState.track.id;
-             if(state.likedSongs && state.likedSongs.includes(trackId)) {
-                 toggleLike();
-             }
-        }
-
-        function togglePlay() {
-            const media = getActiveMedia();
-            if (media.paused) {
-                media.play();
-                playerState.isPlaying = true;
-            } else {
-                media.pause();
-                playerState.isPlaying = false;
-            }
-            updatePlayButton();
-            updateMiniPlayerUI(); 
-        }
-
-        function updatePlayButton() {
-            const icon = document.getElementById('player-play-icon');
-            icon.innerText = playerState.isPlaying ? 'pause' : 'play_arrow';
-        }
-
-        function openPlayer() {
-            const p = document.getElementById('music-player');
-            p.classList.remove('hidden');
-            p.classList.add('animate-slide-up');
-            p.classList.remove('animate-slide-down');
-            // Hide mini player when full player is open
-            document.getElementById('mini-player').classList.add('hidden');
-        }
-
-        function closePlayer() {
-            const p = document.getElementById('music-player');
-            p.classList.add('animate-slide-down');
-            p.classList.remove('animate-slide-up');
+        function closeModal() {
+            const modalBackdrop = document.getElementById('modalBackdrop');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
             setTimeout(() => {
-                p.classList.add('hidden');
-                // Show mini player if track is loaded
-                if(playerState.track) {
-                    document.getElementById('mini-player').classList.remove('hidden');
-                }
+                modalBackdrop.classList.add('hidden');
+                document.getElementById('releaseForm').reset();
+                document.getElementById('fileNameDisplay').classList.add('hidden');
             }, 300);
         }
-        
-        function closeMiniPlayer() {
-             document.getElementById('mini-player').classList.add('hidden');
-             const media = getActiveMedia();
-             media.pause();
-             playerState.isPlaying = false;
-        }
-
-        function playNext() {
-            if (playerState.currentTrackIndex < playerState.release.tracksData.length - 1) {
-                const nextIdx = playerState.currentTrackIndex + 1;
-                const nextTrack = playerState.release.tracksData[nextIdx];
-                loadAndPlay(playerState.currentReleaseId, nextIdx, nextTrack.filename);
-            } else {
-                playerState.isPlaying = false;
-                updatePlayButton();
-            }
-        }
-        
-        function shareTrack() {
-            if(!playerState.track) return;
-            const trackName = playerState.track.title;
-            const artistName = state.artists.find(a => a.id === playerState.release.artistId).name;
-            
-            const text = `Check out "${trackName}" by ${artistName} on PeytoToria!`;
-            
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast("Link copied to clipboard", "content_copy");
-                });
-            } else {
-                const el = document.createElement('textarea');
-                el.value = text;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand('copy');
-                document.body.removeChild(el);
-                showToast("Link copied to clipboard", "content_copy");
-            }
-        }
-        
-        // --- SUBSCRIBER LOGIC ---
-        function toggleSubscribe(artistId) {
-            const index = state.library.indexOf(artistId);
-            const btnIcon = document.getElementById(`sub-icon-${artistId}`);
-            
-            if (index === -1) {
-                // Subscribe
-                state.library.push(artistId);
-                if(btnIcon) {
-                    btnIcon.classList.remove('thumbs-up-explode');
-                    void btnIcon.offsetWidth; 
-                    btnIcon.classList.add('thumbs-up-explode'); // Add animation
-                }
-                showToast("Subscribed!", "check_circle");
-            } else {
-                // Unsubscribe
-                state.library.splice(index, 1);
-            }
-            
-            saveToLocal();
-            renderArtist(artistId); // Re-render to show updated state
-            updateSidebar();
-        }
-
-        // --- NOTIFICATION SYSTEM ---
-        let toastTimeout;
-        function showToast(message, icon = "info") {
-            const toast = document.getElementById('general-toast');
-            const msgEl = document.getElementById('toast-msg');
-            const iconEl = document.getElementById('toast-icon');
-            
-            msgEl.innerText = message;
-            iconEl.innerText = icon;
-            
-            toast.classList.remove('toast-hidden');
-            
-            // Clear previous timeout to prevent early hiding if multiple toasts are triggered fast
-            if (toastTimeout) clearTimeout(toastTimeout);
-            
-            // Hide after 3 seconds
-            toastTimeout = setTimeout(() => {
-                toast.classList.add('toast-hidden');
-            }, 3000);
-        }
-
-        // --- RENDERERS ---
-
-        function renderHome() {
-            const main = document.getElementById('main-content');
-            main.dataset.view = 'home';
-            main.dataset.viewId = '';
-            updateNavState('home');
-            
-            const release = state.releases[0]; // Scars
-            const mxziRelease = state.releases.find(r => r.artistId === "mxzi_id");
-
-            main.innerHTML = `
-                <div class="space-y-8 pb-20 animate-fade-in">
-                    <section>
-                        <h2 class="text-2xl font-bold mb-4">Quick Picks</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="bg-[#212121] p-4 rounded-lg flex items-center gap-4 cursor-pointer hover:bg-[#333] transition" onclick="renderRelease('${release.id}')">
-                                <img src="${release.cover}" class="w-16 h-16 rounded object-cover">
-                                <div>
-                                    <h3 class="font-bold text-white">${release.title}</h3>
-                                    <p class="text-sm text-yt-textSec">${state.artists.find(a=>a.id===release.artistId).name} • ${release.type}</p>
-                                </div>
-                            </div>
-                            <div class="bg-[#212121] p-4 rounded-lg flex items-center gap-4 cursor-pointer hover:bg-[#333] transition" onclick="renderRelease('${mxziRelease.id}')">
-                                <img src="${mxziRelease.cover}" class="w-16 h-16 rounded object-cover">
-                                <div>
-                                    <h3 class="font-bold text-white">${mxziRelease.title}</h3>
-                                    <p class="text-sm text-yt-textSec">MXZI • Single</p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <section>
-                        <h2 class="text-2xl font-bold mb-4">Your Favorites</h2>
-                        <div class="artist-grid">
-                            ${state.artists.map(artist => `
-                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#1f1f1f] transition">
-                                    <div class="relative mb-4">
-                                        <img src="${artist.pfp}" class="w-full aspect-square object-cover rounded-full shadow-lg group-hover:scale-105 transition duration-300">
-                                        <div class="absolute bottom-2 right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-xl">
-                                            <span class="material-icons-round text-black">play_arrow</span>
-                                        </div>
-                                    </div>
-                                    <h3 class="font-bold text-white truncate">${artist.name}</h3>
-                                    <p class="text-sm text-yt-textSec">Artist</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </section>
-                </div>
-            `;
-        }
-        
-        function renderExplore() {
-             const main = document.getElementById('main-content');
-             main.dataset.view = 'explore';
-             updateNavState('explore');
-
-             const featuredArtists = state.artists.filter(a => a.name !== "User");
-
-             main.innerHTML = `
-                <div class="space-y-8 pb-20 animate-fade-in">
-                    <h1 class="text-4xl font-bold mb-6">Explore</h1>
-
-                    <section>
-                        <h2 class="text-2xl font-bold mb-4">Trending Artists</h2>
-                        <div class="artist-grid">
-                            ${featuredArtists.map(artist => `
-                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#1f1f1f] transition">
-                                    <img src="${artist.pfp}" class="w-full aspect-square object-cover rounded-full mb-4 shadow-lg">
-                                    <h3 class="font-bold text-white truncate">${artist.name}</h3>
-                                    <p class="text-sm text-yt-textSec">Artist</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </section>
-                </div>
-             `;
-        }
-        
-        function renderCharts() {
-             const main = document.getElementById('main-content');
-             main.dataset.view = 'charts';
-             updateNavState('charts');
-             
-             // Gather all tracks with weighted ranking
-             let allTracks = [];
-             state.releases.forEach(r => {
-                 const artist = state.artists.find(a => a.id === r.artistId);
-                 r.tracksData.forEach((t, i) => {
-                     // Add weights
-                     let sortValue = t.views; 
-                     if(artist.name === "C@shxan") sortValue *= 1.5; 
-                     if(artist.name === "LucidPP") sortValue *= 1.2;
-                     if(artist.name === "MXZI") sortValue *= 1.8; 
-                     if(artist.name === "weloveyouspydee") sortValue *= 2.0; // Mega boost
-                     if(t.title.includes("Scars")) sortValue *= 5.0; // Mega boost for Scars
-
-                     allTracks.push({
-                         title: t.title,
-                         artist: artist.name,
-                         cover: r.cover,
-                         releaseId: r.id,
-                         trackIndex: i,
-                         sortValue: sortValue,
-                         views: t.views
-                     });
-                 });
-             });
-             
-             // Global Sort (Deterministic)
-             allTracks.sort((a,b) => b.sortValue - a.sortValue);
-             
-             // Filter function now uses consistent sorting
-             window.filterCharts = (region) => {
-                 let sortedTracks = [...allTracks];
-                 
-                 // Deterministic re-sort based on Region hash to be consistent for everyone
-                 // but different per region.
-                 if(region !== 'Global') {
-                    sortedTracks.sort((a, b) => {
-                        // Create a simple deterministic hash for A and B
-                        const hashA = (a.title.length + region.length) * a.views % 1000;
-                        const hashB = (b.title.length + region.length) * b.views % 1000;
-                        return hashB - hashA;
-                    });
-                 }
-                 
-                 renderChartList(sortedTracks, region);
-             };
-
-             const filterClass = "px-3 py-1 rounded-full border border-gray-600 text-sm hover:border-white transition cursor-pointer";
-
-             main.innerHTML = `
-                <div class="space-y-6 pb-20 animate-fade-in">
-                     <div class="flex flex-col gap-2">
-                        <h1 class="text-4xl font-black">Charts</h1>
-                        <p class="text-gray-400">The most played songs on PeytoToria this week.</p>
-                    </div>
-                    
-                    <!-- Filters -->
-                    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                        <button onclick="filterCharts('Global')" class="${filterClass} bg-white text-black border-white">Global</button>
-                        <button onclick="filterCharts('USA')" class="${filterClass}">United States</button>
-                        <button onclick="filterCharts('UK')" class="${filterClass}">United Kingdom</button>
-                        <button onclick="filterCharts('China')" class="${filterClass}">China</button>
-                        <button onclick="filterCharts('Japan')" class="${filterClass}">Japan</button>
-                        <button onclick="filterCharts('Brazil')" class="${filterClass}">Brazil</button>
-                    </div>
-
-                    <div id="chart-list" class="flex flex-col gap-1">
-                        <!-- Populated via JS -->
-                    </div>
-                </div>
-             `;
-             
-             renderChartList(allTracks, 'Global');
-        }
-        
-        function renderChartList(tracks, region) {
-            const list = document.getElementById('chart-list');
-            list.innerHTML = `<div class="text-xs font-bold text-gray-500 uppercase tracking-widest px-4 mb-2">Top 100 • ${region}</div>` + 
-            tracks.slice(0, 100).map((track, i) => `
-                <div onclick="trackClicked('${track.releaseId}', ${track.trackIndex})" class="flex items-center gap-4 p-3 rounded hover:bg-[#1f1f1f] group cursor-pointer transition">
-                    <div class="w-8 text-center font-bold text-lg ${i < 3 ? 'text-white' : 'text-gray-500'}">${i + 1}</div>
-                    <img src="${track.cover}" class="w-12 h-12 rounded object-cover shadow-sm">
-                    <div class="flex-1 min-w-0">
-                        <div class="font-medium text-white truncate">${track.title}</div>
-                        <div class="text-sm text-gray-400 truncate">${track.artist}</div>
-                    </div>
-                    <div class="text-sm text-gray-500 font-medium">${formatNumber(track.views)} total</div>
-                </div>
-            `).join('');
-        }
-
-        function renderLibrary() {
-            const main = document.getElementById('main-content');
-            main.dataset.view = 'library';
-            updateNavState('library');
-
-            const libraryArtists = state.artists.filter(a => state.library.includes(a.id));
-
-            main.innerHTML = `
-                <div class="space-y-8 pb-20 animate-fade-in">
-                    <h1 class="text-4xl font-bold mb-6">Your Library</h1>
-                    ${libraryArtists.length === 0 ? 
-                        `<div class="text-center text-gray-500 py-20">
-                            <span class="material-icons-round text-6xl mb-4">library_music</span>
-                            <p>You haven't subscribed to anyone yet.</p>
-                        </div>` 
-                    : 
-                        `<div class="artist-grid">
-                            ${libraryArtists.map(artist => `
-                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#1f1f1f] transition">
-                                    <img src="${artist.pfp}" class="w-full aspect-square object-cover rounded-full mb-4 shadow-lg">
-                                    <h3 class="font-bold text-white truncate">${artist.name}</h3>
-                                    <p class="text-sm text-yt-textSec">Subscribed</p>
-                                </div>
-                            `).join('')}
-                        </div>`
-                    }
-                </div>
-            `;
-        }
-
-        function renderArtist(id) {
-            const artist = state.artists.find(a => a.id === id);
-            if (!artist) return;
-
-            const main = document.getElementById('main-content');
-            main.dataset.view = 'artist';
-            main.dataset.viewId = id;
-            updateNavState('');
-            
-            const isSubscribed = state.library.includes(id);
-            // Updated Logic: Include features
-            const artistReleases = state.releases.filter(r => r.artistId === id || (r.featuredArtistIds && r.featuredArtistIds.includes(id)));
-            
-            let allTracks = [];
-            artistReleases.forEach(r => {
-                r.tracksData.forEach((t, idx) => {
-                    allTracks.push({ ...t, release: r, index: idx });
-                });
-            });
-            const topSongs = [...allTracks].sort((a,b) => b.views - a.views).slice(0, 5);
-            
-            // Video Section Generation (Updated for side scrolling on mobile)
-            let videoSection = `<section class="mt-8"><h2 class="text-2xl font-bold mb-4">Videos</h2>`;
-            if(artist.videos && artist.videos.length > 0) {
-                videoSection += `<div class="flex overflow-x-auto md:grid md:grid-cols-2 gap-4 pb-4 snap-x">
-                    ${artist.videos.map(v => `
-                        <div class="cursor-pointer group min-w-[85%] md:min-w-0 snap-center" onclick="playVideo('${v.title}', '${artist.name}', '${v.filename}', '${v.thumb}', ${v.views}, '${v.id}', '${artist.id}')">
-                            <div class="relative aspect-video bg-[#212121] rounded-lg overflow-hidden mb-2">
-                                <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <span class="material-icons-round text-white text-4xl drop-shadow-lg">play_circle_filled</span>
-                                </div>
-                            </div>
-                            <h3 class="font-medium text-white line-clamp-1">${v.title}</h3>
-                            <p class="text-sm text-gray-400">${formatNumber(v.views)} views</p>
-                        </div>
-                    `).join('')}
-                </div>`;
-            } else {
-                videoSection += `<div class="text-gray-500 italic">No Videos Currently</div>`;
-            }
-            videoSection += `</section>`;
-
-            // Earnings Calculation
-            const totalEarnings = artist.totalViews * 0.000001;
-
-            // Wrapped Button Logic (Show only in Dec, Month 11)
-            const date = new Date();
-            let wrappedBtn = '';
-            if (date.getMonth() === 11) {
-                wrappedBtn = `<button onclick="openArtistWrapped('${artist.id}')" class="wrapped-gradient text-white text-xs font-bold px-4 py-1.5 rounded-full hover:scale-105 transition shadow-lg flex items-center gap-1 animate-pulse"><span class="material-icons-round text-sm">auto_awesome</span> Wrapped</button>`;
-            }
-
-            main.innerHTML = `
-                <div class="pb-20 animate-fade-in">
-                    <!-- Banner -->
-                    <div class="relative w-full h-64 md:h-80 rounded-t-xl overflow-hidden mb-6 group">
-                        <img src="${artist.banner}" class="w-full h-full object-cover brightness-75">
-                        <div class="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent"></div>
-                        
-                        <div class="absolute top-4 right-4 z-20">
-                            ${wrappedBtn}
-                        </div>
-
-                        <div class="absolute bottom-8 left-8">
-                            <div class="flex items-center gap-2 mb-2">
-                                <h1 class="text-4xl md:text-7xl font-black tracking-tighter shadow-xl">${artist.name}</h1>
-                                ${artist.isVerified ? '<span class="material-icons-round text-blue-400 text-3xl" title="Verified">verified</span>' : ''}
-                            </div>
-                            
-                            <div class="flex items-center gap-2 text-sm font-medium text-gray-200 mb-4">
-                                <span>${formatNumber(artist.monthlyListeners)} monthly audience</span>
-                                <div class="tooltip cursor-pointer">
-                                    <span class="material-icons-round text-gray-400 text-sm">info</span>
-                                    <span class="tooltiptext">This is the audience based on engagement.</span>
-                                </div>
-                                <span class="w-1 h-1 bg-gray-400 rounded-full mx-1"></span>
-                                <span>${artist.pronouns}</span>
-                            </div>
-
-                            <div class="flex items-center gap-4 mt-6">
-                                <button onclick="toggleSubscribe('${artist.id}')" class="${isSubscribed ? 'bg-[#212121] text-white border border-[#333]' : 'bg-white text-black'} px-6 md:px-8 py-2 md:py-3 rounded-full font-bold uppercase tracking-wide hover:bg-gray-200 hover:text-black transition text-sm flex items-center gap-2 group">
-                                    <span id="sub-icon-${artist.id}" class="material-icons-round text-lg transition-transform ${isSubscribed ? 'text-white' : ''}">${isSubscribed ? 'thumb_up' : 'thumb_up_off_alt'}</span>
-                                    <span>${isSubscribed ? 'Subscribed' : 'Subscribe'}</span>
-                                    <span class="opacity-70 text-xs">• ${formatNumber(artist.subscribers)}</span>
-                                </button>
-                                <button class="bg-[#212121]/80 backdrop-blur-md border border-white/20 text-white px-4 py-2 md:py-3 rounded-full font-bold hover:bg-[#333] transition flex items-center gap-2 text-sm">
-                                    <span class="material-icons-round">radio</span> Radio
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div class="lg:col-span-2 space-y-8">
-                            <section>
-                                <h2 class="text-2xl font-bold mb-4">Top Songs</h2>
-                                <div class="flex flex-col">
-                                    ${topSongs.map((song, i) => `
-                                        <div onclick="trackClicked('${song.release.id}', ${song.index})" class="flex items-center gap-4 p-3 rounded hover:bg-[#1f1f1f] group cursor-pointer transition">
-                                            <span class="text-gray-400 w-4 text-center font-medium">${i + 1}</span>
-                                            <img src="${song.release.cover}" class="w-12 h-12 rounded object-cover">
-                                            <div class="flex-1 min-w-0">
-                                                <div class="font-medium text-white truncate">${song.title}</div>
-                                                <div class="text-sm text-gray-400">
-                                                    <span class="text-green-400 mr-2 font-medium">${formatCurrency(song.views * 0.000001)}</span>
-                                                    ${formatNumber(song.views)} views • ${song.release.title}
-                                                </div>
-                                            </div>
-                                            <div class="text-sm text-gray-400 mr-4">Play</div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </section>
-
-                            <section>
-                                <h2 class="text-2xl font-bold mb-4">Discography</h2>
-                                <div class="discography-grid">
-                                    ${artistReleases.map(r => getReleaseCard(r)).join('')}
-                                </div>
-                            </section>
-
-                            ${videoSection}
-                        </div>
-
-                        <div class="lg:col-span-1 space-y-8">
-                            <section>
-                                <h2 class="text-2xl font-bold mb-4">About</h2>
-                                <div onclick="openAboutModal('${artist.id}')" class="relative rounded-lg overflow-hidden group cursor-pointer hover:ring-2 ring-white/20 transition">
-                                    <div class="bg-[#1f1f1f] p-6 min-h-[200px] flex flex-col justify-end">
-                                        <p class="text-white line-clamp-3 mb-4 font-serif italic">"${artist.bio}"</p>
-                                        <div class="text-sm text-gray-400 space-y-2">
-                                             <div class="flex justify-between border-b border-gray-800 pb-2">
-                                                <span>Total Career Views</span>
-                                                <span class="text-white font-bold">${formatNumber(artist.totalViews)}</span>
-                                             </div>
-                                             <div class="flex justify-between border-b border-gray-800 pb-2">
-                                                <span>Total Earned</span>
-                                                <span class="text-green-400 font-bold">${formatCurrency(totalEarnings)}</span>
-                                             </div>
-                                             <div class="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition w-fit ml-auto mt-2">
-                                                <span class="material-icons-round text-white">arrow_forward</span>
-                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderRelease(releaseId) {
-            const release = state.releases.find(r => r.id === releaseId);
-            if (!release) return;
-
-            const main = document.getElementById('main-content');
-            main.dataset.view = 'release';
-            main.dataset.viewId = releaseId;
-            updateNavState('');
-
-            const artist = state.artists.find(a => a.id === release.artistId);
-            
-            // Feature logic
-            let featText = "";
-            if(release.featuredArtistIds && release.featuredArtistIds.length > 0) {
-                 const feats = state.artists.filter(a => release.featuredArtistIds.includes(a.id));
-                 featText = ` & ${feats.map(f => f.name).join(', ')}`;
-            }
-
-            main.innerHTML = `
-                 <div class="pb-20 max-w-7xl mx-auto animate-fade-in">
-                    <div class="flex flex-col md:flex-row gap-8 mb-8">
-                        <div class="w-full md:w-72 flex-shrink-0">
-                            <img src="${release.cover}" class="w-full aspect-square object-cover rounded shadow-2xl">
-                        </div>
-                        <div class="flex flex-col justify-end">
-                            <h2 class="text-4xl md:text-5xl font-black mb-4">${release.title}</h2>
-                            <div class="flex items-center gap-2 mb-4">
-                                <img src="${artist.pfp}" class="w-6 h-6 rounded-full">
-                                <span class="font-bold text-white hover:underline cursor-pointer" onclick="renderArtist('${artist.id}')">${artist.name}${featText}</span>
-                            </div>
-                            <div class="text-gray-400 text-sm flex gap-4 items-center">
-                                <span>${release.type}</span>
-                                <span>•</span>
-                                <span class="flex items-center gap-1"><span class="material-icons-round text-sm">visibility</span> ${formatNumber(release.totalViews)}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-[#030303]">
-                         <div class="border-b border-[#1f1f1f] text-gray-400 text-sm py-2 px-4 grid grid-cols-[auto_1fr_auto] gap-4 mb-2">
-                            <span>#</span>
-                            <span>Title</span>
-                            <span class="flex items-center gap-2"><span class="material-icons-round text-sm">visibility</span> Views</span>
-                        </div>
-                        <div class="flex flex-col">
-                            ${release.tracksData.map((track, i) => `
-                                <div onclick="trackClicked('${release.id}', ${i})" class="grid grid-cols-[auto_1fr_auto] gap-4 py-3 px-4 hover:bg-[#1f1f1f] rounded group items-center cursor-pointer transition">
-                                    <div class="w-6 text-center text-gray-400 group-hover:hidden">${i + 1}</div>
-                                    <div class="w-6 text-center hidden group-hover:block"><span class="material-icons-round text-white text-sm">play_arrow</span></div>
-                                    <div class="flex flex-col">
-                                        <span class="text-white font-medium">${track.title}</span>
-                                        <span class="text-gray-500 text-xs">${artist.name}</span>
-                                    </div>
-                                    <div class="text-gray-400 text-sm flex items-center gap-8">
-                                        <span>${formatNumber(track.views)}</span>
-                                        <span>${track.duration}</span>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // --- SEARCH RENDERER ---
-        function renderSearchResults(query) {
-             const main = document.getElementById('main-content');
-             main.dataset.view = 'search';
-             updateNavState('');
-             
-             const lowerQ = query.toLowerCase();
-             
-             // Filter Artists
-             const artists = state.artists.filter(a => a.name.toLowerCase().includes(lowerQ));
-             
-             // Filter Releases (Albums/Singles)
-             const releases = state.releases.filter(r => r.title.toLowerCase().includes(lowerQ));
-             
-             // Filter Tracks
-             let tracks = [];
-             state.releases.forEach(r => {
-                 r.tracksData.forEach((t, i) => {
-                     if(t.title.toLowerCase().includes(lowerQ)) {
-                         tracks.push({...t, release: r, index: i, artist: state.artists.find(a=>a.id === r.artistId)});
-                     }
-                 });
-             });
-
-             let contentHtml = `<div class="space-y-8 pb-20 animate-fade-in"><h1 class="text-3xl font-bold">Search Results for "${query}"</h1>`;
-             
-             // Artists Section
-             if(artists.length > 0) {
-                 contentHtml += `
-                    <section>
-                        <h2 class="text-xl font-bold mb-4 text-white">Artists</h2>
-                        <div class="artist-grid">
-                            ${artists.map(artist => `
-                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#1f1f1f] transition">
-                                    <img src="${artist.pfp}" class="w-full aspect-square object-cover rounded-full mb-4 shadow-lg">
-                                    <h3 class="font-bold text-white truncate">${artist.name}</h3>
-                                    <p class="text-sm text-yt-textSec">Artist</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </section>
-                 `;
-             }
-             
-             // Songs Section
-             if(tracks.length > 0) {
-                 contentHtml += `
-                    <section>
-                         <h2 class="text-xl font-bold mb-4 text-white">Songs</h2>
-                         <div class="flex flex-col">
-                            ${tracks.slice(0, 10).map(track => `
-                                <div onclick="trackClicked('${track.release.id}', ${track.index})" class="flex items-center gap-4 p-3 rounded hover:bg-[#1f1f1f] group cursor-pointer transition">
-                                    <img src="${track.release.cover}" class="w-10 h-10 rounded object-cover">
-                                    <div class="flex-1 min-w-0">
-                                        <div class="font-medium text-white truncate">${track.title}</div>
-                                        <div class="text-sm text-gray-400 truncate">${track.artist.name}</div>
-                                    </div>
-                                    <div class="text-sm text-gray-500">${formatNumber(track.views)}</div>
-                                </div>
-                            `).join('')}
-                         </div>
-                    </section>
-                 `;
-             }
-
-             // Releases Section
-             if(releases.length > 0) {
-                 contentHtml += `
-                    <section>
-                        <h2 class="text-xl font-bold mb-4 text-white">Albums & Singles</h2>
-                        <div class="discography-grid">
-                            ${releases.map(r => getReleaseCard(r)).join('')}
-                        </div>
-                    </section>
-                 `;
-             }
-             
-             if(artists.length === 0 && releases.length === 0 && tracks.length === 0) {
-                 contentHtml += `<div class="text-gray-500 text-lg">No results found.</div>`;
-             }
-             
-             contentHtml += `</div>`;
-             main.innerHTML = contentHtml;
-        }
-
-        // --- HELPER COMPONENTS ---
-
-        function getReleaseCard(release) {
-             const artist = state.artists.find(a => a.id === release.artistId);
-             
-             return `
-                <div onclick="renderRelease('${release.id}')" class="cursor-pointer group">
-                    <div class="relative mb-3 overflow-hidden rounded-md">
-                        <img src="${release.cover}" class="w-full aspect-square object-cover group-hover:opacity-80 transition">
-                    </div>
-                    <h3 class="font-medium text-white truncate">${release.title}</h3>
-                    <p class="text-sm text-yt-textSec truncate">${artist.name} • ${release.type}</p>
-                </div>
-            `;
-        }
-
-        function openAboutModal(id) {
-            const artist = state.artists.find(a => a.id === id);
-            const content = document.getElementById('about-modal-content');
-            content.innerHTML = `
-                <div class="flex gap-4 mb-6">
-                    <img src="${artist.pfp}" class="w-24 h-24 rounded-full object-cover">
-                    <div>
-                        <h3 class="text-2xl font-bold">${artist.name}</h3>
-                        <div class="text-gray-400">${formatNumber(artist.subscribers)} Subscribers</div>
-                    </div>
-                </div>
-                <div class="bg-[#121212] p-4 rounded mb-4 text-sm leading-relaxed text-gray-300">${artist.bio}</div>
-            `;
-            openModal('about-modal');
-        }
-
-        function updateSidebar() {
-            const list = document.getElementById('sidebar-artist-list');
-            list.innerHTML = state.artists.map(a => `
-                <div onclick="renderArtist('${a.id}')" class="flex items-center gap-3 p-2 rounded-md hover:bg-[#1f1f1f] cursor-pointer transition">
-                    <img src="${a.pfp}" class="w-8 h-8 rounded-full object-cover">
-                    <div class="flex-1 min-w-0 nav-text">
-                        <div class="text-sm font-medium text-white truncate">${a.name}</div>
-                        <div class="text-xs text-yt-textSec">Artist</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function handleSearch(query) {
-            if (!query) {
-                renderHome();
-                return;
-            }
-            renderSearchResults(query);
-        }
-
-        // --- UTILS ---
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('collapsed');
-        }
-
-        function animateNav(id, callback) {
-            const btn = document.getElementById(id);
-            if (btn) {
-                btn.classList.remove('animating');
-                void btn.offsetWidth; 
-                btn.classList.add('animating');
-            }
-            callback();
-        }
-        
-        function updateNavState(view) {
-            ['nav-home', 'nav-explore', 'nav-charts', 'nav-library'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (id === 'nav-'+view) {
-                    btn.classList.add('bg-[#1f1f1f]', 'text-white');
-                    btn.classList.remove('text-yt-textSec');
-                } else {
-                    btn.classList.remove('bg-[#1f1f1f]', 'text-white');
-                    btn.classList.add('text-yt-textSec');
-                }
-            });
-             ['mob-nav-home', 'mob-nav-explore', 'mob-nav-charts', 'mob-nav-library'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (id === 'mob-nav-'+view) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-        }
-
-        function openModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('active'), 10);
-        }
-
-        function closeModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.remove('active');
-            setTimeout(() => modal.classList.add('hidden'), 250);
-        }
-
-        // --- DATA PERSISTENCE ---
-
-        function saveToLocal() {
-            try {
-                localStorage.setItem('peyza_sim_save', JSON.stringify(state));
-            } catch (e) {
-                console.warn("Save failed");
-            }
-        }
-
-        function resetData() {
-            if(confirm("Resetting will restore defaults. Continue?")) {
-                localStorage.removeItem('peyza_sim_save');
-                location.reload();
-            }
-        }
-
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                closeModal(event.target.id);
-            }
-        }
-
-        init();
     </script>
 </body>
 </html>
