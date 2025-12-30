@@ -734,7 +734,9 @@
                 pronouns: "He/Him",
                 isVerified: true,
                 videos: [
-                    { id: "vid_wantme", title: "Want Me (Official Music Video)", views: 320000, thumb: "LucidPPMNM.JPG", filename: "WantMe.mp4" }
+                    { id: "vid_wantme", title: "Want Me (Official Music Video)", views: 320000, thumb: "LucidPPMNM.JPG", filename: "WantMe.mp4" },
+                    // Added Scars here to show on profile
+                    { id: "vid_scars_lucid", title: "Scars (ft. LucidPP)", views: 2100000, thumb: "scars.png", filename: "scars.mp4" }
                 ]
             };
 
@@ -819,11 +821,11 @@
                 pfp: "Down.PNG", 
                 banner: "Down.PNG",
                 bio: "New wave artist bringing a fresh perspective. 'Down' is just the beginning.",
-                subscribers: 3100, 
-                monthlyListeners: 102000, 
+                subscribers: 281000, // Updated to 281K
+                monthlyListeners: 1000000, // Updated to 1M
                 totalViews: 8200, 
                 pronouns: "He/Him",
-                isVerified: false,
+                isVerified: true, // Updated to true
                 videos: [] 
             };
 
@@ -858,9 +860,9 @@
                 name: "weloveyouspydee",
                 pfp: "seethesun.png",
                 banner: "seethesun.png",
-                bio: "The sensation behind 'See The Sun'. Taking the charts by storm.",
+                bio: "The sensation behind 'See The Sun' and 'Scars'. Taking the charts by storm.",
                 subscribers: 54000,
-                monthlyListeners: 604000, // 604K Monthly Audience
+                monthlyListeners: 604000, 
                 totalViews: 0,
                 pronouns: "He/Him",
                 isVerified: true,
@@ -868,9 +870,17 @@
                     {
                         id: "vid_seethesun",
                         title: "See The Sun (Offical Music Video)",
-                        views: 2200000, // 2.2M Views
+                        views: 2200000, 
                         thumb: "seethesun.png",
                         filename: "seethesun.mp4"
+                    },
+                    // Added Scars
+                    {
+                        id: "vid_scars",
+                        title: "Scars (ft. LucidPP) Official Video",
+                        views: 2100000,
+                        thumb: "scars.png",
+                        filename: "scars.mp4"
                     }
                 ]
             };
@@ -901,7 +911,7 @@
                 id: "Down.mp3",
                 title: "Down",
                 filename: "Down.mp3",
-                views: 141000, 
+                views: 1000000, // Updated to 1M
                 duration: "2:15",
                 weight: 2.0
             }];
@@ -914,7 +924,7 @@
                 cover: "Down.PNG", 
                 tracks: 1,
                 tracksData: cashTracksDown,
-                totalViews: 141000,
+                totalViews: 1000000,
                 releaseTimestamp: Date.now() - 2000000
             };
 
@@ -923,7 +933,7 @@
                 id: "moneyuhp.mp3",
                 title: "Money Uhp",
                 filename: "moneyuhp.mp3",
-                views: 34000, 
+                views: 728000, // Updated to 728K
                 duration: "2:10",
                 weight: 1.2
             }];
@@ -937,7 +947,7 @@
                 cover: "Down.PNG", 
                 tracks: 1,
                 tracksData: cashTracksMoney,
-                totalViews: 34000,
+                totalViews: 728000,
                 releaseTimestamp: Date.now() - 1000000
             };
             
@@ -946,7 +956,7 @@
                 id: "Rackz.mp3",
                 title: "Rackz kOmin U4",
                 filename: "Rackz.mp3",
-                views: 4000, 
+                views: 201000, // Updated to 201K
                 duration: "2:30",
                 weight: 0.5
             }];
@@ -959,7 +969,7 @@
                 cover: "Down.PNG",
                 tracks: 1,
                 tracksData: cashTracksRackz,
-                totalViews: 4000,
+                totalViews: 201000,
                 releaseTimestamp: Date.now() - 500000
             };
 
@@ -985,14 +995,14 @@
                 releaseTimestamp: Date.now() 
             };
             
-            // Spydee Release
+            // Spydee Release 1
             const spydeeTracks = [{
                 id: "seethesun_track_id",
                 title: "See The Sun",
                 filename: "seethesun.mp3",
                 views: 1100000, // 1.1M Views
                 duration: "3:05",
-                weight: 5.0 // Very high weight for chart topping
+                weight: 5.0
             }];
             
             const spydeeSingle = {
@@ -1006,12 +1016,35 @@
                 totalViews: 1100000,
                 releaseTimestamp: Date.now() + 5000
             };
+
+            // Spydee Release 2: Scars (ft. LucidPP)
+            const scarsTracks = [{
+                id: "scars_track_id",
+                title: "Scars",
+                filename: "Scars.mp3",
+                views: 2100000, // 2.1M Views
+                duration: "3:15",
+                weight: 10.0 // Super high weight to appear first
+            }];
+
+            const scarsSingle = {
+                id: "scars_single_id",
+                artistId: spydeeId,
+                featuredArtistIds: [lucidId], // Feature LucidPP
+                title: "Scars (ft. LucidPP)",
+                type: "Single",
+                cover: "scars.png",
+                tracks: 1,
+                tracksData: scarsTracks,
+                totalViews: 2100000,
+                releaseTimestamp: Date.now() + 10000
+            };
             
-            spydee.totalViews = 1100000;
-            cash.totalViews = 141000 + 34000 + 4000 + 24000;
+            spydee.totalViews = 1100000 + 2100000;
+            cash.totalViews = 1000000 + 728000 + 201000 + 24000;
 
             state.artists = [spydee, lucid, cash, jbone, mxzi, deno];
-            state.releases = [spydeeSingle, lucidAlbum, mxziSingle, cashSingleSum, cashSingleDown, cashSingleMoney, cashSingleRackz];
+            state.releases = [scarsSingle, spydeeSingle, lucidAlbum, mxziSingle, cashSingleSum, cashSingleDown, cashSingleMoney, cashSingleRackz];
         }
 
         function loadFromLocal() {
@@ -1331,7 +1364,7 @@
             main.dataset.viewId = '';
             updateNavState('home');
             
-            const release = state.releases[0]; // Spydee
+            const release = state.releases[0]; // Scars
             const mxziRelease = state.releases.find(r => r.artistId === "mxzi_id");
 
             main.innerHTML = `
@@ -1420,6 +1453,7 @@
                      if(artist.name === "LucidPP") sortValue *= 1.2;
                      if(artist.name === "MXZI") sortValue *= 1.8; 
                      if(artist.name === "weloveyouspydee") sortValue *= 2.0; // Mega boost
+                     if(t.title.includes("Scars")) sortValue *= 5.0; // Mega boost for Scars
 
                      allTracks.push({
                          title: t.title,
@@ -1538,7 +1572,8 @@
             updateNavState('');
             
             const isSubscribed = state.library.includes(id);
-            const artistReleases = state.releases.filter(r => r.artistId === id);
+            // Updated Logic: Include features
+            const artistReleases = state.releases.filter(r => r.artistId === id || (r.featuredArtistIds && r.featuredArtistIds.includes(id)));
             
             let allTracks = [];
             artistReleases.forEach(r => {
@@ -1548,12 +1583,12 @@
             });
             const topSongs = [...allTracks].sort((a,b) => b.views - a.views).slice(0, 5);
             
-            // Video Section Generation
+            // Video Section Generation (Updated for side scrolling on mobile)
             let videoSection = `<section class="mt-8"><h2 class="text-2xl font-bold mb-4">Videos</h2>`;
             if(artist.videos && artist.videos.length > 0) {
-                videoSection += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                videoSection += `<div class="flex overflow-x-auto md:grid md:grid-cols-2 gap-4 pb-4 snap-x">
                     ${artist.videos.map(v => `
-                        <div class="cursor-pointer group" onclick="playVideo('${v.title}', '${artist.name}', '${v.filename}', '${v.thumb}', ${v.views}, '${v.id}', '${artist.id}')">
+                        <div class="cursor-pointer group min-w-[85%] md:min-w-0 snap-center" onclick="playVideo('${v.title}', '${artist.name}', '${v.filename}', '${v.thumb}', ${v.views}, '${v.id}', '${artist.id}')">
                             <div class="relative aspect-video bg-[#212121] rounded-lg overflow-hidden mb-2">
                                 <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                 <div class="absolute inset-0 flex items-center justify-center">
