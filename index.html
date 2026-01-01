@@ -29,14 +29,14 @@
                 extend: {
                     colors: {
                         yt: {
-                            base: '#030303',
-                            sidebar: '#030303',
-                            hover: '#1f1f1f',
+                            base: '#1a0505', /* Dark Red Background */
+                            sidebar: '#2b0a0a', /* Slightly Lighter Red */
+                            hover: '#3f1010',
                             text: '#ffffff',
-                            textSec: '#aaaaaa',
+                            textSec: '#ffcccc', /* Light Pinkish Text */
                             red: '#ff0000',
                             accent: '#ffffff',
-                            player: '#212121' 
+                            player: '#2b0a0a' 
                         }
                     },
                     fontFamily: {
@@ -80,7 +80,7 @@
 
     <style>
         body {
-            background-color: #030303;
+            background-color: #1a0505; /* Fallback */
             color: white;
             font-family: 'Roboto', sans-serif;
             overflow: hidden;
@@ -92,14 +92,14 @@
             width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #030303; 
+            background: #1a0505; 
         }
         ::-webkit-scrollbar-thumb {
-            background: #4d4d4d; 
+            background: #4d1515; 
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #717171; 
+            background: #6e1e1e; 
         }
 
         .yt-btn {
@@ -196,7 +196,7 @@
             color: white;
         }
         .mobile-nav-item {
-            color: #aaaaaa;
+            color: #ffcccc;
         }
 
         /* Sidebar Transition */
@@ -242,7 +242,7 @@
             width: 100%;
             height: 4px;
             cursor: pointer;
-            background: #4d4d4d;
+            background: #4d1515;
             border-radius: 2px;
         }
         input[type=range]:hover::-webkit-slider-thumb {
@@ -255,8 +255,8 @@
         }
         .search-container:focus-within {
             box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-            background-color: #121212;
-            border-color: #444;
+            background-color: #2b0a0a;
+            border-color: #551111;
             flex-grow: 1.5;
         }
         .search-input {
@@ -318,7 +318,7 @@
 <body class="h-screen flex flex-col bg-yt-base text-white">
 
     <!-- Desktop Top Navigation -->
-    <nav class="h-16 flex items-center px-4 justify-between border-b border-[#1f1f1f] bg-[#030303] z-50 shrink-0">
+    <nav class="h-16 flex items-center px-4 justify-between border-b border-[#3f1010] bg-yt-sidebar z-50 shrink-0">
         <div class="flex items-center gap-4">
             <button onclick="toggleSidebar()" class="p-2 rounded-full hover:bg-yt-hover hidden md:block icon-explode"><span class="material-icons-round text-white">menu</span></button>
             <div class="flex items-center gap-1 cursor-pointer" onclick="renderHome()">
@@ -331,15 +331,15 @@
 
         <!-- Search Bar -->
         <div class="flex flex-1 max-w-xl mx-4 transition-all duration-300 ease-in-out">
-            <div class="search-container bg-[#212121] flex items-center w-full px-4 py-2 rounded-lg border border-[#303030] transition-all duration-300">
+            <div class="search-container bg-[#2b0a0a] flex items-center w-full px-4 py-2 rounded-lg border border-[#3f1010] transition-all duration-300">
                 <span class="material-icons-round text-yt-textSec">search</span>
-                <input type="text" id="search-input" placeholder="Search artists, songs..." class="bg-transparent border-none outline-none text-white ml-2 w-full placeholder-gray-500" oninput="handleSearch(this.value)">
+                <input type="text" id="search-input" placeholder="Search artists, songs..." class="bg-transparent border-none outline-none text-white ml-2 w-full placeholder-[#ffcccc]" oninput="handleSearch(this.value)">
             </div>
         </div>
 
         <div class="flex items-center gap-4">
              <button id="wrapped-btn" onclick="openModal('wrapped-modal')" class="hidden wrapped-gradient text-white text-xs font-bold px-4 py-1.5 rounded-full hover:scale-105 transition shadow-lg">Wrapped</button>
-             <button onclick="resetData()" class="bg-[#212121] border border-[#333] text-red-500 text-xs px-3 py-1 rounded hover:bg-[#333] hidden md:block">Reset</button>
+             <button onclick="resetData()" class="bg-[#2b0a0a] border border-[#3f1010] text-red-400 text-xs px-3 py-1 rounded hover:bg-[#3f1010] hidden md:block">Reset</button>
              <!-- User Profile Area -->
             <div class="relative cursor-pointer" onclick="openModal('user-settings-modal')">
                 <img id="top-nav-pfp" src="" class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 object-cover shadow-lg" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
@@ -349,18 +349,18 @@
 
     <div class="flex flex-1 overflow-hidden relative">
         <!-- Sidebar (Desktop) -->
-        <aside id="sidebar" class="w-64 bg-[#030303] hidden md:flex flex-col p-2 overflow-y-auto border-r border-[#1f1f1f] shrink-0">
+        <aside id="sidebar" class="w-64 bg-yt-sidebar hidden md:flex flex-col p-2 overflow-y-auto border-r border-[#3f1010] shrink-0">
             <div class="flex flex-col gap-1">
-                <button onclick="animateNav('nav-home', renderHome)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-[#1f1f1f] text-white font-medium transition icon-explode" id="nav-home">
+                <button onclick="animateNav('nav-home', renderHome)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-yt-hover text-white font-medium transition icon-explode" id="nav-home">
                     <span class="material-icons-round">home</span> <span class="nav-text">Home</span>
                 </button>
-                <button onclick="animateNav('nav-explore', renderExplore)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-[#1f1f1f] font-medium transition icon-explode" id="nav-explore">
+                <button onclick="animateNav('nav-explore', renderExplore)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-yt-hover font-medium transition icon-explode" id="nav-explore">
                     <span class="material-icons-round">explore</span> <span class="nav-text">Explore</span>
                 </button>
-                <button onclick="animateNav('nav-charts', renderCharts)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-[#1f1f1f] font-medium transition icon-explode" id="nav-charts">
+                <button onclick="animateNav('nav-charts', renderCharts)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-yt-hover font-medium transition icon-explode" id="nav-charts">
                     <span class="material-icons-round">leaderboard</span> <span class="nav-text">Charts</span>
                 </button>
-                <button onclick="animateNav('nav-library', renderLibrary)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-[#1f1f1f] font-medium transition icon-explode" id="nav-library">
+                <button onclick="animateNav('nav-library', renderLibrary)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-yt-hover font-medium transition icon-explode" id="nav-library">
                     <span class="material-icons-round">library_music</span> <span class="nav-text">Library</span>
                 </button>
             </div>
@@ -380,12 +380,12 @@
     </div>
 
     <!-- Mini Player -->
-    <div id="mini-player" class="fixed bottom-16 md:bottom-0 left-0 right-0 h-16 bg-[#212121] border-t border-[#333] flex items-center justify-between px-4 z-40 hidden cursor-pointer" onclick="openPlayer()">
+    <div id="mini-player" class="fixed bottom-16 md:bottom-0 left-0 right-0 h-16 bg-[#2b0a0a] border-t border-[#3f1010] flex items-center justify-between px-4 z-40 hidden cursor-pointer" onclick="openPlayer()">
         <div class="flex items-center gap-3">
             <img id="mini-img" src="" class="w-10 h-10 rounded object-cover">
             <div class="flex flex-col">
                 <span id="mini-title" class="text-sm font-medium text-white truncate max-w-[150px]">Song</span>
-                <span id="mini-artist" class="text-xs text-gray-400 truncate max-w-[150px]">Artist</span>
+                <span id="mini-artist" class="text-xs text-yt-textSec truncate max-w-[150px]">Artist</span>
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -399,7 +399,7 @@
     </div>
 
     <!-- Mobile Bottom Navigation -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#212121] border-t border-[#333] flex justify-around items-center z-50 pb-safe">
+    <div class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#2b0a0a] border-t border-[#3f1010] flex justify-around items-center z-50 pb-safe">
         <button onclick="animateNav('mob-nav-home', renderHome)" class="mobile-nav-item flex flex-col items-center gap-1 p-2 active icon-explode" id="mob-nav-home">
             <span class="material-icons-round">home</span>
             <span class="text-[10px]">Home</span>
@@ -419,14 +419,14 @@
     </div>
 
     <!-- FULL SCREEN PLAYER -->
-    <div id="music-player" class="fixed inset-0 z-[100] bg-[#030303] hidden flex flex-col h-[100dvh]">
+    <div id="music-player" class="fixed inset-0 z-[100] bg-[#1a0505] hidden flex flex-col h-[100dvh]">
         <!-- Background Gradient -->
-        <div id="player-bg-gradient" class="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] to-black opacity-95 pointer-events-none"></div>
+        <div id="player-bg-gradient" class="absolute inset-0 bg-gradient-to-b from-[#2b0a0a] to-[#1a0505] opacity-95 pointer-events-none"></div>
         
         <!-- Top Bar -->
         <div class="relative z-10 flex items-center justify-between p-4 shrink-0">
             <button onclick="closePlayer()" class="p-2 text-white hover:bg-white/10 rounded-full transition"><span class="material-icons-round text-3xl">keyboard_arrow_down</span></button>
-            <div class="text-xs uppercase tracking-widest text-gray-400 font-bold">Now Playing</div>
+            <div class="text-xs uppercase tracking-widest text-yt-textSec font-bold">Now Playing</div>
             <button class="p-2 text-white hover:bg-white/10 rounded-full transition"><span class="material-icons-round text-2xl">more_vert</span></button>
         </div>
 
@@ -444,27 +444,27 @@
             <div class="w-full max-w-2xl flex items-center justify-between mb-2 shrink-0">
                 <div class="flex flex-col min-w-0 pr-4">
                     <h2 id="player-title" class="text-2xl md:text-3xl font-bold text-white truncate leading-tight">Song Title</h2>
-                    <p id="player-artist" class="text-lg text-gray-400 truncate">Artist Name</p>
+                    <p id="player-artist" class="text-lg text-yt-textSec truncate">Artist Name</p>
                 </div>
                 <!-- Like/Dislike Actions -->
                 <div class="flex items-center gap-4 flex-shrink-0">
-                     <button onclick="toggleDislike()" class="text-gray-400 hover:text-white transition"><span id="player-dislike-icon" class="material-icons-round text-2xl">thumb_down</span></button>
+                     <button onclick="toggleDislike()" class="text-yt-textSec hover:text-white transition"><span id="player-dislike-icon" class="material-icons-round text-2xl">thumb_down_off_alt</span></button>
                      <div class="flex flex-col items-center">
-                        <button onclick="toggleLike()" class="text-white hover:text-gray-200 transition"><span id="player-like-icon" class="material-icons-round text-2xl">thumb_up</span></button>
-                        <span id="player-likes" class="text-[10px] text-gray-400 font-medium mt-0.5">0</span>
+                        <button onclick="toggleLike()" class="text-white hover:text-gray-200 transition"><span id="player-like-icon" class="material-icons-round text-2xl">thumb_up_off_alt</span></button>
+                        <span id="player-likes" class="text-[10px] text-yt-textSec font-medium mt-0.5">0</span>
                     </div>
                 </div>
             </div>
 
              <!-- View Count (Subtle) -->
-             <div class="w-full max-w-2xl text-xs text-gray-500 mb-6 flex items-center gap-1 shrink-0">
+             <div class="w-full max-w-2xl text-xs text-yt-textSec mb-6 flex items-center gap-1 shrink-0">
                 <span id="player-views">0</span> views
              </div>
 
             <!-- Progress Bar -->
             <div class="w-full max-w-2xl mb-4 shrink-0 group">
-                <input type="range" id="player-seek" value="0" min="0" max="100" class="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer hover:h-1.5 transition-all accent-white">
-                <div class="flex justify-between text-xs text-gray-400 mt-2 font-medium">
+                <input type="range" id="player-seek" value="0" min="0" max="100" class="w-full h-1 bg-[#4d1515] rounded-lg appearance-none cursor-pointer hover:h-1.5 transition-all accent-white">
+                <div class="flex justify-between text-xs text-yt-textSec mt-2 font-medium">
                     <span id="player-time-current">0:00</span>
                     <span id="player-time-total">0:00</span>
                 </div>
@@ -472,7 +472,7 @@
 
             <!-- Main Controls -->
             <div class="w-full max-w-2xl flex items-center justify-between shrink-0 px-2 md:px-8">
-                <button class="text-gray-400 hover:text-white transition"><span class="material-icons-round text-2xl">shuffle</span></button>
+                <button class="text-yt-textSec hover:text-white transition"><span class="material-icons-round text-2xl">shuffle</span></button>
                 
                 <div class="flex items-center gap-6 md:gap-10">
                     <button id="player-prev" class="text-white hover:text-gray-300 transition active:scale-90"><span class="material-icons-round text-4xl md:text-5xl">skip_previous</span></button>
@@ -484,12 +484,12 @@
                     <button id="player-next" class="text-white hover:text-gray-300 transition active:scale-90"><span class="material-icons-round text-4xl md:text-5xl">skip_next</span></button>
                 </div>
                 
-                <button onclick="shareTrack()" class="text-gray-400 hover:text-white transition"><span class="material-icons-round text-2xl">share</span></button>
+                <button onclick="shareTrack()" class="text-yt-textSec hover:text-white transition"><span class="material-icons-round text-2xl">share</span></button>
             </div>
         </div>
-        
-        <!-- File Input for uploads if needed -->
-        <input type="file" id="mp3-upload" accept="audio/*" class="hidden">
+
+        <!-- Hidden Audio Element -->
+        <audio id="audio-element"></audio>
     </div>
 
     <!-- Wrapped Modal -->
@@ -502,8 +502,8 @@
                  <h3 class="text-xl font-bold mb-6 text-white tracking-widest uppercase">Wrapped 2025</h3>
                  
                  <div class="space-y-6">
-                     <div class="bg-[#212121] p-4 rounded-xl">
-                         <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Your Top Artist</p>
+                     <div class="bg-[#2b0a0a] p-4 rounded-xl">
+                         <p class="text-yt-textSec text-xs uppercase tracking-wide mb-1">Your Top Artist</p>
                          <div class="flex items-center justify-center gap-3 mb-2">
                              <img id="wrapped-artist-img" src="" class="w-10 h-10 rounded-full">
                              <span id="wrapped-artist-name" class="text-xl font-bold text-white">Artist</span>
@@ -511,12 +511,12 @@
                      </div>
                      
                      <div class="grid grid-cols-2 gap-4">
-                         <div class="bg-[#212121] p-4 rounded-xl">
-                            <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Total Streams</p>
+                         <div class="bg-[#2b0a0a] p-4 rounded-xl">
+                            <p class="text-yt-textSec text-xs uppercase tracking-wide mb-1">Total Streams</p>
                             <p id="wrapped-streams" class="text-2xl font-bold text-white">0</p>
                          </div>
-                         <div class="bg-[#212121] p-4 rounded-xl">
-                            <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Total Earned</p>
+                         <div class="bg-[#2b0a0a] p-4 rounded-xl">
+                            <p class="text-yt-textSec text-xs uppercase tracking-wide mb-1">Total Earned</p>
                             <p id="wrapped-earnings" class="text-2xl font-bold text-green-400">$0.00</p>
                          </div>
                      </div>
@@ -535,14 +535,14 @@
 
     <!-- Welcome / User Setup Modal -->
     <div id="welcome-modal" class="modal fixed inset-0 z-[300] bg-black/95 flex items-center justify-center p-4 hidden">
-        <div class="modal-content bg-[#212121] w-full max-w-sm rounded-xl shadow-2xl overflow-hidden border border-[#333] p-8 text-center">
+        <div class="modal-content bg-[#2b0a0a] w-full max-w-sm rounded-xl shadow-2xl overflow-hidden border border-[#3f1010] p-8 text-center">
             <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
                 <span class="material-icons-round text-black text-3xl">music_note</span>
             </div>
             <h2 class="text-2xl font-bold mb-2">Welcome to PeytoToria</h2>
-            <p class="text-gray-400 text-sm mb-6">Enter your name to get started.</p>
+            <p class="text-yt-textSec text-sm mb-6">Enter your name to get started.</p>
             
-            <input type="text" id="username-input" placeholder="Username" class="w-full bg-[#121212] border border-[#333] rounded p-3 text-white focus:border-white outline-none mb-4 text-center">
+            <input type="text" id="username-input" placeholder="Username" class="w-full bg-[#1a0505] border border-[#3f1010] rounded p-3 text-white focus:border-white outline-none mb-4 text-center">
             
             <button onclick="saveUserSetup()" class="w-full bg-white text-black font-bold py-3 rounded-full hover:bg-gray-200 transition">Start Listening</button>
         </div>
@@ -550,8 +550,8 @@
 
     <!-- About Modal -->
     <div id="about-modal" class="modal fixed inset-0 z-[80] bg-black/80 flex items-center justify-center p-4">
-        <div class="modal-content bg-[#212121] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden border border-[#333]">
-            <div class="p-4 border-b border-[#333] flex justify-between items-center">
+        <div class="modal-content bg-[#2b0a0a] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden border border-[#3f1010]">
+            <div class="p-4 border-b border-[#3f1010] flex justify-between items-center">
                 <h2 class="text-xl font-bold">About Artist</h2>
                 <button onclick="closeModal('about-modal')" class="text-gray-400 hover:text-white"><span class="material-icons-round">close</span></button>
             </div>
@@ -571,7 +571,8 @@
             user: {
                 username: null,
                 pfp: null
-            }
+            },
+            activeFilter: 'Global' // Add default filter
         };
 
         let playerState = {
@@ -584,8 +585,8 @@
             isVideo: false
         };
 
-        // Use Video Element as primary media player (can play audio too)
         const mainMediaElement = document.getElementById('main-media-element');
+        const audioElement = document.getElementById('audio-element');
 
         const formatNumber = (num) => {
             if (num === undefined || num === null) return "0";
@@ -633,23 +634,46 @@
 
             renderHome();
             updateSidebar();
-            checkWrapped(); // Check if wrapped should be shown
+            checkWrapped(); 
             
             // Audio Listeners
-            mainMediaElement.addEventListener('timeupdate', () => {
-                const current = mainMediaElement.currentTime;
-                const duration = mainMediaElement.duration || 0;
-                document.getElementById('player-seek').value = (current / duration) * 100 || 0;
-                document.getElementById('player-time-current').innerText = formatTime(current);
-                document.getElementById('player-time-total').innerText = formatTime(duration);
-            });
+            mainMediaElement.addEventListener('timeupdate', updateProgress);
             mainMediaElement.addEventListener('ended', playNext);
             
+            // Backup audio element
+            audioElement.addEventListener('timeupdate', () => {
+                // If not using video player (legacy/fallback)
+                if(!playerState.isVideo) {
+                    const current = audioElement.currentTime;
+                    const duration = audioElement.duration || 0;
+                    document.getElementById('player-seek').value = (current / duration) * 100 || 0;
+                    document.getElementById('player-time-current').innerText = formatTime(current);
+                    document.getElementById('player-time-total').innerText = formatTime(duration);
+                }
+            });
+            audioElement.addEventListener('ended', playNext);
+
             document.getElementById('player-seek').addEventListener('input', (e) => {
                 const percent = e.target.value;
-                const duration = mainMediaElement.duration;
-                if(duration) mainMediaElement.currentTime = (percent / 100) * duration;
+                const media = getActiveMedia();
+                const duration = media.duration;
+                if(duration) media.currentTime = (percent / 100) * duration;
             });
+        }
+        
+        function getActiveMedia() {
+            // Prefer mainMediaElement for both Video and Audio (since video tag handles both well in this setup)
+            // But if audioUrl is set on Audio Element specifically fallback
+            return playerState.isVideo ? mainMediaElement : mainMediaElement;
+        }
+        
+        function updateProgress() {
+            const media = mainMediaElement;
+            const current = media.currentTime;
+            const duration = media.duration || 0;
+            document.getElementById('player-seek').value = (current / duration) * 100 || 0;
+            document.getElementById('player-time-current').innerText = formatTime(current);
+            document.getElementById('player-time-total').innerText = formatTime(duration);
         }
         
         function checkWrapped() {
@@ -708,22 +732,20 @@
                 banner: "LucidPPMNM.JPG", 
                 bio: "Rising from the underground, LucidPP brings a unique sound with the debut album 'Money N' Money'. Known for hard-hitting beats and raw lyrics.",
                 subscribers: 2300,
-                monthlyListeners: 246000, 
+                monthlyListeners: 483000, // Updated 483K
                 totalViews: 0, 
                 pronouns: "He/Him",
                 isVerified: true,
-                videos: [
-                    { title: "Want Me (Official Music Video)", views: 320000, thumb: "LucidPPMNM.JPG", filename: "WantMe.mp4" }
-                ]
+                videos: [] // Removed Videos
             };
 
             const lucidTracks = [
-                { file: "Down_Bad.mp3", views: 420000 }, 
+                { file: "Down_Bad.mp3", views: 729000 }, // Updated 729K
                 { file: "All_By_Myself.mp3", views: 52000 },
                 { file: "Your_Gonna_See.mp3", views: 38000 },
                 { file: "Your_Gonna_See (1).mp3", views: 12000 },
                 { file: "Honestly (1).mp3", views: 45000 },
-                { file: "Want_Me.mp3", views: 472000 }, 
+                { file: "Want_Me.mp3", views: 2300000 }, // Updated 2.3M
                 { file: "Want_Me (1).mp3", views: 25000 },
                 { file: "Want_Me (2).mp3", views: 18000 },
                 { file: "Want_Me (3).mp3", views: 15000 },
@@ -771,7 +793,7 @@
                 totalViews: 0,
                 pronouns: "He/Him",
                 isVerified: false,
-                videos: [] // No videos
+                videos: [] 
             };
 
             // --- 3. C@shxan ---
@@ -782,9 +804,9 @@
                 pfp: "Down.PNG", 
                 banner: "Down.PNG",
                 bio: "New wave artist bringing a fresh perspective. 'Down' is just the beginning.",
-                subscribers: 3100, // Updated
-                monthlyListeners: 102000, // Updated 102K
-                totalViews: 8200, 
+                subscribers: 294000, // Updated 294K
+                monthlyListeners: 1100000, // Updated 1.1M
+                totalViews: 0, 
                 pronouns: "He/Him",
                 isVerified: false,
                 videos: [] 
@@ -794,7 +816,7 @@
                 id: "Down.mp3",
                 title: "Down",
                 filename: "Down.mp3",
-                views: 141000, // Updated 141K
+                views: 1900000, // Updated 1.9M
                 duration: "2:15",
                 weight: 2.0
             }];
@@ -807,7 +829,7 @@
                 cover: "Down.PNG", 
                 tracks: 1,
                 tracksData: cashTracksDown,
-                totalViews: 141000,
+                totalViews: 1900000,
                 releaseTimestamp: Date.now() - 2000000
             };
 
@@ -816,7 +838,7 @@
                 id: "moneyuhp.mp3",
                 title: "Money Uhp",
                 filename: "moneyuhp.mp3",
-                views: 34000, // Updated 34K
+                views: 1100000, // Updated 1.1M
                 duration: "2:10",
                 weight: 1.2
             }];
@@ -830,7 +852,7 @@
                 cover: "Down.PNG", 
                 tracks: 1,
                 tracksData: cashTracksMoney,
-                totalViews: 34000,
+                totalViews: 1100000,
                 releaseTimestamp: Date.now() - 1000000
             };
             
@@ -839,7 +861,7 @@
                 id: "Rackz.mp3",
                 title: "Rackz kOmin U4",
                 filename: "Rackz.mp3",
-                views: 4000, // Updated 4K
+                views: 104000, // Updated 104K
                 duration: "2:30",
                 weight: 0.5
             }];
@@ -852,16 +874,16 @@
                 cover: "Down.PNG",
                 tracks: 1,
                 tracksData: cashTracksRackz,
-                totalViews: 4000,
+                totalViews: 104000,
                 releaseTimestamp: Date.now() - 500000
             };
 
-            // Release 4: Sum To Lose (New)
+            // Release 4: Sum To Lose
             const cashTracksSum = [{
                 id: "sumtolose.mp3",
                 title: "sum to lose",
                 filename: "sumtolose.mp3",
-                views: 24000, 
+                views: 472000, // Updated 472K
                 duration: "2:45",
                 weight: 1.5
             }];
@@ -874,12 +896,12 @@
                 cover: "Down.PNG",
                 tracks: 1,
                 tracksData: cashTracksSum,
-                totalViews: 24000,
+                totalViews: 472000,
                 releaseTimestamp: Date.now() 
             };
 
             // Calc total views for C@shxan
-            cash.totalViews = 141000 + 34000 + 4000 + 24000;
+            cash.totalViews = 1900000 + 1100000 + 104000 + 472000;
 
             state.artists = [lucid, cash, jbone];
             state.releases = [lucidAlbum, cashSingleSum, cashSingleDown, cashSingleMoney, cashSingleRackz];
@@ -906,50 +928,13 @@
 
         // --- PLAYER LOGIC ---
 
-        // Play standard Audio Track
         function trackClicked(releaseId, trackIndex) {
             const release = state.releases.find(r => r.id === releaseId);
             const track = release.tracksData[trackIndex];
             const audioSrc = track.filename; 
             
-            // It's audio mode, so show cover
+            // Standard Audio Playback
             loadAndPlay(releaseId, trackIndex, audioSrc, false);
-        }
-
-        // Play Video (Special Mode)
-        function playVideoTrack(artistId, videoFilename, title) {
-             // Find artist release to fake the metadata
-             // Or construct a fake release/track object for the player state
-             const artist = state.artists.find(a => a.id === artistId);
-             
-             // We need to set playerState so UI updates correctly
-             // We can use a dummy release object
-             playerState.currentReleaseId = "video_mode";
-             playerState.currentTrackIndex = 0;
-             playerState.release = {
-                 id: "video_mode",
-                 artistId: artistId,
-                 title: "Music Video",
-                 cover: artist.banner,
-                 tracksData: [{ title: title }]
-             };
-             playerState.track = { title: title, views: 0, id: "video_" + videoFilename };
-             playerState.audioUrl = videoFilename;
-             playerState.isPlaying = true;
-             playerState.isVideo = true;
-
-             mainMediaElement.src = videoFilename;
-             
-             // Open Player
-             openPlayer();
-             updatePlayerUI(); // Update text
-             updateMiniPlayerUI();
-             
-             // Ensure Video is Visible
-             document.getElementById('player-img').classList.add('hidden');
-             document.getElementById('main-media-element').classList.remove('hidden');
-             
-             mainMediaElement.play().catch(e => console.log(e));
         }
 
         function loadAndPlay(releaseId, trackIndex, url, isVideo) {
@@ -966,19 +951,13 @@
 
             mainMediaElement.src = url;
             
-            // If Audio: Show Cover, Hide Video Element (actually, we use video element for audio too, just hide it visually?? 
-            // NO. Video tag plays audio fine. We just need to show/hide the poster image on top.)
-            
+            // Switch visual mode based on type
             if (isVideo) {
                  document.getElementById('player-img').classList.add('hidden');
-                 document.getElementById('main-media-element').classList.remove('hidden');
+                 mainMediaElement.classList.remove('hidden');
             } else {
                  document.getElementById('player-img').classList.remove('hidden');
-                 // We keep main-media-element in DOM but maybe behind image or invisible?
-                 // If we hide it, controls might get weird on some browsers?
-                 // Better: Z-Index. Image has z-20, video z-10.
-                 // Actually, adding/removing 'hidden' on video element is fine, it will still play audio.
-                 document.getElementById('main-media-element').classList.add('hidden');
+                 mainMediaElement.classList.add('hidden'); // Audio only visual
             }
             
             const playPromise = mainMediaElement.play();
@@ -1076,7 +1055,12 @@
         }
 
         function toggleDislike() {
-             // Visual only, unlikes if liked
+             // Visual only animation
+             const dislikeIcon = document.getElementById('player-dislike-icon');
+             dislikeIcon.classList.remove('animate-thumb');
+             void dislikeIcon.offsetWidth; 
+             dislikeIcon.classList.add('animate-thumb');
+             
              if(!playerState.track) return;
              const trackId = playerState.track.id;
              if(state.likedSongs && state.likedSongs.includes(trackId)) {
@@ -1085,11 +1069,12 @@
         }
 
         function togglePlay() {
-            if (mainMediaElement.paused) {
-                mainMediaElement.play();
+            const media = getActiveMedia();
+            if (media.paused) {
+                media.play();
                 playerState.isPlaying = true;
             } else {
-                mainMediaElement.pause();
+                media.pause();
                 playerState.isPlaying = false;
             }
             updatePlayButton();
@@ -1136,7 +1121,7 @@
             if (playerState.currentTrackIndex < playerState.release.tracksData.length - 1) {
                 const nextIdx = playerState.currentTrackIndex + 1;
                 const nextTrack = playerState.release.tracksData[nextIdx];
-                loadAndPlay(playerState.currentReleaseId, nextIdx, nextTrack.filename);
+                loadAndPlay(playerState.currentReleaseId, nextIdx, nextTrack.filename, false);
             } else {
                 playerState.isPlaying = false;
                 updatePlayButton();
@@ -1199,7 +1184,7 @@
                 <div class="space-y-8 pb-20 animate-fade-in">
                     <section>
                         <h2 class="text-2xl font-bold mb-4">Quick Picks</h2>
-                        <div class="bg-[#212121] p-4 rounded-lg flex items-center gap-4 cursor-pointer hover:bg-[#333] transition" onclick="renderRelease('${release.id}')">
+                        <div class="bg-[#2b0a0a] p-4 rounded-lg flex items-center gap-4 cursor-pointer hover:bg-[#3f1010] transition" onclick="renderRelease('${release.id}')">
                             <img src="${release.cover}" class="w-16 h-16 rounded object-cover">
                             <div>
                                 <h3 class="font-bold text-white">${release.title}</h3>
@@ -1212,7 +1197,7 @@
                         <h2 class="text-2xl font-bold mb-4">Your Favorites</h2>
                         <div class="artist-grid">
                             ${state.artists.map(artist => `
-                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#1f1f1f] transition">
+                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#3f1010] transition">
                                     <div class="relative mb-4">
                                         <img src="${artist.pfp}" class="w-full aspect-square object-cover rounded-full shadow-lg group-hover:scale-105 transition duration-300">
                                         <div class="absolute bottom-2 right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-xl">
@@ -1245,7 +1230,7 @@
                         <h2 class="text-2xl font-bold mb-4">Recommended Artists</h2>
                         <div class="artist-grid">
                             ${featuredArtists.map(artist => `
-                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#1f1f1f] transition">
+                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#3f1010] transition">
                                     <img src="${artist.pfp}" class="w-full aspect-square object-cover rounded-full mb-4 shadow-lg">
                                     <h3 class="font-bold text-white truncate">${artist.name}</h3>
                                     <p class="text-sm text-yt-textSec">Artist</p>
@@ -1325,7 +1310,7 @@
             const list = document.getElementById('chart-list');
             list.innerHTML = `<div class="text-xs font-bold text-gray-500 uppercase tracking-widest px-4 mb-2">Top 100 • ${region}</div>` + 
             tracks.slice(0, 100).map((track, i) => `
-                <div onclick="trackClicked('${track.releaseId}', ${track.trackIndex})" class="flex items-center gap-4 p-3 rounded hover:bg-[#1f1f1f] group cursor-pointer transition">
+                <div onclick="trackClicked('${track.releaseId}', ${track.trackIndex})" class="flex items-center gap-4 p-3 rounded hover:bg-[#3f1010] group cursor-pointer transition">
                     <div class="w-8 text-center font-bold text-lg ${i < 3 ? 'text-white' : 'text-gray-500'}">${i + 1}</div>
                     <img src="${track.cover}" class="w-12 h-12 rounded object-cover shadow-sm">
                     <div class="flex-1 min-w-0">
@@ -1355,7 +1340,7 @@
                     : 
                         `<div class="artist-grid">
                             ${libraryArtists.map(artist => `
-                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#1f1f1f] transition">
+                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#3f1010] transition">
                                     <img src="${artist.pfp}" class="w-full aspect-square object-cover rounded-full mb-4 shadow-lg">
                                     <h3 class="font-bold text-white truncate">${artist.name}</h3>
                                     <p class="text-sm text-yt-textSec">Subscribed</p>
@@ -1386,31 +1371,6 @@
                 });
             });
             const topSongs = [...allTracks].sort((a,b) => b.views - a.views).slice(0, 5);
-            
-            // Video Section Generation
-            let videoSection = `<section class="mt-8"><h2 class="text-2xl font-bold mb-4">Videos</h2>`;
-            if(artist.videos && artist.videos.length > 0) {
-                videoSection += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    ${artist.videos.map(v => `
-                        <div class="cursor-pointer group" onclick="playVideoTrack('${artist.id}', '${v.filename}', '${v.title}')">
-                            <div class="relative aspect-video bg-[#212121] rounded-lg overflow-hidden mb-2">
-                                <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <span class="material-icons-round text-white text-4xl drop-shadow-lg">play_circle_filled</span>
-                                </div>
-                            </div>
-                            <h3 class="font-medium text-white line-clamp-1">${v.title}</h3>
-                            <p class="text-sm text-gray-400">${formatNumber(v.views)} views</p>
-                        </div>
-                    `).join('')}
-                </div>`;
-            } else {
-                videoSection += `<div class="text-gray-500 italic">No Videos Currently</div>`;
-            }
-            videoSection += `</section>`;
-
-            // Earnings Calculation
-            const totalEarnings = artist.totalViews * 0.000001;
 
             main.innerHTML = `
                 <div class="pb-20 animate-fade-in">
@@ -1454,7 +1414,7 @@
                                 <h2 class="text-2xl font-bold mb-4">Top Songs</h2>
                                 <div class="flex flex-col">
                                     ${topSongs.map((song, i) => `
-                                        <div onclick="trackClicked('${song.release.id}', ${song.index})" class="flex items-center gap-4 p-3 rounded hover:bg-[#1f1f1f] group cursor-pointer transition">
+                                        <div onclick="trackClicked('${song.release.id}', ${song.index})" class="flex items-center gap-4 p-3 rounded hover:bg-[#3f1010] group cursor-pointer transition">
                                             <span class="text-gray-400 w-4 text-center font-medium">${i + 1}</span>
                                             <img src="${song.release.cover}" class="w-12 h-12 rounded object-cover">
                                             <div class="flex-1 min-w-0">
@@ -1476,26 +1436,24 @@
                                     ${artistReleases.map(r => getReleaseCard(r)).join('')}
                                 </div>
                             </section>
-
-                            ${videoSection}
                         </div>
 
                         <div class="lg:col-span-1 space-y-8">
                             <section>
                                 <h2 class="text-2xl font-bold mb-4">About</h2>
                                 <div onclick="openAboutModal('${artist.id}')" class="relative rounded-lg overflow-hidden group cursor-pointer hover:ring-2 ring-white/20 transition">
-                                    <div class="bg-[#1f1f1f] p-6 min-h-[200px] flex flex-col justify-end">
+                                    <div class="bg-[#2b0a0a] p-6 min-h-[200px] flex flex-col justify-end">
                                         <p class="text-white line-clamp-3 mb-4 font-serif italic">"${artist.bio}"</p>
                                         <div class="text-sm text-gray-400 space-y-2">
-                                             <div class="flex justify-between border-b border-gray-800 pb-2">
+                                             <div class="flex justify-between border-b border-[#3f1010] pb-2">
                                                 <span>Total Career Views</span>
                                                 <span class="text-white font-bold">${formatNumber(artist.totalViews)}</span>
                                              </div>
-                                             <div class="flex justify-between border-b border-gray-800 pb-2">
+                                             <div class="flex justify-between border-b border-[#3f1010] pb-2">
                                                 <span>Total Earned</span>
-                                                <span class="text-green-400 font-bold">${formatCurrency(totalEarnings)}</span>
+                                                <span class="text-green-400 font-bold">${formatCurrency(artist.totalViews * 0.000001)}</span>
                                              </div>
-                                             <div class="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition w-fit ml-auto mt-2">
+                                             <div class="bg-[#3f1010] p-2 rounded-full hover:bg-yt-hover transition w-fit ml-auto mt-2">
                                                 <span class="material-icons-round text-white">arrow_forward</span>
                                              </div>
                                         </div>
@@ -1542,15 +1500,6 @@
                                 <span>${release.type}</span>
                                 <span>•</span>
                                 <span class="flex items-center gap-1"><span class="material-icons-round text-sm">visibility</span> ${formatNumber(release.totalViews)}</span>
-                            </div>
-                            <div class="flex gap-4 mt-6">
-                                <!-- Big Play Button on Release Page -->
-                                <button onclick="trackClicked('${release.id}', 0)" class="w-12 h-12 md:w-14 md:h-14 bg-white rounded-full flex items-center justify-center hover:scale-105 transition shadow-xl text-black">
-                                    <span class="material-icons-round text-3xl">play_arrow</span>
-                                </button>
-                                <button class="w-12 h-12 md:w-14 md:h-14 bg-[#212121] rounded-full flex items-center justify-center hover:bg-[#333] transition">
-                                    <span class="material-icons-round text-white text-2xl">library_add</span>
-                                </button>
                             </div>
                         </div>
                     </div>
