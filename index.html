@@ -9,8 +9,8 @@
     <link rel="icon" type="image/png" href="siteicon.png">
 
     <!-- Metadata -->
-    <meta name="description" content="PeytoToria - The ultimate music streaming simulator. Stream exclusive tracks from verified artists like LucidPP, C@shxan, and JBONE!!. Experience the next generation of web-based music players.">
-    <meta name="keywords" content="music, streaming, simulator, LucidPP, C@shxan, JBONE!!, audio, mp3, web player, PeytoToria">
+    <meta name="description" content="PeytoToria - The ultimate music streaming platform. Stream exclusive tracks from verified artists like LucidPP, C@shxan, and JBONE!!. Experience the next generation of web-based music players.">
+    <meta name="keywords" content="music, streaming, platform, LucidPP, C@shxan, JBONE!!, audio, mp3, web player, PeytoToria">
     <meta name="author" content="PeytoToria Music">
     
     <!-- Tailwind CSS -->
@@ -363,9 +363,8 @@
                 <button onclick="animateNav('nav-explore', renderExplore)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-yt-hover font-medium transition icon-explode" id="nav-explore">
                     <span class="material-icons-round">explore</span> <span class="nav-text">Explore</span>
                 </button>
-                <!-- Charts Removed as requested previously, Profile added here instead -->
-                <button onclick="animateNav('nav-profile', renderProfile)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-yt-hover font-medium transition icon-explode" id="nav-profile">
-                    <span class="material-icons-round">account_circle</span> <span class="nav-text">Profile</span>
+                <button onclick="animateNav('nav-charts', renderCharts)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-yt-hover font-medium transition icon-explode" id="nav-charts">
+                    <span class="material-icons-round">leaderboard</span> <span class="nav-text">Charts</span>
                 </button>
                 <button onclick="animateNav('nav-library', renderLibrary)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-yt-hover font-medium transition icon-explode" id="nav-library">
                     <span class="material-icons-round">library_music</span> <span class="nav-text">Library</span>
@@ -415,10 +414,9 @@
             <span class="material-icons-round">explore</span>
             <span class="text-[10px]">Explore</span>
         </button>
-        <!-- Replaced Charts with Profile for Mobile too -->
-        <button onclick="animateNav('mob-nav-profile', renderProfile)" class="mobile-nav-item flex flex-col items-center gap-1 p-2 icon-explode" id="mob-nav-profile">
-            <span class="material-icons-round">account_circle</span>
-            <span class="text-[10px]">Profile</span>
+        <button onclick="animateNav('mob-nav-charts', renderCharts)" class="mobile-nav-item flex flex-col items-center gap-1 p-2 icon-explode" id="mob-nav-charts">
+            <span class="material-icons-round">leaderboard</span>
+            <span class="text-[10px]">Charts</span>
         </button>
         <button onclick="animateNav('mob-nav-library', renderLibrary)" class="mobile-nav-item flex flex-col items-center gap-1 p-2 icon-explode" id="mob-nav-library">
             <span class="material-icons-round">library_music</span>
@@ -624,9 +622,9 @@
                 username: null,
                 pfp: null,
                 banner: null,
-                following: [] 
+                following: [] // Array of artist IDs
             },
-            activeFilter: 'Global' 
+            activeFilter: 'Global' // Add default filter
         };
 
         let playerState = {
@@ -675,7 +673,7 @@
         // --- GLOBAL FUNCTIONS DEFINITIONS START ---
 
         function updateNavState(view) {
-            ['nav-home', 'nav-explore', 'nav-profile', 'nav-library'].forEach(id => {
+            ['nav-home', 'nav-explore', 'nav-charts', 'nav-library'].forEach(id => {
                 const btn = document.getElementById(id);
                 if(btn) {
                     if (id === 'nav-'+view) {
@@ -687,7 +685,7 @@
                     }
                 }
             });
-             ['mob-nav-home', 'mob-nav-explore', 'mob-nav-profile', 'mob-nav-library'].forEach(id => {
+             ['mob-nav-home', 'mob-nav-explore', 'mob-nav-charts', 'mob-nav-library'].forEach(id => {
                 const btn = document.getElementById(id);
                 if(btn) {
                     if (id === 'mob-nav-'+view) {
@@ -706,6 +704,14 @@
             const artist = state.artists.find(a => a.id === artistId);
             
             if(artist) {
+                // Add animation class to icon safely
+                const btnIcon = document.getElementById(`sub-icon-${artistId}`);
+                if(btnIcon) {
+                    btnIcon.classList.remove('animate-thumb');
+                    void btnIcon.offsetWidth; // trigger reflow
+                    btnIcon.classList.add('animate-thumb');
+                }
+
                 if (index === -1) {
                     state.library.push(artistId);
                     artist.subscribers++;
@@ -1045,7 +1051,7 @@
                 banner: "Down.PNG",
                 bio: "Featured artist on C@shxan's hit single.",
                 subscribers: 40,
-                monthlyListeners: 231,
+                monthlyListeners: 24000, // Updated 24K
                 totalViews: 0,
                 pronouns: "He/Him",
                 isVerified: false,
@@ -1060,11 +1066,27 @@
                 pfp: "Down.PNG", 
                 banner: "Down.PNG",
                 bio: "New wave artist bringing a fresh perspective. 'Down' is just the beginning.",
-                subscribers: 3100, // Updated 294K
-                monthlyListeners: 102000, // Updated 102K
+                subscribers: 294000, // Updated 294K
+                monthlyListeners: 1020000, // Updated 1.02M
                 totalViews: 8200, 
                 pronouns: "He/Him",
                 isVerified: true,
+                videos: [] 
+            };
+            
+            // --- 4. C@shJ ---
+            const cashjId = "cashj_id";
+            const cashj = {
+                id: cashjId,
+                name: "C@shJ",
+                pfp: "Down.PNG", 
+                banner: "Down.PNG",
+                bio: "Rising star featured on the hit 'sum to lose'.",
+                subscribers: 10, 
+                monthlyListeners: 1200, 
+                totalViews: 0, 
+                pronouns: "He/Him",
+                isVerified: false,
                 videos: [] 
             };
 
@@ -1139,7 +1161,7 @@
                 id: "sumtolose.mp3",
                 title: "sum to lose",
                 filename: "sumtolose.mp3",
-                views: 472000, // Updated 472K
+                views: 14000, // Updated 14K
                 duration: "2:45",
                 weight: 1.5
             }];
@@ -1147,19 +1169,20 @@
             const cashSingleSum = {
                 id: "sum_single_id",
                 artistId: cashId,
+                featuredArtistIds: [cashjId, jboneId],
                 title: "sum to lose",
                 type: "Single",
-                cover: "Down.PNG",
+                cover: "cashj.png", // Updated Cover
                 tracks: 1,
                 tracksData: cashTracksSum,
-                totalViews: 472000,
+                totalViews: 14000,
                 releaseTimestamp: Date.now() 
             };
 
             // Calc total views for C@shxan
-            cash.totalViews = 1900000 + 1100000 + 104000 + 472000;
+            cash.totalViews = 1900000 + 1100000 + 104000 + 14000;
 
-            state.artists = [lucid, cash, jbone, peyto]; // Added peyto
+            state.artists = [lucid, cash, jbone, cashj, peyto]; // Added cashj
             state.releases = [lucidAlbum, cashSingleSum, cashSingleDown, cashSingleMoney, cashSingleRackz];
         }
 
@@ -1649,6 +1672,28 @@
             });
             const topSongs = [...allTracks].sort((a,b) => b.views - a.views).slice(0, 5);
             
+            // Video Section Generation
+            let videoSection = `<section class="mt-8"><h2 class="text-2xl font-bold mb-4">Videos</h2>`;
+            if(artist.videos && artist.videos.length > 0) {
+                videoSection += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${artist.videos.map(v => `
+                        <div class="cursor-pointer group" onclick="openVideoPlayer('${v.filename}')">
+                            <div class="relative aspect-video bg-[#212121] rounded-lg overflow-hidden mb-2">
+                                <img src="${v.thumb}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="material-icons-round text-white text-4xl drop-shadow-lg">play_circle_filled</span>
+                                </div>
+                            </div>
+                            <h3 class="font-medium text-white line-clamp-1">${v.title}</h3>
+                            <p class="text-sm text-gray-400">${formatNumber(v.views)} views</p>
+                        </div>
+                    `).join('')}
+                </div>`;
+            } else {
+                videoSection += `<div class="text-gray-500 italic">No Videos Currently</div>`;
+            }
+            videoSection += `</section>`;
+            
             // Radios Section (New)
             const radiosSection = `
                 <section class="mt-8">
@@ -1728,10 +1773,11 @@
                                     ${artistReleases.map(r => getReleaseCard(r)).join('')}
                                 </div>
                             </section>
+
+                            ${videoSection}
                             
                             <!-- Video/Radios Section (Only visible for real artists) -->
                             ${!artist.isSystem ? radiosSection : ''}
-
                         </div>
 
                         <div class="lg:col-span-1 space-y-8">
