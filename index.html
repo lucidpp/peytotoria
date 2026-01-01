@@ -363,8 +363,9 @@
                 <button onclick="animateNav('nav-explore', renderExplore)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-yt-hover font-medium transition icon-explode" id="nav-explore">
                     <span class="material-icons-round">explore</span> <span class="nav-text">Explore</span>
                 </button>
-                <button onclick="animateNav('nav-charts', renderCharts)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-yt-hover font-medium transition icon-explode" id="nav-charts">
-                    <span class="material-icons-round">leaderboard</span> <span class="nav-text">Charts</span>
+                <!-- Charts Removed as requested previously, Profile added here instead -->
+                <button onclick="animateNav('nav-profile', renderProfile)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-yt-hover font-medium transition icon-explode" id="nav-profile">
+                    <span class="material-icons-round">account_circle</span> <span class="nav-text">Profile</span>
                 </button>
                 <button onclick="animateNav('nav-library', renderLibrary)" class="nav-btn flex items-center gap-4 px-4 py-3 rounded-lg text-yt-textSec hover:text-white hover:bg-yt-hover font-medium transition icon-explode" id="nav-library">
                     <span class="material-icons-round">library_music</span> <span class="nav-text">Library</span>
@@ -414,9 +415,10 @@
             <span class="material-icons-round">explore</span>
             <span class="text-[10px]">Explore</span>
         </button>
-        <button onclick="animateNav('mob-nav-charts', renderCharts)" class="mobile-nav-item flex flex-col items-center gap-1 p-2 icon-explode" id="mob-nav-charts">
-            <span class="material-icons-round">leaderboard</span>
-            <span class="text-[10px]">Charts</span>
+        <!-- Replaced Charts with Profile for Mobile too -->
+        <button onclick="animateNav('mob-nav-profile', renderProfile)" class="mobile-nav-item flex flex-col items-center gap-1 p-2 icon-explode" id="mob-nav-profile">
+            <span class="material-icons-round">account_circle</span>
+            <span class="text-[10px]">Profile</span>
         </button>
         <button onclick="animateNav('mob-nav-library', renderLibrary)" class="mobile-nav-item flex flex-col items-center gap-1 p-2 icon-explode" id="mob-nav-library">
             <span class="material-icons-round">library_music</span>
@@ -592,6 +594,25 @@
         </div>
     </div>
 
+    <!-- Video Player Modal -->
+    <div id="video-player-modal" class="modal fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-4 hidden">
+        <div class="relative w-full max-w-5xl aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
+            <button onclick="closeVideoPlayer()" class="absolute top-4 right-4 z-50 text-white hover:text-gray-300 bg-black/50 rounded-full p-2 backdrop-blur-sm"><span class="material-icons-round text-3xl">close</span></button>
+            <video id="main-video-element" controls class="w-full h-full" onerror="handleVideoError()">
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <!-- Error State -->
+            <div id="video-error-msg" class="absolute inset-0 flex items-center justify-center text-white hidden bg-black">
+                <div class="text-center">
+                    <span class="material-icons-round text-6xl text-red-500 mb-4">error_outline</span>
+                    <p class="text-xl font-bold">Error: Video file not found</p>
+                    <p class="text-gray-400 text-sm mt-2">Ensure 'wantme.mp4' is in the same folder.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- STATE & STORAGE ---
         let state = {
@@ -603,9 +624,9 @@
                 username: null,
                 pfp: null,
                 banner: null,
-                following: [] // Array of artist IDs
+                following: [] 
             },
-            activeFilter: 'Global' // Add default filter
+            activeFilter: 'Global' 
         };
 
         let playerState = {
@@ -638,8 +659,9 @@
         // --- HELPER: IMAGE UPLOAD ---
         const getImageUrl = async (fileInputId, urlInputId) => {
             const fileInput = document.getElementById(fileInputId);
-            // Optional URL input backup not used in new profile modal
-            if (fileInput && fileInput.files && fileInput.files[0]) {
+            const urlInput = document.getElementById(urlInputId);
+
+            if (fileInput.files && fileInput.files[0]) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = (e) => resolve(e.target.result); 
@@ -649,6 +671,164 @@
             }
             return null; 
         }
+
+        // --- GLOBAL FUNCTIONS DEFINITIONS START ---
+
+        function updateNavState(view) {
+            ['nav-home', 'nav-explore', 'nav-profile', 'nav-library'].forEach(id => {
+                const btn = document.getElementById(id);
+                if(btn) {
+                    if (id === 'nav-'+view) {
+                        btn.classList.add('bg-[#3f1010]', 'text-white');
+                        btn.classList.remove('text-yt-textSec');
+                    } else {
+                        btn.classList.remove('bg-[#3f1010]', 'text-white');
+                        btn.classList.add('text-yt-textSec');
+                    }
+                }
+            });
+             ['mob-nav-home', 'mob-nav-explore', 'mob-nav-profile', 'mob-nav-library'].forEach(id => {
+                const btn = document.getElementById(id);
+                if(btn) {
+                    if (id === 'mob-nav-'+view) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        function toggleSubscribe(artistId) {
+            if(!state.library) state.library = [];
+
+            const index = state.library.indexOf(artistId);
+            const artist = state.artists.find(a => a.id === artistId);
+            
+            if(artist) {
+                if (index === -1) {
+                    state.library.push(artistId);
+                    artist.subscribers++;
+                } else {
+                    state.library.splice(index, 1);
+                    artist.subscribers--;
+                }
+                saveToLocal();
+                
+                // Visual feedback only if we are currently on that artist's page
+                const content = document.getElementById('main-content');
+                if (content.dataset.view === 'artist' && content.dataset.viewId === artistId) {
+                    renderArtist(artistId);
+                } else if (content.dataset.view === 'library') {
+                    renderLibrary();
+                }
+            }
+        }
+
+        function trackClicked(releaseId, trackIndex) {
+            const release = state.releases.find(r => r.id === releaseId);
+            const track = release.tracksData[trackIndex];
+            const audioSrc = track.filename; 
+            
+            // Standard Audio Playback
+            loadAndPlay(releaseId, trackIndex, audioSrc, false);
+        }
+
+        function playVideo(title, artistName, filename, thumb) {
+            // Re-use logic but for video
+             openVideoPlayer(filename);
+        }
+
+        function renderLibrary() {
+            const main = document.getElementById('main-content');
+            main.dataset.view = 'library';
+            updateNavState('library');
+
+            const libraryArtists = state.artists.filter(a => state.library.includes(a.id));
+
+            main.innerHTML = `
+                <div class="space-y-8 pb-20 animate-fade-in">
+                    <h1 class="text-4xl font-bold mb-6">Your Library</h1>
+                    ${libraryArtists.length === 0 ? 
+                        `<div class="text-center text-gray-500 py-20">
+                            <span class="material-icons-round text-6xl mb-4">library_music</span>
+                            <p>You haven't subscribed to anyone yet.</p>
+                        </div>` 
+                    : 
+                        `<div class="artist-grid">
+                            ${libraryArtists.map(artist => `
+                                <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#1f1f1f] transition">
+                                    <img src="${artist.pfp}" class="w-full aspect-square object-cover rounded-full mb-4 shadow-lg">
+                                    <h3 class="font-bold text-white truncate">${artist.name}</h3>
+                                    <p class="text-sm text-yt-textSec">Subscribed</p>
+                                </div>
+                            `).join('')}
+                        </div>`
+                    }
+                </div>
+            `;
+        }
+        
+        function renderProfile() {
+            const main = document.getElementById('main-content');
+            main.dataset.view = 'profile';
+            updateNavState('profile'); 
+            
+            const user = state.user;
+            const followingCount = state.library.length;
+            
+            // Random recommended for bottom
+            const rec = state.artists.filter(a => !a.isSystem && a.name !== "User").slice(0, 3);
+
+            main.innerHTML = `
+                <div class="pb-20 animate-fade-in">
+                    <!-- Banner & Header -->
+                    <div class="relative w-full h-64 md:h-80 rounded-t-xl overflow-hidden mb-6 group bg-gradient-to-b from-[#3f1010] to-[#1a0505]">
+                        ${user.banner ? `<img src="${user.banner}" class="w-full h-full object-cover brightness-75">` : ''}
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent"></div>
+                        
+                        <div class="absolute bottom-8 left-8 flex items-end gap-6">
+                            <img src="${user.pfp}" class="w-32 h-32 rounded-full border-4 border-[#1a0505] shadow-2xl object-cover">
+                            <div class="mb-2">
+                                <h1 class="text-4xl md:text-6xl font-black tracking-tighter shadow-xl">${user.username}</h1>
+                                <div class="flex gap-4 text-gray-300 text-sm font-medium mt-2">
+                                    <span>0 Followers</span>
+                                    <span>${followingCount} Following</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="openUserProfileEdit()" class="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg hover:bg-gray-200 transition">Edit Profile</button>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="space-y-8">
+                        <section>
+                             <h2 class="text-2xl font-bold mb-4">Recommended for You</h2>
+                             <div class="artist-grid">
+                                ${rec.map(artist => `
+                                    <div onclick="renderArtist('${artist.id}')" class="group cursor-pointer p-4 rounded-md hover:bg-[#3f1010] transition">
+                                        <img src="${artist.pfp}" class="w-full aspect-square object-cover rounded-full mb-4 shadow-lg">
+                                        <h3 class="font-bold text-white truncate">${artist.name}</h3>
+                                        <p class="text-sm text-yt-textSec">Artist</p>
+                                    </div>
+                                `).join('')}
+                             </div>
+                        </section>
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveToLocal() {
+            try {
+                localStorage.setItem('peyza_sim_save', JSON.stringify(state));
+            } catch (e) {
+                console.warn("Save failed");
+            }
+        }
+        
+        // --- GLOBAL FUNCTIONS END ---
 
         // --- INIT ---
         function init() {
@@ -880,11 +1060,11 @@
                 pfp: "Down.PNG", 
                 banner: "Down.PNG",
                 bio: "New wave artist bringing a fresh perspective. 'Down' is just the beginning.",
-                subscribers: 294000, // Updated 294K
-                monthlyListeners: 1100000, // Updated 1.1M
+                subscribers: 3100, // Updated 294K
+                monthlyListeners: 102000, // Updated 102K
                 totalViews: 8200, 
                 pronouns: "He/Him",
-                isVerified: false,
+                isVerified: true,
                 videos: [] 
             };
 
@@ -1003,15 +1183,6 @@
         }
 
         // --- PLAYER LOGIC ---
-
-        function trackClicked(releaseId, trackIndex) {
-            const release = state.releases.find(r => r.id === releaseId);
-            const track = release.tracksData[trackIndex];
-            const audioSrc = track.filename; 
-            
-            // Standard Audio Playback
-            loadAndPlay(releaseId, trackIndex, audioSrc, false);
-        }
 
         function loadAndPlay(releaseId, trackIndex, url, isVideo) {
             const release = state.releases.find(r => r.id === releaseId);
@@ -1288,16 +1459,6 @@
 
             main.innerHTML = `
                 <div class="space-y-8 pb-20 animate-fade-in">
-                    <!-- Recommended Artist Banner -->
-                    <div class="relative w-full h-48 md:h-64 rounded-xl overflow-hidden group cursor-pointer" onclick="renderArtist('${recommended.id}')">
-                        <img src="${recommended.banner}" class="w-full h-full object-cover brightness-50 group-hover:brightness-75 transition duration-500">
-                        <div class="absolute bottom-6 left-6">
-                            <p class="text-xs uppercase tracking-widest font-bold text-yt-textSec mb-2">Recommended for You</p>
-                            <h2 class="text-4xl font-bold text-white mb-1">${recommended.name}</h2>
-                            <p class="text-sm text-gray-300 line-clamp-1">${recommended.bio}</p>
-                        </div>
-                    </div>
-                
                     <section>
                         <h2 class="text-2xl font-bold mb-4">Quick Picks</h2>
                         <div class="bg-[#2b0a0a] p-4 rounded-lg flex items-center gap-4 cursor-pointer hover:bg-[#3f1010] transition" onclick="renderRelease('${release.id}')">
@@ -1736,27 +1897,6 @@
                 btn.classList.add('animating');
             }
             callback();
-        }
-        
-        function updateNavState(view) {
-            ['nav-home', 'nav-explore', 'nav-charts', 'nav-library'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (id === 'nav-'+view) {
-                    btn.classList.add('bg-[#1f1f1f]', 'text-white');
-                    btn.classList.remove('text-yt-textSec');
-                } else {
-                    btn.classList.remove('bg-[#1f1f1f]', 'text-white');
-                    btn.classList.add('text-yt-textSec');
-                }
-            });
-             ['mob-nav-home', 'mob-nav-explore', 'mob-nav-charts', 'mob-nav-library'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (id === 'mob-nav-'+view) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
         }
 
         function openModal(id) {
